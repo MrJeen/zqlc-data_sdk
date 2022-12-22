@@ -1,7 +1,7 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
-import { CONTRACT_SOURCE } from 'src/entity/contract.entity';
+import { CONTRACT_SOURCE } from '../entity/contract.entity';
 
 @Exclude()
 export class ServiceRequestDto {

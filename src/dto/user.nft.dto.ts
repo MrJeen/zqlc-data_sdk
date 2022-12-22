@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { IsOptional, Validate } from 'class-validator';
 import { Exclude, Expose, Type } from 'class-transformer';
-import { IsEtherAddress } from 'src/validator/custom.validator';
+import { IsEtherAddress } from '../validator/custom.validator';
 import { NftResultDto, NftSyncOwnerDao } from './nft.dto';
 import { ContractBaseDto } from './contract.dto';
 

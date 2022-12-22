@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString, Validate } from 'class-validator';
 import { CHAIN, CONTRACT_TYPE } from '../entity/contract.entity';
 import { Exclude, Expose } from 'class-transformer';
-import { IsEtherAddress } from 'src/validator/custom.validator';
+import { IsEtherAddress } from '../validator/custom.validator';
 
 @Exclude()
 export class ContractBaseDto {

@@ -7,7 +7,7 @@ import {
 import { ArrayNotEmpty, IsArray, Validate, IsOptional } from 'class-validator';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { ContractBaseDto } from './contract.dto';
-import { IsEtherAddress } from 'src/validator/custom.validator';
+import { IsEtherAddress } from '../validator/custom.validator';
 
 @Exclude()
 export class NftListDto extends OmitType(ContractBaseDto, ['contract_type']) {
