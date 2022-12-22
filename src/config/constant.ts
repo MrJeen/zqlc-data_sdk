@@ -123,3 +123,5 @@ export function getSyncMetadataKey(contractId) {
 export function getTransferSyncKey(chain) {
   return SYNC_TRANSFER_LOCK + ':' + chain;
 }
+
+export const MICRO_SERVICE = 'MICRO_SERVICE';
