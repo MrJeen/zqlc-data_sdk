@@ -98,6 +98,7 @@ export const RABBITMQ_TRANSFER_EXCHANGE = 'transfer_exchange';
 export const RABBITMQ_TRANSFER_SYNC_ROUTING_KEY = 'transfer_sync';
 export const RABBITMQ_TRANSFER_HANLDE_ROUTING_KEY = 'transfer_handle';
 export const RABBITMQ_TRANSFER_HANLDE_QUEUE = 'transfer_handle_queue';
+export const RABBITMQ_TRANSFER_SYNC_QUEUE = 'transfer_sync_queue';
 
 export const NFT_METADATA_LOCK = 'nft_metadata_lock';
 
