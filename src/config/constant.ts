@@ -93,6 +93,7 @@ export const RABBITMQ_NFT_EXCHANGE = 'nft_exchange';
 export const RABBITMQ_NFT_CREATE_QUEUE = 'nft_create_queue';
 export const RABBITMQ_NFT_CREATE_ROUTING_KEY = 'nft_create';
 export const RABBITMQ_NFT_SYNC_ROUTING_KEY = 'nft_sync';
+export const RABBITMQ_NFT_SYNC_QUEUE = 'nft_sync_queue';
 
 export const RABBITMQ_TRANSFER_EXCHANGE = 'transfer_exchange';
 export const RABBITMQ_TRANSFER_SYNC_ROUTING_KEY = 'transfer_sync';
@@ -122,6 +123,10 @@ export function getSyncMetadataKey(contractId) {
 
 export function getTransferSyncKey(chain) {
   return SYNC_TRANSFER_LOCK + ':' + chain;
+}
+
+export function getContractInitKey(chain, address) {
+  return SYNC_NFT_LOCK + ':' + chain + ':' + address;
 }
 
 export const MICRO_SERVICE = 'MICRO_SERVICE';
