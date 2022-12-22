@@ -14,6 +14,8 @@ export * from './entity/contract.entity';
 export * from './entity/contract.sync.entity';
 export * from './entity/nft.entity';
 export * from './entity/transfer.entity';
+export * from './entity/transfer.sync.entity';
+export * from './entity/transfer.error.log.entity';
 export * from './entity/user.nft.entity';
 
 export * from './utils/dingding';
