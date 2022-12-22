@@ -1,6 +1,6 @@
 import path from 'path';
 // 配置日志写入的目录
-const baseLogPath = path.resolve(__dirname, '../../logs');
+const baseLogPath = path.resolve('./logs');
 
 const log4jsConfig = {
   appenders: {
