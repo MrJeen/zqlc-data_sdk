@@ -100,7 +100,7 @@ export function isDirectInstance(instance: string): boolean {
  */
 export function getTransferBlockIncr(chain: string): number {
   // eg: EHT_BLOCK_INCR
-  return Number(process.env[chain.toUpperCase() + '_BLOCK_INCR'] || 0);
+  return ~~process.env[chain.toUpperCase() + '_BLOCK_INCR'] || 0;
 }
 
 /**
@@ -301,9 +301,9 @@ export async function decrypt(
  */
 export function getPageSize(pageSize): number {
   // 过滤page参数
-  const size = parseInt(pageSize) || 20;
+  const size = ~~pageSize || 20;
   // 默认最大100条
-  const limit = Number(process.env.PAGE_SIZE || 100);
+  const limit = ~~process.env.PAGE_SIZE || 100;
   return size > limit ? limit : size;
 }
 
