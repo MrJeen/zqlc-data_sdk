@@ -40,6 +40,9 @@ export class Contract extends CommonEntity {
   @Column('varchar', { default: '', comment: '同步nft的偏移量' })
   cursor;
 
+  @Column('varchar', { default: '', comment: 'tokenUri前缀' })
+  token_uri_prefix;
+
   @OneToMany(() => Transfer, (transfer: Transfer) => transfer.contract)
   @JoinColumn({ name: 'token_address', referencedColumnName: 'token_address' })
   transfers: Transfer[];
