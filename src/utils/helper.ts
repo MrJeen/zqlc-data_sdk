@@ -14,6 +14,12 @@ import { promisify } from 'util';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ExecutionContext } from '@nestjs/common';
 
+export interface BalanceData {
+  target: string;
+  weight: number;
+  currentWeight: number;
+}
+
 /**
  * 等待函数
  * @param milliseconds 毫秒
@@ -349,4 +355,28 @@ export function filterData(dto, data) {
       enableImplicitConversion: true,
     }),
   );
+}
+
+/**
+ * 加权平滑轮询(负载均衡)
+ */
+export function loadBalance(data: BalanceData[]) {
+  let current: any;
+  let totalWeught = 0;
+  for (let i = 0; i < data.length; i++) {
+    totalWeught += data[i].weight;
+    data[i].currentWeight += data[i].weight;
+    if (!current) {
+      current = data[i];
+    } else {
+      if (current.currentWeight < data[i].currentWeight) {
+        current = data[i];
+      }
+    }
+  }
+
+  // 当前选中权重减去总权重
+  current.currentWeight -= totalWeught;
+
+  return current.target;
 }

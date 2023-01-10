@@ -7,13 +7,13 @@ import {
 
 export default () => ({
   app_name: process.env.APP_NAME || 'data_micro_service',
-  port: ~~process.env.PORT || 3001,
+  port: ~~(process.env.PORT ?? 3001),
   database: {
     postgres: {
       type: 'postgres',
       useUTC: false,
       host: process.env.POSTGRES_HOST || 'localhost',
-      port: ~~process.env.POSTGRES_PORT || 5432,
+      port: ~~(process.env.POSTGRES_PORT ?? 5432),
       username: process.env.POSTGRES_USERNAME || 'root',
       password: process.env.POSTGRES_PASSWORD || 'root',
       database: process.env.POSTGRES_DATABASE || 'test',
@@ -23,14 +23,14 @@ export default () => ({
   },
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
-    port: ~~process.env.REDIS_PORT || 6379,
-    db: ~~process.env.REDIS_DB || 9,
+    port: ~~(process.env.REDIS_PORT ?? 6379),
+    db: ~~(process.env.REDIS_DB ?? 9),
     password: process.env.REDIS_PASSWORD || '',
     keyPrefix: `app:${process.env.APP_ENV}:` || 'redis',
   },
   redis_moralis: {
     host: process.env.REDIS_HOST || 'localhost',
-    port: ~~process.env.REDIS_PORT || 6379,
+    port: ~~(process.env.REDIS_PORT ?? 6379),
     db: 0,
     password: process.env.REDIS_PASSWORD || '',
     keyPrefix: REDIS_NAMESPACE_MORALIS + ':',
@@ -39,21 +39,21 @@ export default () => ({
     prefix: `app:${process.env.APP_ENV}:${process.env.QUEUE_PREFIX}` || 'queue',
     redis: {
       host: process.env.REDIS_HOST || 'localhost',
-      port: ~~process.env.REDIS_PORT || 6379,
-      db: ~~process.env.REDIS_QUEUE_DB || 8,
+      port: ~~(process.env.REDIS_PORT ?? 6379),
+      db: ~~(process.env.REDIS_QUEUE_DB ?? 8),
       password: process.env.REDIS_PASSWORD || '',
     },
     settings: {
       maxStalledCount: 0,
     },
     options: {
-      attempts: ~~process.env.QUEUE_ATTEMPTS || 3,
+      attempts: ~~(process.env.QUEUE_ATTEMPTS ?? 3),
       removeOnComplete:
         (process.env.QUEUE_REMOVE_ON_COMPLETE || 'true') === 'true',
       removeOnFail: (process.env.QUEUE_REMOVE_ON_FAIL || 'true') === 'true',
       backoff: {
         type: process.env.QUEUE_BACKOFF_TYPE || 'fixed',
-        delay: ~~process.env.QUEUE_BACKOFF_DELAY || 3000,
+        delay: ~~(process.env.QUEUE_BACKOFF_DELAY ?? 3000),
       },
     },
   },

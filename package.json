@@ -5,7 +5,9 @@
   "types": "lib/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json"
+    "build": "rimraf -rf lib && tsc -p tsconfig.json",
+    "prepublish:npm": "yarn build",
+    "publish:npm": "npm version patch && npm publish"
   },
   "files": [
     "package.json",

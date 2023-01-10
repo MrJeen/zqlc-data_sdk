@@ -117,15 +117,15 @@ export const CONTRACT_SYNC_NOTICE = 'contract_sync_notice';
 
 export const NFT_METADATA_ERROR_LIMIT = 'nft_metadata_error_limit';
 
-export function getSyncMetadataKey(contractId) {
+export function getSyncMetadataKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_RUNNING_LOCK + ':' + contractId;
 }
 
-export function getTransferSyncKey(chain) {
+export function getTransferSyncKey(chain: string) {
   return SYNC_TRANSFER_LOCK + ':' + chain;
 }
 
-export function getContractInitKey(chain, address) {
+export function getContractInitKey(chain: string, address: string) {
   return SYNC_NFT_LOCK + ':' + chain + ':' + address;
 }
 
