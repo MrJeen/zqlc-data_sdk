@@ -10,11 +10,19 @@ export const sendMsg = async (webhook: string, secret: string, msg: any) => {
   const timestamp = new Date().getTime();
   const sign = buildSign(timestamp, secret);
   const url = webhook + '&' + 'timestamp=' + timestamp + '&' + 'sign=' + sign;
+  const buffer = Buffer.from(msg);
   const content = {
     msgtype: 'text',
     text: {
       // 限制 20000 bytes以内，这里仅截取 1000 bytes
-      content: Buffer.from(msg).subarray(0, 1000).toString(),
+      content:
+        buffer.length > 2018
+          ? Buffer.from(msg).subarray(0, 1000).toString() +
+            '---分割---' +
+            Buffer.from(msg)
+              .subarray(buffer.length - 1000, buffer.length)
+              .toString()
+          : msg,
     },
   };
 
