@@ -43,6 +43,9 @@ export class Contract extends CommonEntity {
   @Column('varchar', { default: '', comment: 'tokenUri前缀' })
   token_uri_prefix;
 
+  @Column('smallint', { default: 0, comment: '需要全量同步metadata' })
+  full_sync;
+
   @OneToMany(() => Transfer, (transfer: Transfer) => transfer.contract)
   @JoinColumn({ name: 'token_address', referencedColumnName: 'token_address' })
   transfers: Transfer[];
