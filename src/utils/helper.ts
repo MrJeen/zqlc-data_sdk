@@ -352,8 +352,13 @@ export function transformResponse(context: ExecutionContext, data) {
 export function filterData(dto, data) {
   return instanceToPlain(
     plainToInstance(dto, data, {
+      // 将参数类型转换为dto中设置的类型，再校验（比如get提交的是字符串，转为number）
       enableImplicitConversion: true,
     }),
+    {
+      // 默认会把dto里面有设置，但未定义的参数也展示；设置为false，过滤undefined的参数
+      exposeUnsetFields: false,
+    },
   );
 }
 
