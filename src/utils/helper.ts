@@ -13,12 +13,7 @@ import {
 import { promisify } from 'util';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ExecutionContext } from '@nestjs/common';
-
-export interface BalanceData {
-  target: string;
-  weight: number;
-  currentWeight: number;
-}
+import { BalanceData } from '../config/constant';
 
 /**
  * 等待函数

@@ -3,14 +3,15 @@ import { JsonRpcProvider } from '@ethersproject/providers/src.ts/json-rpc-provid
 import { Interface } from '@ethersproject/abi/src.ts/interface';
 import { CONTRACT_TYPE } from '../entity/contract.entity';
 import { contractAbi } from '../config/abi';
+import { loadBalance } from './helper';
+import { RPC_NODE } from '../config/constant';
 
 /**
  * 获取节点
  * @param chain
  */
 export const getNode = (chain: string): string => {
-  // eg: EHT_NODE
-  return process.env[chain.toUpperCase() + '_NODE'];
+  return loadBalance(RPC_NODE[chain]);
 };
 
 /**
