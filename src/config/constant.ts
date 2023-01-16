@@ -144,12 +144,6 @@ export const RPC_NODE: RPC_NODE_TYPE = {
     {
       target:
         'https://nd-673-616-845.p2pify.com/a636188bb9861ca132c7079dd1cd839c',
-      weight: 3,
-      currentWeight: 0,
-    },
-    {
-      target:
-        'https://eth-mainnet.nodereal.io/v1/1c107f0cba55418f8e271e5d2e12d98e',
       weight: 1,
       currentWeight: 0,
     },
@@ -158,12 +152,6 @@ export const RPC_NODE: RPC_NODE_TYPE = {
     {
       target:
         'https://nd-895-567-261.p2pify.com/440738727b074fde55a96ca30074afc4',
-      weight: 3,
-      currentWeight: 0,
-    },
-    {
-      target:
-        'https://bsc-mainnet.nodereal.io/v1/24e8196a52404f19b3afd138751cab89',
       weight: 1,
       currentWeight: 0,
     },
@@ -177,12 +165,6 @@ export const RPC_NODE: RPC_NODE_TYPE = {
   ],
   POLYGON: [
     { target: 'https://polygon-rpc.com', weight: 3, currentWeight: 0 },
-    {
-      target:
-        'https://polygon-mainnet.nodereal.io/v1/77c5d36335c94a8b8156881be32dfc7d',
-      weight: 1,
-      currentWeight: 0,
-    },
     {
       target:
         'https://polygon-mainnet.g.alchemy.com/v2/uy8j0CgFVCqW0Ija3npEDoDoq8dHjiL7',
