@@ -380,3 +380,13 @@ export function loadBalance(data: BalanceData[]) {
 
   return current.target;
 }
+
+/**
+ * 获取token hash
+ * @param address
+ * @param tokenId
+ * @returns
+ */
+export function getTokenHash(address: string, tokenId: string) {
+  return md5(address + tokenId);
+}
