@@ -387,6 +387,6 @@ export function loadBalance(data: BalanceData[]) {
  * @param tokenId
  * @returns
  */
-export function getTokenHash(address: string, tokenId: string) {
+export function getTokenHash(address: string, tokenId: any) {
   return md5(address + tokenId);
 }
