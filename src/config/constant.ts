@@ -185,4 +185,11 @@ export const RPC_NODE: RPC_NODE_TYPE = {
       currentWeight: 0,
     },
   ],
+  ARBITRUM: [
+    {
+      target: 'https://endpoints.omniatech.io/v1/arbitrum/one/public',
+      weight: 1,
+      currentWeight: 0,
+    },
+  ],
 };

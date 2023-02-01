@@ -75,6 +75,7 @@ export enum CHAIN {
   POLYGON = 137,
   GOERLI = 5,
   ZKSYNC = 280,
+  ARBITRUM = 42161,
 }
 
 export enum CONTRACT_TYPE {
