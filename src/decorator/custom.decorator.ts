@@ -9,7 +9,6 @@ export function ToLowerCase() {
 // 转为大写字母
 export function ToUpperCase() {
   return Transform(({ value }) => {
-    console.log('ToUpperCase', value);
     return value ? value.toUpperCase() : value;
   });
 }
