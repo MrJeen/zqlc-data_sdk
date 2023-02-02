@@ -8,6 +8,7 @@ import { ArrayNotEmpty, IsArray, Validate, IsOptional } from 'class-validator';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { ContractBaseDto } from './contract.dto';
 import { IsEtherAddress } from '../validator/custom.validator';
+import { ToLowerCase } from '../decorator/custom.decorator';
 
 @Exclude()
 export class NftListDto extends OmitType(ContractBaseDto, ['contract_type']) {
@@ -30,6 +31,7 @@ export class NftListDto extends OmitType(ContractBaseDto, ['contract_type']) {
   @ApiPropertyOptional({ description: '用户地址' })
   @IsOptional()
   @Validate(IsEtherAddress, { message: 'Illegal user address.' })
+  @ToLowerCase()
   user_address: string;
 
   @Expose()
