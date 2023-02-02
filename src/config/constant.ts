@@ -192,4 +192,11 @@ export const RPC_NODE: RPC_NODE_TYPE = {
       currentWeight: 0,
     },
   ],
+  ARBITRUM_TEST: [
+    {
+      target: 'https://goerli-rollup.arbitrum.io/rpc',
+      weight: 1,
+      currentWeight: 0,
+    },
+  ],
 };
