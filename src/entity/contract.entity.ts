@@ -70,7 +70,8 @@ export const MORALIS_SUPPORT_CHAIN = {
   FANTOM: 250,
   CRONOS: 25,
   CRONOS_TESTNET: 338,
-  PALM: 11297108109,
+  // todo 需要改成字符串，超过int范围了
+  // PALM: 11297108109,
   ARBITRUM: 42161,
 };
 
