@@ -47,8 +47,16 @@ export class NftListDto extends OmitType(ContractSyncDto, ['contract_type']) {
 }
 
 @Exclude()
-export class NftDto extends PickType(ContractBaseDto, ['token_address']) {
+export class NftDto extends PickType(ContractBaseDto, [
+  'token_address',
+  'chain',
+]) {
   // 重写，可选
+  @Expose()
+  @ApiPropertyOptional({ description: '区块链' })
+  @IsOptional()
+  chain: string;
+
   @Expose()
   @ApiPropertyOptional({ description: '合约地址' })
   @IsOptional()
