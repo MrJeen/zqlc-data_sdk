@@ -35,6 +35,10 @@ export class UserListDto extends OmitType(ContractSyncDto, ['contract_type']) {
 @Exclude()
 export class UserResultDao extends ContractBaseDto {
   @Expose()
+  @ApiPropertyOptional({ description: '区块链ID' })
+  chain_id?: number;
+
+  @Expose()
   @ApiProperty({ description: 'nft 数量' })
   amount: string;
 

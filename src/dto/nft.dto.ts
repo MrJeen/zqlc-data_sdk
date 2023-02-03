@@ -89,6 +89,10 @@ export class NftSyncDao extends OmitType(ContractBaseDto, ['contract_type']) {
 @Exclude()
 export class NftResultDto extends ContractBaseDto {
   @Expose()
+  @ApiPropertyOptional({ description: '区块链ID' })
+  chain_id?: number;
+
+  @Expose()
   @ApiProperty({ description: '铸造区块高度' })
   block_number_minted: number;
 
