@@ -3,7 +3,7 @@ import { IsOptional, Validate } from 'class-validator';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { IsEtherAddress } from '../validator/custom.validator';
 import { NftResultDto, NftSyncOwnerDao } from './nft.dto';
-import { ContractBaseDto } from './contract.dto';
+import { ContractBaseDto, ContractSyncDto } from './contract.dto';
 
 @Exclude()
 export class UserNftDto extends NftSyncOwnerDao {
@@ -14,7 +14,7 @@ export class UserNftDto extends NftSyncOwnerDao {
 }
 
 @Exclude()
-export class UserListDto extends OmitType(ContractBaseDto, ['contract_type']) {
+export class UserListDto extends OmitType(ContractSyncDto, ['contract_type']) {
   @Expose()
   @IsOptional()
   @ApiPropertyOptional({ description: 'nft id' })

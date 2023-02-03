@@ -6,12 +6,12 @@ import {
 } from '@nestjs/swagger';
 import { ArrayNotEmpty, IsArray, Validate, IsOptional } from 'class-validator';
 import { Exclude, Expose, Type } from 'class-transformer';
-import { ContractBaseDto } from './contract.dto';
+import { ContractBaseDto, ContractSyncDto } from './contract.dto';
 import { IsEtherAddress } from '../validator/custom.validator';
 import { ToLowerCase } from '../decorator/custom.decorator';
 
 @Exclude()
-export class NftListDto extends OmitType(ContractBaseDto, ['contract_type']) {
+export class NftListDto extends OmitType(ContractSyncDto, ['contract_type']) {
   // 重写，可选
   @Expose()
   @IsOptional()
@@ -47,11 +47,23 @@ export class NftListDto extends OmitType(ContractBaseDto, ['contract_type']) {
 }
 
 @Exclude()
-export class NftDto extends OmitType(NftListDto, [
-  'cursor',
-  'page_size',
-  'user_address',
-]) {}
+export class NftDto extends PickType(ContractBaseDto, ['token_address']) {
+  // 重写，可选
+  @Expose()
+  @ApiPropertyOptional({ description: '合约地址' })
+  @IsOptional()
+  token_address: string;
+
+  @Expose()
+  @ApiPropertyOptional({ description: 'nft id' })
+  @IsOptional()
+  token_id: string;
+
+  @Expose()
+  @ApiPropertyOptional({ description: 'nft name' })
+  @IsOptional()
+  name: string;
+}
 
 @Exclude()
 export class NftSyncOwnerDao extends PickType(ContractBaseDto, ['chain']) {
