@@ -40,7 +40,7 @@ const log4jsConfig = {
   categories: {
     default: {
       appenders: ['console', 'access'],
-      level: 'warn',
+      level: 'debug',
     },
     error: {
       appenders: ['console', 'error'],
