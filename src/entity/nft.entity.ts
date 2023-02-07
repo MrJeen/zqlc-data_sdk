@@ -74,6 +74,5 @@ export function getSimpleNft(nft) {
   delete simpleNft.updated_at;
   delete simpleNft.version;
   delete simpleNft.sync_metadata_error;
-  delete simpleNft.is_destroyed;
   return simpleNft;
 }
