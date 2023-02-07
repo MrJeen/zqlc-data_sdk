@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers/src.ts/json-rpc-provider';
 import { Interface } from '@ethersproject/abi/src.ts/interface';
-import { CONTRACT_TYPE } from '../entity/contract.entity';
+import { CHAIN, CONTRACT_TYPE } from '../entity/contract.entity';
 import { contractAbi } from '../config/abi';
 import { loadBalance } from './helper';
 import { RPC_NODE } from '../config/constant';
@@ -11,7 +11,7 @@ import { RPC_NODE } from '../config/constant';
  * @param chain
  */
 export const getNode = (chain: string): string => {
-  return loadBalance(RPC_NODE[chain]);
+  return loadBalance(RPC_NODE[CHAIN[chain]]);
 };
 
 /**

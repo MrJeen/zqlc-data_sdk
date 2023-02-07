@@ -140,7 +140,7 @@ export interface BalanceData {
 export type RPC_NODE_TYPE = Record<string, BalanceData[]>;
 
 export const RPC_NODE: RPC_NODE_TYPE = {
-  ETH: [
+  1: [
     {
       target:
         'https://nd-673-616-845.p2pify.com/a636188bb9861ca132c7079dd1cd839c',
@@ -148,7 +148,7 @@ export const RPC_NODE: RPC_NODE_TYPE = {
       currentWeight: 0,
     },
   ],
-  BSC: [
+  56: [
     {
       target:
         'https://nd-895-567-261.p2pify.com/440738727b074fde55a96ca30074afc4',
@@ -156,14 +156,14 @@ export const RPC_NODE: RPC_NODE_TYPE = {
       currentWeight: 0,
     },
   ],
-  ZKSYNC: [
+  280: [
     {
       target: 'https://zksync2-testnet.zksync.dev/',
       weight: 1,
       currentWeight: 0,
     },
   ],
-  POLYGON: [
+  137: [
     { target: 'https://polygon-rpc.com', weight: 3, currentWeight: 0 },
     {
       target:
@@ -172,7 +172,7 @@ export const RPC_NODE: RPC_NODE_TYPE = {
       currentWeight: 0,
     },
   ],
-  GOERLI: [
+  5: [
     {
       target:
         'https://eth-goerli.g.alchemy.com/v2/Kf2SGWAtzqwWNR9sbO3JJwmAJ55ij_BW',
@@ -185,14 +185,14 @@ export const RPC_NODE: RPC_NODE_TYPE = {
       currentWeight: 0,
     },
   ],
-  ARBITRUM: [
+  42161: [
     {
       target: 'https://endpoints.omniatech.io/v1/arbitrum/one/public',
       weight: 1,
       currentWeight: 0,
     },
   ],
-  ARBITRUM_TEST: [
+  421613: [
     {
       target: 'https://goerli-rollup.arbitrum.io/rpc',
       weight: 1,
