@@ -365,6 +365,9 @@ export function loadBalance(data: BalanceData[]) {
   let totalWeught = 0;
   for (let i = 0; i < data.length; i++) {
     totalWeught += data[i].weight;
+    if (data[i].currentWeight === undefined) {
+      data[i].currentWeight = 0;
+    }
     data[i].currentWeight += data[i].weight;
     if (!current) {
       current = data[i];

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers/src.ts/json-rpc-provider';
 import { Interface } from '@ethersproject/abi/src.ts/interface';
-import { CHAIN, CONTRACT_TYPE } from '../entity/contract.entity';
+import { CONTRACT_TYPE } from '../entity/contract.entity';
 import { contractAbi } from '../config/abi';
 import { loadBalance } from './helper';
 import { RPC_NODE } from '../config/constant';
@@ -10,16 +10,16 @@ import { RPC_NODE } from '../config/constant';
  * 获取节点
  * @param chain
  */
-export const getNode = (chain: string): string => {
-  return loadBalance(RPC_NODE[CHAIN[chain]]);
+export const getNode = (chainId: number): string => {
+  return loadBalance(RPC_NODE[chainId]);
 };
 
 /**
  * 获取provider
  * @param chain
  */
-export const getJsonRpcProvider = (chain: string): JsonRpcProvider => {
-  const node = getNode(chain);
+export const getJsonRpcProvider = (chainId: number): JsonRpcProvider => {
+  const node = getNode(chainId);
   return new ethers.providers.JsonRpcProvider(node);
 };
 
@@ -51,8 +51,8 @@ export const getContract = (
 export const ZERO_ADDRESS = ethers.constants.AddressZero;
 
 // 获取合约信息
-export async function getContractInfo(chain: string, address: string) {
-  const rpcUrl = getNode(chain);
+export async function getContractInfo(chainId: number, address: string) {
+  const rpcUrl = getNode(chainId);
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
   const contract = new ethers.Contract(address, contractAbi, provider);
   const creator = await getContractCreator(contract);
