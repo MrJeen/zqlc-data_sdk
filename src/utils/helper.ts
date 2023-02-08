@@ -393,3 +393,13 @@ export function loadBalance(data: BalanceData[]) {
 export function getTokenHash(address: string, tokenId: any) {
   return md5(address + tokenId);
 }
+
+/**
+ * 转数字
+ * @param target
+ * @returns
+ */
+export function toNumber(target: any) {
+  const result = Number(target);
+  return isNaN(result) ? 0 : result;
+}
