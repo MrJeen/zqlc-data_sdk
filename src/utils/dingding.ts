@@ -2,11 +2,6 @@ import axios from 'axios';
 import { createHmac } from 'crypto';
 
 export const sendMsg = async (webhook: string, secret: string, msg: any) => {
-  // moralis - C0006 报错不发送
-  if (msg.indexOf('C0006') !== -1) {
-    return;
-  }
-
   const timestamp = new Date().getTime();
   const sign = buildSign(timestamp, secret);
   const url = webhook + '&' + 'timestamp=' + timestamp + '&' + 'sign=' + sign;
