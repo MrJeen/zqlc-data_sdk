@@ -88,13 +88,6 @@ export class NftSyncAllDao extends OmitType(ContractBaseDto, [
 ]) {}
 
 @Exclude()
-export class NftSyncDao extends OmitType(ContractBaseDto, ['contract_type']) {
-  @Expose()
-  @ApiPropertyOptional({ description: 'token id' })
-  token_id: string;
-}
-
-@Exclude()
 export class NftResultDto extends ContractBaseDto {
   @Expose()
   @ApiPropertyOptional({ description: '区块链ID' })
