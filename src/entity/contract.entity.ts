@@ -46,6 +46,9 @@ export class Contract extends CommonEntity {
   @Column('smallint', { default: 0, comment: '需要全量同步metadata' })
   full_sync;
 
+  @Column('smallint', { default: 0, comment: '不需要同步metadata' })
+  no_metadata;
+
   @OneToMany(() => Transfer, (transfer: Transfer) => transfer.contract)
   @JoinColumn({ name: 'token_address', referencedColumnName: 'token_address' })
   transfers: Transfer[];
