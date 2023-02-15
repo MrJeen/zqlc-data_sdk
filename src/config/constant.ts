@@ -150,11 +150,26 @@ export const RPC_NODE: RPC_NODE_TYPE = {
         'https://nd-673-616-845.p2pify.com/a636188bb9861ca132c7079dd1cd839c',
       weight: 1,
     },
+    {
+      target:
+        'https://eth-mainnet.g.alchemy.com/v2/kAe2dWmMGiBl-dYbfjrFLzxjtF62kog0',
+      weight: 1,
+    },
   ],
   56: [
     {
       target:
         'https://nd-895-567-261.p2pify.com/440738727b074fde55a96ca30074afc4',
+      weight: 1,
+    },
+    {
+      target:
+        'https://bsc-mainnet.nodereal.io/v1/84a707ab278a4dafaab661acae9501cd',
+      weight: 1,
+    },
+    {
+      target:
+        'https://rpc.ankr.com/bsc/4cffe63aaba4fd15a91bcd9a65a8504fea15d67a0f268a1adb08f7b3a96ca910',
       weight: 1,
     },
   ],
@@ -165,10 +180,10 @@ export const RPC_NODE: RPC_NODE_TYPE = {
     },
   ],
   137: [
-    { target: 'https://polygon-rpc.com', weight: 3 },
+    { target: 'https://polygon-rpc.com', weight: 1 },
     {
       target:
-        'https://polygon-mainnet.g.alchemy.com/v2/uy8j0CgFVCqW0Ija3npEDoDoq8dHjiL7',
+        'https://nd-123-547-521.p2pify.com/78a72a408ab74bceb0e5557dc5e29739',
       weight: 1,
     },
   ],
@@ -176,16 +191,16 @@ export const RPC_NODE: RPC_NODE_TYPE = {
     {
       target:
         'https://eth-goerli.g.alchemy.com/v2/Kf2SGWAtzqwWNR9sbO3JJwmAJ55ij_BW',
-      weight: 3,
-    },
-    {
-      target: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
       weight: 1,
     },
   ],
   42161: [
     {
       target: 'https://endpoints.omniatech.io/v1/arbitrum/one/public',
+      weight: 1,
+    },
+    {
+      target: 'https://arb1.arbitrum.io/rpc',
       weight: 1,
     },
   ],
