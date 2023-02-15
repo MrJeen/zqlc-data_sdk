@@ -199,6 +199,16 @@ export const RPC_NODE: RPC_NODE_TYPE = {
       target: 'https://arb1.arbitrum.io/rpc',
       weight: 1,
     },
+    {
+      target:
+        'https://arb-mainnet.g.alchemy.com/v2/xtehQ5ogQyEndaah3EcpFnITIzjEjfHj',
+      weight: 1,
+    },
+    {
+      target:
+        'https://rpc.ankr.com/arbitrum/4cffe63aaba4fd15a91bcd9a65a8504fea15d67a0f268a1adb08f7b3a96ca910',
+      weight: 1,
+    },
   ],
   421613: [
     {
