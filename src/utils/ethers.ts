@@ -54,8 +54,7 @@ export const ZERO_ADDRESS = ethers.constants.AddressZero;
 
 // 获取合约信息
 export async function getContractInfo(chainId: number, address: string) {
-  const rpcUrl = getNode(chainId);
-  const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+  const provider = getJsonRpcProvider(chainId);
   const contract = new ethers.Contract(address, contractAbi, provider);
   const creator = await getContractCreator(contract);
   const name = await getContractName(contract);
