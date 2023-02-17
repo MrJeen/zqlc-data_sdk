@@ -13,7 +13,7 @@ import {
 import { promisify } from 'util';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ExecutionContext } from '@nestjs/common';
-import { BalanceData } from '../config/constant';
+import { BalanceData, TRANSFER_BLOCK_INCR } from '../config/constant';
 
 /**
  * 等待函数
@@ -99,9 +99,8 @@ export function isDirectInstance(instance: string): boolean {
  * 不同节点获取到的transfer数量也许会有限制，免费的eth节点，限制在10000以下
  * @param chain
  */
-export function getTransferBlockIncr(chain: string): number {
-  // eg: EHT_BLOCK_INCR
-  return ~~process.env[chain.toUpperCase() + '_BLOCK_INCR'] || 0;
+export function getTransferBlockIncr(chainId: number): number {
+  return TRANSFER_BLOCK_INCR[chainId] ?? 5;
 }
 
 /**

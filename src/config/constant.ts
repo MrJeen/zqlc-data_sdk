@@ -223,3 +223,17 @@ export const RPC_NODE: RPC_NODE_TYPE = {
     },
   ],
 };
+
+/**
+ * transfer同步间隔区块数量
+ */
+export const TRANSFER_BLOCK_INCR = {
+  1: 5,
+  5: 10,
+  56: 8,
+  280: 10,
+  137: 10,
+  324: 10,
+  42161: 1000,
+  421613: 1000,
+};
