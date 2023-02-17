@@ -59,10 +59,7 @@ export class Contract extends CommonEntity {
  */
 export const MORALIS_SUPPORT_CHAIN = {
   ETH: 1,
-  ROPSTEN: 3,
-  RINKEBY: 4,
   GOERLI: 5,
-  KOVAN: 42,
   SEPOLIA: 11155111,
   POLYGON: 137,
   MUMBAI: 80001,
@@ -83,6 +80,7 @@ export enum CHAIN {
   POLYGON = 137,
   GOERLI = 5,
   ZKSYNC = 280,
+  ZKSYNC_MAINNET = 324,
   ARBITRUM = 42161,
   ARBITRUM_TEST = 421613,
 }

@@ -179,6 +179,12 @@ export const RPC_NODE: RPC_NODE_TYPE = {
       weight: 1,
     },
   ],
+  324: [
+    {
+      target: 'https://zksync2-mainnet.zksync.io',
+      weight: 1,
+    },
+  ],
   137: [
     { target: 'https://polygon-rpc.com', weight: 1 },
     {
