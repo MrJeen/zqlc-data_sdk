@@ -1,8 +1,9 @@
-import { Column, Entity, JoinColumn, OneToMany } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, OneToMany } from 'typeorm';
 import { CommonEntity } from './common.entity';
 import { Transfer } from './transfer.entity';
 
 @Entity('contracts')
+@Index(['chain', 'token_address'], { unique: true })
 export class Contract extends CommonEntity {
   @Column('varchar', { default: '', comment: '区块链类型' })
   chain;

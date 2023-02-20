@@ -1,8 +1,9 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { CommonEntity } from './common.entity';
 import { Contract } from './contract.entity';
 
 @Entity('contract_sync')
+@Index(['contract_id', 'source'], { unique: true })
 export class ContractSync extends CommonEntity {
   @Column('int', {
     default: 0,
