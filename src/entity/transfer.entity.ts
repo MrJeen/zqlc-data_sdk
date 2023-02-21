@@ -9,7 +9,8 @@ import { Contract } from './contract.entity';
   { unique: true },
 )
 export class Transfer extends CommonEntity {
-  @Column('varchar', { default: '', comment: '区块链类型' })
+  // 需要按chain分区，所以要设置primary
+  @Column('varchar', { default: '', comment: '区块链类型', primary: true })
   chain;
 
   @Column('int', { default: 0, comment: '区块高度' })

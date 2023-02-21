@@ -6,7 +6,8 @@ import { CommonEntity } from './common.entity';
 @Index(['updated_at'])
 @Index(['chain', 'token_hash'])
 export class UserNft extends CommonEntity {
-  @Column('varchar', { default: '', comment: '区块链类型' })
+  // 需要按chain分区，所以要设置primary
+  @Column('varchar', { default: '', comment: '区块链类型', primary: true })
   chain;
 
   @Column('varchar', { default: '', comment: '合约地址' })

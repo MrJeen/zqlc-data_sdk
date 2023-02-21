@@ -6,7 +6,8 @@ import { CommonEntity } from './common.entity';
 @Index(['updated_at'])
 @Index(['chain', 'token_address', 'id'])
 export class Nft extends CommonEntity {
-  @Column('varchar', { default: '', comment: '区块链类型' })
+  // 需要按chain分区，所以要设置primary
+  @Column('varchar', { default: '', comment: '区块链类型', primary: true })
   chain;
 
   @Column('varchar', { default: '', comment: 'nft哈希 - md5(address+id)' })
@@ -57,7 +58,10 @@ export class Nft extends CommonEntity {
   @Column('int', { default: 0, comment: '同步元数据的次数' })
   sync_metadata_times;
 
-  @Column('timestamp', { comment: '最后一次同步元数据的时间' })
+  @Column('timestamp', {
+    default: () => 'NOW()',
+    comment: '最后一次同步元数据的时间',
+  })
   last_sync_metadata_time;
 
   @Column('int', { default: 0, comment: '转移log index' })
