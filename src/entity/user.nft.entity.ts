@@ -3,8 +3,8 @@ import { CommonEntity } from './common.entity';
 
 @Entity('user_nfts')
 @Index(['chain', 'user_address', 'token_hash'], { unique: true })
-@Index('updated_at')
-@Index(['chain', 'token_address', 'token_hash'])
+@Index(['updated_at'])
+@Index(['chain', 'token_hash'])
 export class UserNft extends CommonEntity {
   @Column('varchar', { default: '', comment: '区块链类型' })
   chain;

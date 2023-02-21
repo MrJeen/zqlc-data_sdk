@@ -79,7 +79,10 @@ export class Transfer extends CommonEntity {
   token_hash;
 
   @ManyToOne(() => Contract)
-  @JoinColumn({ name: 'token_address', referencedColumnName: 'token_address' })
+  @JoinColumn([
+    { name: 'chain', referencedColumnName: 'chain' },
+    { name: 'token_address', referencedColumnName: 'token_address' },
+  ])
   contract: Contract;
 }
 

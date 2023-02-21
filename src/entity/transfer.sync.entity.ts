@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 
 @Entity('transfer_sync')
-@Index('chain', { unique: true })
+@Index(['chain'], { unique: true })
 export class TransferSync {
   @PrimaryGeneratedColumn({ comment: 'ID' })
   id: number;

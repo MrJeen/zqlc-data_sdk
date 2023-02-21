@@ -1,5 +1,6 @@
-import { Column, Entity, Index, JoinColumn, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { CommonEntity } from './common.entity';
+import { ContractSync } from './contract.sync.entity';
 import { Transfer } from './transfer.entity';
 
 @Entity('contracts')
@@ -51,8 +52,13 @@ export class Contract extends CommonEntity {
   no_metadata;
 
   @OneToMany(() => Transfer, (transfer: Transfer) => transfer.contract)
-  @JoinColumn({ name: 'token_address', referencedColumnName: 'token_address' })
   transfers: Transfer[];
+
+  @OneToMany(
+    () => ContractSync,
+    (contractSync: ContractSync) => contractSync.contract,
+  )
+  contractSyncs: ContractSync[];
 }
 
 /**
