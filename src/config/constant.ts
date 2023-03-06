@@ -135,6 +135,8 @@ export function getContractInitKey(chain: string, address: string) {
 
 export const MICRO_SERVICE = 'MICRO_SERVICE';
 
+export const REDIS_MORALIS_NAME = 'moralis';
+
 export interface BalanceData {
   target: string;
   weight: number;

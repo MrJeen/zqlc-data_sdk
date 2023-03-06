@@ -56,9 +56,6 @@ export default () => ({
       },
     },
   },
-  moralis: {
-    apiKey: process.env.MORALIS_API_KEY || '',
-  },
   elasticsearch: {
     node: process.env.ELASTICSEARCH_NODE || 'http://localhost:9200',
   },

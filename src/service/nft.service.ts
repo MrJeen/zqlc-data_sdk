@@ -3,7 +3,6 @@ import {
   erc1155ContractAbi,
   erc721ContractAbi,
   NFT_METADATA_LOCK,
-  SYNC_METADATA_EXCLUDE,
 } from '../config';
 import {
   CHAIN,
@@ -37,7 +36,6 @@ import auth from '../config/auth.api';
 export async function insertNftToEs(
   elasticsearchService: any,
   redisService: any,
-  redisClient: any,
   nftRepository: any,
   userNftRepository: any,
   contractRepository: any,
@@ -53,7 +51,6 @@ export async function insertNftToEs(
   syncMetadata(
     elasticsearchService,
     redisService,
-    redisClient,
     nftRepository,
     userNftRepository,
     contractRepository,
@@ -71,7 +68,6 @@ export async function insertNftToEs(
 export async function syncMetadata(
   elasticsearchService: any,
   redisService: any,
-  redisClient: any,
   nftRepository: any,
   userNftRepository: any,
   contractRepository: any,
@@ -80,6 +76,7 @@ export async function syncMetadata(
   amqpConnection: any,
   nft: Nft,
 ) {
+  const redisClient = redisService.getClient();
   // 加锁防止重复处理
   const key = NFT_METADATA_LOCK + ':' + nft.id;
   const value = await redisService.lock(redisClient, key);
@@ -89,8 +86,7 @@ export async function syncMetadata(
   }
 
   try {
-    nft = await nftRepository.findOneBy({ id: nft.id });
-    if (!(await checkSync(redisClient, nft))) {
+    if (nft.is_destroyed == DESTROY_STATUS.YES) {
       return;
     }
 
@@ -98,6 +94,10 @@ export async function syncMetadata(
       chain: nft.chain,
       token_address: nft.token_address,
     });
+
+    if (contract.no_metadata == 1) {
+      return;
+    }
 
     const update = await getMetaDataUpdate(contract, nft);
 
@@ -127,34 +127,6 @@ export async function syncMetadata(
   } finally {
     await redisService.unlock(redisClient, key, value);
   }
-}
-
-// 检查是否可同步
-async function checkSync(redisClient: any, nft: Nft) {
-  if (!nft) {
-    return false;
-  }
-
-  if (nft.is_destroyed == DESTROY_STATUS.YES) {
-    return false;
-  }
-
-  // todo 暂时移除
-  //   if (!_.isEmpty(nft.metadata)) {
-  //     return false;
-  //   }
-
-  // 不在同步范围的系列
-  const excludeAddress = await redisClient.smembers(SYNC_METADATA_EXCLUDE);
-
-  if (
-    excludeAddress.length &&
-    excludeAddress.indexOf(nft.token_address) != -1
-  ) {
-    return false;
-  }
-
-  return true;
 }
 
 async function getMetaDataUpdate(contract: Contract, nft: Nft) {
