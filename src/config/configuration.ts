@@ -11,7 +11,6 @@ export default () => ({
   database: {
     postgres: {
       type: 'postgres',
-      useUTC: false,
       host: process.env.POSTGRES_HOST || 'localhost',
       port: ~~(process.env.POSTGRES_PORT ?? 5432),
       username: process.env.POSTGRES_USERNAME || 'root',

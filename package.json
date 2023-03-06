@@ -26,6 +26,7 @@
     "moment": "^2.29.4",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
+    "socks-proxy-agent": "^7.0.0",
     "stacktrace-js": "^2.0.2",
     "typeorm": "^0.3.11"
   },
