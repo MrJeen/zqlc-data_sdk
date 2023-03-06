@@ -7,3 +7,4 @@ export * from './transfer.error.log.entity';
 export * from './transfer.sync.entity';
 export * from './user.nft.entity';
 export * from './mq.push.error.entity';
+export * from './all.contract.entity';
