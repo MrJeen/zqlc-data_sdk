@@ -1,7 +1,7 @@
 import { Column, Entity, Index } from 'typeorm';
 import { CommonEntity } from './common.entity';
 
-@Entity('contracts')
+@Entity('all_contracts')
 @Index(['chain', 'token_address'], { unique: true })
 export class AllContract extends CommonEntity {
   @Column('varchar', { default: '', comment: '区块链类型' })
