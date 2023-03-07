@@ -4,14 +4,18 @@ import { Interface } from '@ethersproject/abi/src.ts/interface';
 import { CONTRACT_TYPE } from '../entity/contract.entity';
 import { contractAbi } from '../config/abi';
 import { loadBalance } from './helper';
-import { RPC_NODE } from '../config/constant';
+import { selectNetwork } from '../config/constant';
 
 /**
  * 获取节点
  * @param chain
  */
 export const getNode = (chainId: number): string => {
-  return loadBalance(RPC_NODE[chainId]);
+  const network = selectNetwork(chainId);
+  if (!network) {
+    throw Error(`network #${chainId} not found`);
+  }
+  return loadBalance(network.node);
 };
 
 /**

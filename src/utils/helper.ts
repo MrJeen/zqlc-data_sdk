@@ -13,7 +13,7 @@ import {
 import { promisify } from 'util';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ExecutionContext } from '@nestjs/common';
-import { BalanceData, TRANSFER_BLOCK_INCR } from '../config/constant';
+import { BALANCE_TYPE, selectNetwork } from '../config/constant';
 
 /**
  * 等待函数
@@ -100,7 +100,11 @@ export function isDirectInstance(instance: string): boolean {
  * @param chain
  */
 export function getTransferBlockIncr(chainId: number): number {
-  return TRANSFER_BLOCK_INCR[chainId] ?? 5;
+  const network = selectNetwork(chainId);
+  if (!network) {
+    throw Error(`network #${chainId} not found`);
+  }
+  return network.transferIncr;
 }
 
 /**
@@ -359,11 +363,11 @@ export function filterData(dto, data) {
 /**
  * 加权平滑轮询(负载均衡)
  */
-export function loadBalance(data: BalanceData[]) {
+export function loadBalance(data: BALANCE_TYPE[]) {
   let current: any;
-  let totalWeught = 0;
+  let totalWeight = 0;
   for (let i = 0; i < data.length; i++) {
-    totalWeught += data[i].weight;
+    totalWeight += data[i].weight;
     if (data[i].currentWeight === undefined) {
       data[i].currentWeight = 0;
     }
@@ -378,7 +382,7 @@ export function loadBalance(data: BalanceData[]) {
   }
 
   // 当前选中权重减去总权重
-  current.currentWeight -= totalWeught;
+  current.currentWeight -= totalWeight;
 
   return current.target;
 }

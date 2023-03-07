@@ -137,16 +137,26 @@ export const MICRO_SERVICE = 'MICRO_SERVICE';
 
 export const REDIS_MORALIS_NAME = 'moralis';
 
-export interface BalanceData {
+export type BALANCE_TYPE = {
   target: string;
   weight: number;
   currentWeight?: number;
-}
+};
 
-export type RPC_NODE_TYPE = Record<string, BalanceData[]>;
+export type RPC_NODE_TYPE = Record<string, BALANCE_TYPE[]>;
 
-export const RPC_NODE: RPC_NODE_TYPE = {
-  1: [
+export type NETWORK_TYPE = {
+  name: string;
+  chainId: number;
+  transferIncr: number;
+  node: BALANCE_TYPE[];
+};
+
+export const ETH_NETWORK: NETWORK_TYPE = {
+  name: 'ETH',
+  chainId: 1,
+  transferIncr: 5,
+  node: [
     {
       target:
         'https://nd-673-616-845.p2pify.com/a636188bb9861ca132c7079dd1cd839c',
@@ -158,7 +168,26 @@ export const RPC_NODE: RPC_NODE_TYPE = {
       weight: 1,
     },
   ],
-  56: [
+};
+
+export const GOERLI_NETWORK: NETWORK_TYPE = {
+  name: 'GOERLI',
+  chainId: 5,
+  transferIncr: 10,
+  node: [
+    {
+      target:
+        'https://eth-goerli.g.alchemy.com/v2/Kf2SGWAtzqwWNR9sbO3JJwmAJ55ij_BW',
+      weight: 1,
+    },
+  ],
+};
+
+export const BSC_NETWORK: NETWORK_TYPE = {
+  name: 'BSC',
+  chainId: 56,
+  transferIncr: 8,
+  node: [
     {
       target:
         'https://nd-895-567-261.p2pify.com/440738727b074fde55a96ca30074afc4',
@@ -175,19 +204,13 @@ export const RPC_NODE: RPC_NODE_TYPE = {
       weight: 1,
     },
   ],
-  280: [
-    {
-      target: 'https://zksync2-testnet.zksync.dev/',
-      weight: 1,
-    },
-  ],
-  324: [
-    {
-      target: 'https://zksync2-mainnet.zksync.io',
-      weight: 1,
-    },
-  ],
-  137: [
+};
+
+export const POLYGON_NETWORK: NETWORK_TYPE = {
+  name: 'POLYGON',
+  chainId: 137,
+  transferIncr: 10,
+  node: [
     { target: 'https://polygon-rpc.com', weight: 1 },
     {
       target:
@@ -195,14 +218,37 @@ export const RPC_NODE: RPC_NODE_TYPE = {
       weight: 1,
     },
   ],
-  5: [
+};
+
+export const ZKSYNC_NETWORK: NETWORK_TYPE = {
+  name: 'ZKSYNC',
+  chainId: 280,
+  transferIncr: 10,
+  node: [
     {
-      target:
-        'https://eth-goerli.g.alchemy.com/v2/Kf2SGWAtzqwWNR9sbO3JJwmAJ55ij_BW',
+      target: 'https://zksync2-testnet.zksync.dev/',
       weight: 1,
     },
   ],
-  42161: [
+};
+
+export const ZKSYNC_MAINNET_NETWORK: NETWORK_TYPE = {
+  name: 'ZKSYNC_MAINNET',
+  chainId: 324,
+  transferIncr: 10,
+  node: [
+    {
+      target: 'https://zksync2-mainnet.zksync.io',
+      weight: 1,
+    },
+  ],
+};
+
+export const ARBITRUM_NETWORK: NETWORK_TYPE = {
+  name: 'ARBITRUM',
+  chainId: 42161,
+  transferIncr: 1000,
+  node: [
     {
       target: 'https://arb1.arbitrum.io/rpc',
       weight: 1,
@@ -218,7 +264,13 @@ export const RPC_NODE: RPC_NODE_TYPE = {
       weight: 1,
     },
   ],
-  421613: [
+};
+
+export const ARBITRUM_TEST_NETWORK: NETWORK_TYPE = {
+  name: 'ARBITRUM_TEST',
+  chainId: 421613,
+  transferIncr: 1000,
+  node: [
     {
       target: 'https://goerli-rollup.arbitrum.io/rpc',
       weight: 1,
@@ -226,19 +278,25 @@ export const RPC_NODE: RPC_NODE_TYPE = {
   ],
 };
 
+export const networks = [
+  ETH_NETWORK,
+  GOERLI_NETWORK,
+  BSC_NETWORK,
+  POLYGON_NETWORK,
+  ZKSYNC_NETWORK,
+  ZKSYNC_MAINNET_NETWORK,
+  ARBITRUM_NETWORK,
+  ARBITRUM_TEST_NETWORK,
+];
+
 /**
- * transfer同步间隔区块数量
+ * 获取网络
+ * @param chainId
+ * @returns
  */
-export const TRANSFER_BLOCK_INCR = {
-  1: 5,
-  5: 10,
-  56: 8,
-  280: 10,
-  137: 10,
-  324: 10,
-  42161: 1000,
-  421613: 1000,
-};
+export function selectNetwork(chainId: number): NETWORK_TYPE {
+  return networks.find((network) => network.chainId == chainId);
+}
 
 export enum COMMON_STATUS {
   DEFAULT = 0,
