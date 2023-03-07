@@ -239,3 +239,10 @@ export const TRANSFER_BLOCK_INCR = {
   42161: 1000,
   421613: 1000,
 };
+
+export enum COMMON_STATUS {
+  DEFAULT = 0,
+  DOING = 10,
+  FINISHED = 20,
+  FAILED = 99,
+}

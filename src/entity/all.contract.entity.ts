@@ -15,7 +15,16 @@ export class AllContract extends CommonEntity {
 
   @Column('smallint', {
     default: 0,
-    comment: '同步状态（0-未导入 20-已导入）',
+    comment: '同步状态（0-未导入 20-已导入 99-导入失败）',
+  })
+  sync_status;
+
+  @Column('smallint', {
+    default: 0,
+    comment: '处理状态（0-可导入 99-不符合条件）',
   })
   status;
+
+  @Column('varchar', { default: '', comment: '失败原因' })
+  error_msg;
 }
