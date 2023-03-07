@@ -3,6 +3,7 @@ import {
   erc1155ContractAbi,
   erc721ContractAbi,
   NFT_METADATA_LOCK,
+  RABBITMQ_SYNC_NFT_EXCHANGE,
 } from '../config';
 import {
   CHAIN,
@@ -361,7 +362,7 @@ async function notice(
         await mqPublish(
           amqpConnection,
           mqPushErrorLogsRepository,
-          process.env.RABBITMQ_NFT_EXCHANGE,
+          RABBITMQ_SYNC_NFT_EXCHANGE,
           routingKey,
           simpleNft,
           true,

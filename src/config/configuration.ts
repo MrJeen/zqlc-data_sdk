@@ -1,6 +1,8 @@
 import {
   RABBITMQ_METADATA_SYNC_EXCHANGE,
   RABBITMQ_NFT_EXCHANGE,
+  RABBITMQ_SYNC_NFT_EXCHANGE,
+  RABBITMQ_SYNC_TRANSFER_EXCHANGE,
   RABBITMQ_TRANSFER_EXCHANGE,
   REDIS_NAMESPACE_MORALIS,
 } from './constant';
@@ -72,11 +74,11 @@ export default () => ({
   rabbitMQ: {
     exchanges: [
       {
-        name: process.env.RABBITMQ_NFT_EXCHANGE,
+        name: RABBITMQ_SYNC_NFT_EXCHANGE,
         type: 'direct',
       },
       {
-        name: process.env.RABBITMQ_TRANSFER_EXCHANGE,
+        name: RABBITMQ_SYNC_TRANSFER_EXCHANGE,
         type: 'direct',
       },
       {

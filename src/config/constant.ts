@@ -89,6 +89,9 @@ export const RABBITMQ_METADATA_SYNC_EXCHANGE = 'metadata_sync_exchange';
 export const RABBITMQ_METADATA_SYNC_QUEUE = 'metadata_sync_queue';
 export const RABBITMQ_METADATA_SYNC_ROUTING_KEY = 'metadata_sync';
 
+export const RABBITMQ_SYNC_NFT_EXCHANGE = 'sync_nft_exchange';
+export const RABBITMQ_SYNC_TRANSFER_EXCHANGE = 'sync_transfer_exchange';
+
 export const RABBITMQ_NFT_EXCHANGE = 'nft_exchange';
 export const RABBITMQ_NFT_CREATE_QUEUE = 'nft_create_queue';
 export const RABBITMQ_NFT_CREATE_ROUTING_KEY = 'nft_create';
