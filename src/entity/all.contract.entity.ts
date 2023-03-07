@@ -4,7 +4,7 @@ import { CommonEntity } from './common.entity';
 @Entity('all_contracts')
 @Index(['chain', 'token_address'], { unique: true })
 export class AllContract extends CommonEntity {
-  @Column('varchar', { default: '', comment: '区块链类型' })
+  @Column('varchar', { default: '', comment: '区块链类型', primary: true })
   chain;
 
   @Column('int', { default: 0, comment: '区块链id' })
