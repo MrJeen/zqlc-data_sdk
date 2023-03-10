@@ -101,9 +101,6 @@ export function isDirectInstance(instance: string): boolean {
  */
 export function getTransferBlockIncr(chainId: number): number {
   const network = selectNetwork(chainId);
-  if (!network) {
-    throw Error(`network #${chainId} not found`);
-  }
   return network.transferIncr;
 }
 
@@ -367,6 +364,9 @@ export function loadBalance(data: BALANCE_TYPE[]) {
   let current: any;
   let totalWeight = 0;
   for (let i = 0; i < data.length; i++) {
+    if (data[i].weight === undefined) {
+      data[i].weight = 1;
+    }
     totalWeight += data[i].weight;
     if (data[i].currentWeight === undefined) {
       data[i].currentWeight = 0;

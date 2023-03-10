@@ -12,9 +12,6 @@ import { selectNetwork } from '../config/constant';
  */
 export const getNode = (chainId: number): string => {
   const network = selectNetwork(chainId);
-  if (!network) {
-    throw Error(`network #${chainId} not found`);
-  }
   return loadBalance(network.node);
 };
 

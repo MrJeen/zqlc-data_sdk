@@ -142,7 +142,7 @@ export const REDIS_MORALIS_NAME = 'moralis';
 
 export type BALANCE_TYPE = {
   target: string;
-  weight: number;
+  weight?: number;
   currentWeight?: number;
 };
 
@@ -152,133 +152,56 @@ export type NETWORK_TYPE = {
   name: string;
   chainId: number;
   transferIncr: number;
-  node: BALANCE_TYPE[];
+  // 节点在获取网络时 selectNetwork() 初始化
+  node?: BALANCE_TYPE[];
 };
 
 export const ETH_NETWORK: NETWORK_TYPE = {
   name: 'ETH',
   chainId: 1,
   transferIncr: 5,
-  node: [
-    {
-      target:
-        'https://nd-673-616-845.p2pify.com/a636188bb9861ca132c7079dd1cd839c',
-      weight: 1,
-    },
-    {
-      target:
-        'https://eth-mainnet.g.alchemy.com/v2/kAe2dWmMGiBl-dYbfjrFLzxjtF62kog0',
-      weight: 1,
-    },
-  ],
 };
 
 export const GOERLI_NETWORK: NETWORK_TYPE = {
   name: 'GOERLI',
   chainId: 5,
   transferIncr: 10,
-  node: [
-    {
-      target:
-        'https://eth-goerli.g.alchemy.com/v2/Kf2SGWAtzqwWNR9sbO3JJwmAJ55ij_BW',
-      weight: 1,
-    },
-  ],
 };
 
 export const BSC_NETWORK: NETWORK_TYPE = {
   name: 'BSC',
   chainId: 56,
   transferIncr: 8,
-  node: [
-    {
-      target:
-        'https://nd-895-567-261.p2pify.com/440738727b074fde55a96ca30074afc4',
-      weight: 1,
-    },
-    {
-      target:
-        'https://bsc-mainnet.nodereal.io/v1/84a707ab278a4dafaab661acae9501cd',
-      weight: 1,
-    },
-    {
-      target:
-        'https://rpc.ankr.com/bsc/4cffe63aaba4fd15a91bcd9a65a8504fea15d67a0f268a1adb08f7b3a96ca910',
-      weight: 1,
-    },
-  ],
 };
 
 export const POLYGON_NETWORK: NETWORK_TYPE = {
   name: 'POLYGON',
   chainId: 137,
   transferIncr: 10,
-  node: [
-    { target: 'https://polygon-rpc.com', weight: 1 },
-    {
-      target:
-        'https://nd-123-547-521.p2pify.com/78a72a408ab74bceb0e5557dc5e29739',
-      weight: 1,
-    },
-  ],
 };
 
 export const ZKSYNC_NETWORK: NETWORK_TYPE = {
   name: 'ZKSYNC',
   chainId: 280,
   transferIncr: 10,
-  node: [
-    {
-      target: 'https://zksync2-testnet.zksync.dev/',
-      weight: 1,
-    },
-  ],
 };
 
 export const ZKSYNC_MAINNET_NETWORK: NETWORK_TYPE = {
   name: 'ZKSYNC_MAINNET',
   chainId: 324,
   transferIncr: 10,
-  node: [
-    {
-      target: 'https://zksync2-mainnet.zksync.io',
-      weight: 1,
-    },
-  ],
 };
 
 export const ARBITRUM_NETWORK: NETWORK_TYPE = {
   name: 'ARBITRUM',
   chainId: 42161,
   transferIncr: 1000,
-  node: [
-    {
-      target: 'https://arb1.arbitrum.io/rpc',
-      weight: 1,
-    },
-    {
-      target:
-        'https://arb-mainnet.g.alchemy.com/v2/xtehQ5ogQyEndaah3EcpFnITIzjEjfHj',
-      weight: 1,
-    },
-    {
-      target:
-        'https://rpc.ankr.com/arbitrum/4cffe63aaba4fd15a91bcd9a65a8504fea15d67a0f268a1adb08f7b3a96ca910',
-      weight: 1,
-    },
-  ],
 };
 
 export const ARBITRUM_TEST_NETWORK: NETWORK_TYPE = {
   name: 'ARBITRUM_TEST',
   chainId: 421613,
   transferIncr: 1000,
-  node: [
-    {
-      target: 'https://goerli-rollup.arbitrum.io/rpc',
-      weight: 1,
-    },
-  ],
 };
 
 export const networks = [
@@ -298,7 +221,15 @@ export const networks = [
  * @returns
  */
 export function selectNetwork(chainId: number): NETWORK_TYPE {
-  return networks.find((network) => network.chainId == chainId);
+  const network = networks.find((network) => network.chainId == chainId);
+  if (!network) {
+    throw Error(`network #${chainId} not found`);
+  }
+  if (!network.node) {
+    // 节点初始化
+    network.node = JSON.parse(process.env[network.name + '_NODE'] ?? '{}');
+  }
+  return network;
 }
 
 export enum COMMON_STATUS {
