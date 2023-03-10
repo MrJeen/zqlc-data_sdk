@@ -17,7 +17,7 @@ import {
 import { Logger } from '../utils/log4js';
 
 Moralis.start({
-  apiKey: process.env.MORALIS_API_KEY || '',
+  apiKey: 'g4fyHQifM9KjR5G5efMDIgeO2nsvrqEz8m8W8kptrc6TY85C9QpRo1QkaWsiVaRh',
 });
 
 /**
