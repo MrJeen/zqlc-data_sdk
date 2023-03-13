@@ -206,7 +206,7 @@ export const ARBITRUM_TEST_NETWORK: NETWORK_TYPE = {
   transferIncr: 1000,
 };
 
-export const networks = [];
+const networks = [];
 
 export function getNetworks(): NETWORK_TYPE[] {
   if (networks.length) {
