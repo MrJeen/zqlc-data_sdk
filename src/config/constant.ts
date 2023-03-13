@@ -1,3 +1,5 @@
+import { toNumber } from '../utils/helper';
+
 /********** pm2 0实例 ***********/
 export const ZERO_INSTANCE = '0';
 
@@ -204,16 +206,50 @@ export const ARBITRUM_TEST_NETWORK: NETWORK_TYPE = {
   transferIncr: 1000,
 };
 
-export const networks = [
-  ETH_NETWORK,
-  GOERLI_NETWORK,
-  BSC_NETWORK,
-  POLYGON_NETWORK,
-  ZKSYNC_NETWORK,
-  ZKSYNC_MAINNET_NETWORK,
-  ARBITRUM_NETWORK,
-  ARBITRUM_TEST_NETWORK,
-];
+export const networks = [];
+
+export function getNetworks(): NETWORK_TYPE[] {
+  if (networks.length) {
+    return networks;
+  }
+
+  const supportChains = process.env.SUPPORT_CHAINS.split(',').filter(
+    (item) => item != '',
+  );
+  if (supportChains.length) {
+    for (const chainId of supportChains) {
+      switch (toNumber(chainId)) {
+        case ETH_NETWORK.chainId:
+          networks.push(ETH_NETWORK);
+          break;
+        case GOERLI_NETWORK.chainId:
+          networks.push(GOERLI_NETWORK);
+          break;
+        case BSC_NETWORK.chainId:
+          networks.push(BSC_NETWORK);
+          break;
+        case POLYGON_NETWORK.chainId:
+          networks.push(POLYGON_NETWORK);
+          break;
+        case ZKSYNC_NETWORK.chainId:
+          networks.push(ZKSYNC_NETWORK);
+          break;
+        case ZKSYNC_MAINNET_NETWORK.chainId:
+          networks.push(ZKSYNC_MAINNET_NETWORK);
+          break;
+        case ARBITRUM_NETWORK.chainId:
+          networks.push(ARBITRUM_NETWORK);
+          break;
+        case ARBITRUM_TEST_NETWORK.chainId:
+          networks.push(ARBITRUM_TEST_NETWORK);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+  return networks;
+}
 
 /**
  * 获取网络
@@ -221,6 +257,7 @@ export const networks = [
  * @returns
  */
 export function selectNetwork(chainId: number): NETWORK_TYPE {
+  const networks = getNetworks();
   const network = networks.find((network) => network.chainId == chainId);
   if (!network) {
     throw Error(`network #${chainId} not found`);
