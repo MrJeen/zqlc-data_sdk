@@ -39,26 +39,18 @@ export function md5(data: string) {
  */
 export function buildSignature(data: object, secret: string): string {
   let str = '';
-  data = ksort(data);
-  _.forEach(data, (value, key) => {
-    str += key + '=' + value + '&';
-  });
-  str += 'secret=' + secret;
-  return md5(str);
-}
-
-/**
- * 对象按key顺序排序
- * @param data
- */
-export function ksort(data: object): object {
-  const sorted = {};
+  // key升序排序
   const keys = Object.keys(data);
   keys.sort();
+
+  // key1=value1&key2=value2...& 拼接
   keys.forEach((key) => {
-    sorted[key] = data[key];
+    str += key + '=' + data[key] + '&';
   });
-  return sorted;
+
+  // 拼接secret
+  str += 'secret=' + secret;
+  return md5(str);
 }
 
 /**
