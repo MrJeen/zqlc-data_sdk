@@ -27,6 +27,7 @@ import {
 import { Logger } from '../utils/log4js';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import auth from '../config/auth.api';
+import { mqPublish } from '../utils/rabbitMQ';
 
 /**
  * 插入NFT到ES
@@ -383,43 +384,4 @@ async function notice(
     nft,
     Math.max(...ids),
   );
-}
-
-export async function mqPublish(
-  amqpConnection: any,
-  mqPushErrorLogsRepository: any,
-  exchange: string,
-  routingKey: string,
-  data: any,
-  log = false,
-) {
-  try {
-    amqpConnection.publish(exchange, routingKey, data);
-    Logger.info({
-      title: 'rabbitmq-publish-success',
-      data: {
-        exchange,
-        routingKey,
-        data,
-      },
-    });
-  } catch (err) {
-    Logger.error({
-      title: 'rabbitmq-publish-error',
-      error: err + '',
-      data: {
-        exchange,
-        routingKey,
-        data,
-      },
-    });
-    if (log) {
-      await mqPushErrorLogsRepository.save({
-        exchange,
-        routing_key: routingKey,
-        data,
-        error_msg: err + '',
-      });
-    }
-  }
 }
