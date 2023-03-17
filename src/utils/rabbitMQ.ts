@@ -1,4 +1,4 @@
-import { MQPushErrorLogs } from 'entity';
+import { MQPushErrorLogs } from '../entity';
 import { DataSource } from 'typeorm';
 import { Logger } from './log4js';
 
