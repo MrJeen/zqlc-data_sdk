@@ -11,7 +11,7 @@ export async function mqPublish(
   log = false,
 ) {
   try {
-    amqpConnection.publish(exchange, routingKey, data);
+    await amqpConnection.publish(exchange, routingKey, data);
     Logger.info({
       title: 'rabbitmq-publish-success',
       data: {
