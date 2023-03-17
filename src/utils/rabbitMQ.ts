@@ -1,8 +1,10 @@
+import { MQPushErrorLogs } from 'entity';
+import { DataSource } from 'typeorm';
 import { Logger } from './log4js';
 
 export async function mqPublish(
   amqpConnection: any,
-  mqPushErrorLogsRepository: any,
+  datasource: DataSource,
   exchange: string,
   routingKey: string,
   data: any,
@@ -29,7 +31,7 @@ export async function mqPublish(
       },
     });
     if (log) {
-      await mqPushErrorLogsRepository.save({
+      await datasource.getRepository(MQPushErrorLogs).save({
         exchange,
         routing_key: routingKey,
         data,

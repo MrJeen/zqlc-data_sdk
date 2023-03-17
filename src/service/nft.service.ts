@@ -8,11 +8,13 @@ import {
 import {
   CHAIN,
   Contract,
+  ContractSync,
   CONTRACT_TYPE,
   DESTROY_STATUS,
   getSimpleNft,
   Nft,
   SYNC_STATUS,
+  UserNft,
 } from '../entity';
 import _ from 'lodash';
 import {
@@ -28,6 +30,7 @@ import { Logger } from '../utils/log4js';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import auth from '../config/auth.api';
 import { mqPublish } from '../utils/rabbitMQ';
+import { DataSource } from 'typeorm';
 
 /**
  * 插入NFT到ES
@@ -38,11 +41,7 @@ import { mqPublish } from '../utils/rabbitMQ';
 export async function insertNftToEs(
   elasticsearchService: any,
   redisService: any,
-  nftRepository: any,
-  userNftRepository: any,
-  contractRepository: any,
-  contractSyncRepository: any,
-  mqPushErrorLogsRepository: any,
+  datasource: DataSource,
   amqpConnection: any,
   nft: Nft,
 ) {
@@ -53,11 +52,7 @@ export async function insertNftToEs(
   syncMetadata(
     elasticsearchService,
     redisService,
-    nftRepository,
-    userNftRepository,
-    contractRepository,
-    contractSyncRepository,
-    mqPushErrorLogsRepository,
+    datasource,
     amqpConnection,
     nft,
   );
@@ -70,11 +65,7 @@ export async function insertNftToEs(
 export async function syncMetadata(
   elasticsearchService: any,
   redisService: any,
-  nftRepository: any,
-  userNftRepository: any,
-  contractRepository: any,
-  contractSyncRepository: any,
-  mqPushErrorLogsRepository: any,
+  datasource: DataSource,
   amqpConnection: any,
   nft: Nft,
 ) {
@@ -92,7 +83,7 @@ export async function syncMetadata(
       return;
     }
 
-    const contract = await contractRepository.findOneBy({
+    const contract = await datasource.getRepository(Contract).findOneBy({
       chain: nft.chain,
       token_address: nft.token_address,
     });
@@ -107,19 +98,10 @@ export async function syncMetadata(
       return;
     }
 
-    await updateNft(
-      elasticsearchService,
-      nftRepository,
-      userNftRepository,
-      contractSyncRepository,
-      mqPushErrorLogsRepository,
-      amqpConnection,
-      nft,
-      {
-        ...update,
-        sync_metadata_times: () => 'sync_metadata_times + 1',
-      },
-    );
+    await updateNft(elasticsearchService, datasource, amqpConnection, nft, {
+      ...update,
+      sync_metadata_times: () => 'sync_metadata_times + 1',
+    });
   } catch (error) {
     Logger.error({
       title: 'NftService-syncMetadata',
@@ -167,20 +149,18 @@ async function getMetaDataUpdate(contract: Contract, nft: Nft) {
 
 export async function updateNft(
   elasticsearchService: any,
-  nftRepository: any,
-  userNftRepository: any,
-  contractSyncRepository: any,
-  mqPushErrorLogsRepository: any,
+  datasource: DataSource,
   amqpConnection: any,
   nft: Nft,
   update: any,
 ) {
-  await nftRepository.update({ id: nft.id }, update);
+  await datasource.getRepository(Nft).update({ id: nft.id }, update);
   // 已销毁，重置owner
   if (update['is_destroyed'] == DESTROY_STATUS.YES) {
-    const res = await userNftRepository
+    const res = await datasource
+      .getRepository(UserNft)
       .createQueryBuilder()
-      .update(userNftRepository.create({ amount: 0 }))
+      .update(datasource.getRepository(UserNft).create({ amount: 0 }))
       .where({
         chain: nft.chain,
         token_hash: nft.token_hash,
@@ -191,7 +171,8 @@ export async function updateNft(
       .execute();
 
     if (res.affected) {
-      const owners = await userNftRepository
+      const owners = await datasource
+        .getRepository(UserNft)
         .createQueryBuilder()
         .where({
           chain: nft.chain,
@@ -219,8 +200,7 @@ export async function updateNft(
   // 同步到三方和ES
   await syncToESAndThird(
     elasticsearchService,
-    contractSyncRepository,
-    mqPushErrorLogsRepository,
+    datasource,
     amqpConnection,
     nft,
     update,
@@ -292,20 +272,14 @@ async function getMetadata(tokenUri: string) {
 
 async function syncToESAndThird(
   elasticsearchService: any,
-  contractSyncRepository: any,
-  mqPushErrorLogsRepository: any,
+  datasource: DataSource,
   amqpConnection: any,
   nft: Nft,
   update: any,
 ) {
   if (!_.isEmpty(update['metadata'] || update['is_destroyed'])) {
     // 通知三方
-    await notice(
-      contractSyncRepository,
-      mqPushErrorLogsRepository,
-      amqpConnection,
-      nft,
-    );
+    await notice(datasource, amqpConnection, nft);
   }
 
   // 同步ES
@@ -322,15 +296,15 @@ async function syncToESAndThird(
 }
 
 async function notice(
-  contractSyncRepository: any,
-  mqPushErrorLogsRepository: any,
+  datasource: DataSource,
   amqpConnection: any,
   nft: Nft,
   afterId = 0,
   limit = 1000,
 ) {
   // 查询该contract对应的三方
-  const contractData = await contractSyncRepository
+  const contractData = await datasource
+    .getRepository(ContractSync)
     .createQueryBuilder('c')
     .innerJoin('c.contract', 'contract')
     .where('c.id > :afterId', { afterId })
@@ -362,7 +336,7 @@ async function notice(
         // rmq推送
         await mqPublish(
           amqpConnection,
-          mqPushErrorLogsRepository,
+          datasource,
           RABBITMQ_SYNC_NFT_EXCHANGE,
           routingKey,
           simpleNft,
@@ -377,11 +351,5 @@ async function notice(
     return;
   }
 
-  return await notice(
-    contractSyncRepository,
-    mqPushErrorLogsRepository,
-    amqpConnection,
-    nft,
-    Math.max(...ids),
-  );
+  return await notice(datasource, amqpConnection, nft, Math.max(...ids));
 }
