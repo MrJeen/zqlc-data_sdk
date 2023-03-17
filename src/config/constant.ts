@@ -122,6 +122,8 @@ export const CONTRACT_SYNC_NOTICE = 'contract_sync_notice';
 
 export const NFT_METADATA_ERROR_LIMIT = 'nft_metadata_error_limit';
 
+export const SYNC_ALL_CONTRACT_LOCK = 'sync_all_contract_lock';
+
 export function getMetadataLockKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_LOCK + ':' + contractId;
 }
