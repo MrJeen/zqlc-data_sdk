@@ -19,12 +19,6 @@ export class AllContract extends CommonEntity {
   })
   sync_status;
 
-  @Column('smallint', {
-    default: 0,
-    comment: '处理状态（0-可导入 99-不符合条件）',
-  })
-  status;
-
   @Column('varchar', { default: '', comment: '失败原因' })
   error_msg;
 }
