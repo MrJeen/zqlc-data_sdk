@@ -72,11 +72,11 @@ export class ContractSyncDto extends PickType(ContractBaseDto, [
   @IsOptional()
   @Type(() => Number)
   @ApiPropertyOptional({
-    description: '是否同步1155',
+    description: '是否自动推送',
     enum: [0, 1],
   })
-  @IsEnum([0, 1], { message: 'Illegal sync_1155.' })
-  sync_1155?: number;
+  @IsEnum([0, 1], { message: 'Illegal auto.' })
+  auto?: number;
 }
 
 @Exclude()
