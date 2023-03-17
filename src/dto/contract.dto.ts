@@ -67,6 +67,16 @@ export class ContractSyncDto extends PickType(ContractBaseDto, [
   })
   @IsEnum(CHAIN, { message: 'Illegal chain id.' })
   chain_id?: number;
+
+  @Expose()
+  @IsOptional()
+  @Type(() => Number)
+  @ApiPropertyOptional({
+    description: '是否同步1155',
+    enum: [0, 1],
+  })
+  @IsEnum([0, 1], { message: 'Illegal sync_1155.' })
+  sync_1155?: number;
 }
 
 @Exclude()
