@@ -1,9 +1,9 @@
 import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
-import { IsOptional, Validate } from 'class-validator';
+import { IsOptional, Validate, ValidateIf } from 'class-validator';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { IsEtherAddress } from '../validator/custom.validator';
 import { NftResultDto, NftSyncOwnerDao } from './nft.dto';
-import { ContractBaseDto, ContractSyncDto } from './contract.dto';
+import { ContractBaseDto } from './contract.dto';
 
 @Exclude()
 export class UserNftDto extends NftSyncOwnerDao {
@@ -14,7 +14,13 @@ export class UserNftDto extends NftSyncOwnerDao {
 }
 
 @Exclude()
-export class UserListDto extends OmitType(ContractSyncDto, ['contract_type']) {
+export class UserListDto extends OmitType(ContractBaseDto, ['contract_type']) {
+  @ValidateIf((item) => !item.chain_id)
+  chain: string;
+
+  @ValidateIf((item) => !item.chain)
+  chain_id: number;
+
   @Expose()
   @IsOptional()
   @ApiPropertyOptional({ description: 'nft id' })
@@ -34,9 +40,9 @@ export class UserListDto extends OmitType(ContractSyncDto, ['contract_type']) {
 
 @Exclude()
 export class UserResultDao extends ContractBaseDto {
-  @Expose()
+  @IsOptional()
   @ApiPropertyOptional({ description: '区块链ID' })
-  chain_id?: number;
+  chain_id: number;
 
   @Expose()
   @ApiProperty({ description: 'nft 数量' })

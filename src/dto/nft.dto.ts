@@ -4,16 +4,26 @@ import {
   OmitType,
   PickType,
 } from '@nestjs/swagger';
-import { ArrayNotEmpty, IsArray, Validate, IsOptional } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  Validate,
+  IsOptional,
+  ValidateIf,
+} from 'class-validator';
 import { Exclude, Expose, Type } from 'class-transformer';
-import { ContractBaseDto, ContractSyncDto } from './contract.dto';
+import { ContractBaseDto } from './contract.dto';
 import { IsEtherAddress } from '../validator/custom.validator';
 import { ToLowerCase } from '../decorator/custom.decorator';
 
 @Exclude()
-export class NftListDto extends OmitType(ContractSyncDto, ['contract_type']) {
-  // 重写，可选
-  @Expose()
+export class NftListDto extends OmitType(ContractBaseDto, ['contract_type']) {
+  @ValidateIf((item) => !item.chain_id)
+  chain: string;
+
+  @ValidateIf((item) => !item.chain)
+  chain_id: number;
+
   @IsOptional()
   token_address: string;
 
@@ -89,9 +99,9 @@ export class NftSyncAllDao extends OmitType(ContractBaseDto, [
 
 @Exclude()
 export class NftResultDto extends ContractBaseDto {
-  @Expose()
+  @IsOptional()
   @ApiPropertyOptional({ description: '区块链ID' })
-  chain_id?: number;
+  chain_id: number;
 
   @Expose()
   @ApiProperty({ description: '铸造区块高度' })

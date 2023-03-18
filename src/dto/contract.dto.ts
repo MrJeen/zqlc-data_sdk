@@ -24,6 +24,15 @@ export class ContractBaseDto {
   chain: string;
 
   @Expose()
+  @Type(() => Number)
+  @ApiProperty({
+    description: '区块链ID',
+    enum: CHAIN,
+  })
+  @IsEnum(CHAIN, { message: 'Illegal chain id.' })
+  chain_id: number;
+
+  @Expose()
   @ApiProperty({ description: '合约地址' })
   @IsString()
   @Validate(IsEtherAddress, { message: 'Illegal token address.' })
@@ -43,30 +52,12 @@ export class ContractBaseDto {
 }
 
 @Exclude()
-export class ContractSyncDto extends PickType(ContractBaseDto, [
-  'token_address',
-  'contract_type',
-]) {
-  @Expose()
-  @Type(() => String)
-  @ApiPropertyOptional({
-    description: '区块链',
-    enum: CHAIN,
-  })
+export class ContractSyncDto extends ContractBaseDto {
   @ValidateIf((item) => !item.chain_id)
-  @IsEnum(CHAIN, { message: 'Illegal chain.' })
-  @ToUpperCase()
-  chain?: string;
+  chain: string;
 
-  @Expose()
-  @Type(() => Number)
   @ValidateIf((item) => !item.chain)
-  @ApiPropertyOptional({
-    description: '区块链ID',
-    enum: CHAIN,
-  })
-  @IsEnum(CHAIN, { message: 'Illegal chain id.' })
-  chain_id?: number;
+  chain_id: number;
 
   @Expose()
   @IsOptional()
