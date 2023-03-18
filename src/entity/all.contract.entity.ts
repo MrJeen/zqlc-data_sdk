@@ -21,4 +21,7 @@ export class AllContract extends CommonEntity {
 
   @Column('varchar', { default: '', comment: '失败原因' })
   error_msg;
+
+  @Column('varchar', { default: '', comment: '' })
+  type;
 }
