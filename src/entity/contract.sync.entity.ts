@@ -26,4 +26,7 @@ export class ContractSync extends CommonEntity {
   @ManyToOne(() => Contract)
   @JoinColumn({ name: 'contract_id', referencedColumnName: 'id' })
   contract: Contract;
+
+  @Column('smallint', { default: 0, comment: '是否推荐（0：否，1：是）' })
+  is_recommend;
 }

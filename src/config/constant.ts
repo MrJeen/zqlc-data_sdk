@@ -277,3 +277,8 @@ export enum COMMON_STATUS {
   FINISHED = 20,
   FAILED = 99,
 }
+
+export enum BOOLEAN_STATUS {
+  NO,
+  YES,
+}

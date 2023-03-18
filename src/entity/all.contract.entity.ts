@@ -22,6 +22,9 @@ export class AllContract extends CommonEntity {
   @Column('varchar', { default: '', comment: '失败原因' })
   error_msg;
 
-  @Column('varchar', { default: '', comment: '' })
+  @Column('varchar', { default: '', comment: '类型（mint-rank, trade-rank）' })
   type;
+
+  @Column('smallint', { default: 0, comment: '是否推荐（0：否，1：是）' })
+  is_recommend;
 }
