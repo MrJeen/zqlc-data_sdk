@@ -160,49 +160,49 @@ export type NETWORK_TYPE = {
   node?: BALANCE_TYPE[];
 };
 
-export const ETH_NETWORK: NETWORK_TYPE = {
+const ETH_NETWORK: NETWORK_TYPE = {
   name: 'ETH',
   chainId: 1,
   transferIncr: 5,
 };
 
-export const GOERLI_NETWORK: NETWORK_TYPE = {
+const GOERLI_NETWORK: NETWORK_TYPE = {
   name: 'GOERLI',
   chainId: 5,
   transferIncr: 10,
 };
 
-export const BSC_NETWORK: NETWORK_TYPE = {
+const BSC_NETWORK: NETWORK_TYPE = {
   name: 'BSC',
   chainId: 56,
   transferIncr: 8,
 };
 
-export const POLYGON_NETWORK: NETWORK_TYPE = {
+const POLYGON_NETWORK: NETWORK_TYPE = {
   name: 'POLYGON',
   chainId: 137,
   transferIncr: 10,
 };
 
-export const ZKSYNC_NETWORK: NETWORK_TYPE = {
+const ZKSYNC_NETWORK: NETWORK_TYPE = {
   name: 'ZKSYNC',
   chainId: 280,
   transferIncr: 10,
 };
 
-export const ZKSYNC_MAINNET_NETWORK: NETWORK_TYPE = {
+const ZKSYNC_MAINNET_NETWORK: NETWORK_TYPE = {
   name: 'ZKSYNC_MAINNET',
   chainId: 324,
   transferIncr: 10,
 };
 
-export const ARBITRUM_NETWORK: NETWORK_TYPE = {
+const ARBITRUM_NETWORK: NETWORK_TYPE = {
   name: 'ARBITRUM',
   chainId: 42161,
   transferIncr: 1000,
 };
 
-export const ARBITRUM_TEST_NETWORK: NETWORK_TYPE = {
+const ARBITRUM_TEST_NETWORK: NETWORK_TYPE = {
   name: 'ARBITRUM_TEST',
   chainId: 421613,
   transferIncr: 1000,
