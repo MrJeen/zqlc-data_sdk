@@ -155,6 +155,8 @@ export async function updateNft(
   update: any,
 ) {
   await datasource.getRepository(Nft).update({ id: nft.id }, update);
+  // 取最新数据
+  nft = await datasource.getRepository(Nft).findOneBy({ id: nft.id });
   // 已销毁，重置owner
   if (update['is_destroyed'] == DESTROY_STATUS.YES) {
     const res = await datasource
