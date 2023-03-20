@@ -128,7 +128,7 @@ async function getMetaDataUpdate(contract: Contract, nft: Nft) {
         if (!_.isEmpty(metadata)) {
           update['metadata'] = metadata;
           if (!nft.name && metadata.hasOwnProperty('name')) {
-            update['name'] = metadata?.name || '';
+            update['name'] = (metadata?.name || '').replace(/\u0000/g, '');
           }
         }
       } catch (e) {
