@@ -15,20 +15,40 @@ import {
   REDIS_MORALIS_NAME,
 } from '../config/constant';
 import { Logger } from '../utils/log4js';
+import {
+  EvmChainish,
+  GetContractNFTsRequest,
+  GetNFTMetadataRequest,
+  GetNFTOwnersRequest,
+} from '@moralisweb3/common-evm-utils';
 
-Moralis.start({
-  apiKey: 'g4fyHQifM9KjR5G5efMDIgeO2nsvrqEz8m8W8kptrc6TY85C9QpRo1QkaWsiVaRh',
-});
+let moralisInstance = undefined;
+
+/**
+ * moralis初始化
+ */
+async function init() {
+  if (!moralisInstance) {
+    await Moralis.start({
+      apiKey: process.env.MORALIS_API_KEY,
+    });
+    moralisInstance = 1;
+  }
+}
 
 /**
  * 获取nft拥有者
  * @param options
  */
-export async function getNFTOwners(redisService: any, options: any) {
+export async function getNFTOwners(
+  redisService: any,
+  options: GetNFTOwnersRequest,
+) {
   if (!isSupportChain(options.chain)) {
     // moralis不支持的链
     return;
   }
+
   return await callTokenApi('getNFTOwners', options, redisService);
 }
 
@@ -36,7 +56,10 @@ export async function getNFTOwners(redisService: any, options: any) {
  * 获取nft
  * @param options
  */
-export async function getContractNFTs(redisService: any, options: any) {
+export async function getContractNFTs(
+  redisService: any,
+  options: GetContractNFTsRequest,
+) {
   if (!isSupportChain(options.chain)) {
     // moralis不支持的链
     return;
@@ -48,7 +71,10 @@ export async function getContractNFTs(redisService: any, options: any) {
  * 获取nft信息
  * @param options
  */
-export async function getNFTMetadata(redisService: any, options: any) {
+export async function getNFTMetadata(
+  redisService: any,
+  options: GetNFTMetadataRequest,
+) {
   if (!isSupportChain(options.chain)) {
     // moralis不支持的链
     return;
@@ -61,7 +87,7 @@ export async function getNFTMetadata(redisService: any, options: any) {
  * @param chainId
  * @returns
  */
-function isSupportChain(chainId: number) {
+function isSupportChain(chainId: EvmChainish) {
   return Object.values(MORALIS_SUPPORT_CHAIN).indexOf(toNumber(chainId)) !== -1;
 }
 
@@ -79,6 +105,10 @@ async function callTokenApi(method: string, options: any, redisService: any) {
     if (lock === LOCK_FAILED) {
       return LOCK_FAILED;
     }
+
+    // 初始化
+    await init();
+
     const response = await Moralis.EvmApi.nft[method](options);
     // 转换为rest-api数据格式
     return response?.raw;

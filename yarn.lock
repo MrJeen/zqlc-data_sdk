@@ -426,6 +426,13 @@
   dependencies:
     axios "^1.2.1"
 
+"@moralisweb3/common-core@^2.17.0":
+  version "2.17.0"
+  resolved "https://registry.npmjs.org/@moralisweb3/common-core/-/common-core-2.17.0.tgz#552b0d58f29b2fb9dc437bcbc32601051f19eeb6"
+  integrity sha512-VXpNTPI/MXb2uyIR0myyuem9kmad67bNhS7WfOvN3ra8L3EL0jJJPdL4Oxq6opop97yWq4G/1mfK8oNpNTRMuw==
+  dependencies:
+    axios "^1.2.1"
+
 "@moralisweb3/common-evm-utils@^2.14.3":
   version "2.14.3"
   resolved "https://registry.npmjs.org/@moralisweb3/common-evm-utils/-/common-evm-utils-2.14.3.tgz#78015cc9bf23d52af498309eea26b6cbbfd8c41d"
@@ -435,6 +442,16 @@
     "@ethersproject/bytes" "^5.7.0"
     "@ethersproject/transactions" "^5.7.0"
     "@moralisweb3/common-core" "^2.14.3"
+
+"@moralisweb3/common-evm-utils@^2.17.0":
+  version "2.17.0"
+  resolved "https://registry.npmjs.org/@moralisweb3/common-evm-utils/-/common-evm-utils-2.17.0.tgz#5041411df21a5e2d3e4e53dcf49d8e68dce83ea5"
+  integrity sha512-KPPFicUe3X+q1QvPzyaKzFGkMobFnmkEBz05pxX23RBd3LuhJeatXJTYCBeC3qKL/AGwfPyDKUUX4GT2yeZgqw==
+  dependencies:
+    "@ethersproject/address" "^5.7.0"
+    "@ethersproject/bytes" "^5.7.0"
+    "@ethersproject/transactions" "^5.7.0"
+    "@moralisweb3/common-core" "^2.17.0"
 
 "@moralisweb3/common-sol-utils@^2.14.3":
   version "2.14.3"
