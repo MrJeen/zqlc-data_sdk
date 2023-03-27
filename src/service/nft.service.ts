@@ -279,7 +279,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
   return metadata;
 }
 
-async function checkMetadataImg(metadata: any, nft: Nft) {
+export async function checkMetadataImg(metadata: any, nft: Nft) {
   if (metadata.hasOwnProperty('image') && base64_reg.test(metadata.image)) {
     // 上传图片信息到oss
     const client = getOssOmBase64Client();
