@@ -31,6 +31,8 @@ import { SocksProxyAgent } from 'socks-proxy-agent';
 import auth from '../config/auth.api';
 import { mqPublish } from '../utils/rabbitMQ';
 import { DataSource } from 'typeorm';
+import { getOssOmBase64Client } from './aliyun.oss.service';
+import { Readable } from 'stream';
 
 /**
  * 插入NFT到ES
@@ -123,7 +125,7 @@ async function getMetaDataUpdate(contract: Contract, nft: Nft) {
       update['token_uri'] = tokenUri;
       update['sync_metadata_error'] = '';
       try {
-        const metadata = await getMetadata(tokenUri);
+        const metadata = await getMetadata(nft, tokenUri);
         // metadata不为空
         if (!_.isEmpty(metadata)) {
           update['metadata'] = metadata;
@@ -242,11 +244,12 @@ async function getTokenUri(contract: Contract, nft: Nft) {
   return tokenUri;
 }
 
-async function getMetadata(tokenUri: string) {
+async function getMetadata(nft: Nft, tokenUri: string) {
   let metadata: any;
   // 有些tokenUri是base64编码，这种情况无需使请求接口
-  if (tokenUri.indexOf('data:application/json;base64,') != -1) {
-    const base64 = tokenUri.replace('data:application/json;base64,', '');
+  const reg = /^data:[\s\S]+;base64,/;
+  if (reg.test(tokenUri)) {
+    const base64 = tokenUri.replace(reg, '');
     metadata = JSON.parse(Buffer.from(base64, 'base64').toString());
   } else {
     // 本地需要设置proxy
@@ -269,7 +272,24 @@ async function getMetadata(tokenUri: string) {
   if (!(metadata && typeof metadata === 'object')) {
     metadata = {};
   }
+
+  await checkMetadataImg(metadata, nft);
+
   return metadata;
+}
+
+async function checkMetadataImg(metadata: any, nft: Nft) {
+  const reg = /^data:[\s\S]+;base64,/;
+  if (metadata.hasOwnProperty('image') && reg.test(metadata.image)) {
+    // 上传图片信息到oss
+    const client = getOssOmBase64Client();
+    const stream = Readable.from(metadata.image);
+    const result = await client.putStream(
+      `${nft.chain}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
+      stream,
+    );
+    metadata.image = result.url;
+  }
 }
 
 async function syncToESAndThird(
