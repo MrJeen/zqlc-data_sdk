@@ -18,7 +18,7 @@ const errorLogger = Log4js.getLogger('error');
 export class Logger {
   static checkLevel() {
     const level = process.env.LOGGER_LEVEL;
-    if (level) {
+    if (level != logger.level) {
       logger.level = level;
     }
     return logger;
