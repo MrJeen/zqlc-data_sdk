@@ -83,10 +83,6 @@ export async function syncMetadata(
   }
 
   try {
-    if (nft.is_destroyed == DESTROY_STATUS.YES) {
-      return;
-    }
-
     const contract = await datasource.getRepository(Contract).findOneBy({
       chain: nft.chain,
       token_address: nft.token_address,
@@ -96,7 +92,12 @@ export async function syncMetadata(
       return;
     }
 
-    const update = await getMetaDataUpdate(contract, nft);
+    let update = {};
+    if (nft.is_destroyed == DESTROY_STATUS.YES) {
+      update['is_destroyed'] = DESTROY_STATUS.YES;
+    } else {
+      update = await getMetaDataUpdate(contract, nft);
+    }
 
     if (_.isEmpty(update)) {
       return;
@@ -137,6 +138,10 @@ async function getMetaDataUpdate(contract: Contract, nft: Nft) {
         }
       } catch (e) {
         update['sync_metadata_error'] = e + '';
+      }
+      if (base64_reg.test(tokenUri)) {
+        // base64太长了，不存储
+        update['token_uri'] = 'base64 data';
       }
     }
   } catch (e) {
