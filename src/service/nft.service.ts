@@ -100,10 +100,17 @@ export async function syncMetadata(
       return;
     }
 
-    await updateNft(elasticsearchService, datasource, amqpConnection, nft, {
-      ...update,
-      sync_metadata_times: () => 'sync_metadata_times + 1',
-    });
+    await updateNft(
+      elasticsearchService,
+      datasource,
+      amqpConnection,
+      redisService,
+      nft,
+      {
+        ...update,
+        sync_metadata_times: () => 'sync_metadata_times + 1',
+      },
+    );
   } catch (error) {
     Logger.error({
       title: 'NftService-syncMetadata',
@@ -157,6 +164,7 @@ export async function updateNft(
   elasticsearchService: any,
   datasource: DataSource,
   amqpConnection: any,
+  redisService: any,
   nft: Nft,
   update: any,
 ) {
@@ -210,6 +218,7 @@ export async function updateNft(
     elasticsearchService,
     datasource,
     amqpConnection,
+    redisService,
     nft,
     update,
   );
@@ -298,12 +307,13 @@ async function syncToESAndThird(
   elasticsearchService: any,
   datasource: DataSource,
   amqpConnection: any,
+  redisService: any,
   nft: Nft,
   update: any,
 ) {
   if (!_.isEmpty(update['metadata'] || update['is_destroyed'])) {
     // 通知三方
-    await notice(datasource, amqpConnection, nft);
+    await notice(datasource, amqpConnection, redisService, nft);
   }
 
   // 同步ES
@@ -322,6 +332,7 @@ async function syncToESAndThird(
 async function notice(
   datasource: DataSource,
   amqpConnection: any,
+  redisService: any,
   nft: Nft,
   afterId = 0,
   limit = 1000,
@@ -360,6 +371,8 @@ async function notice(
         // rmq推送
         await mqPublish(
           amqpConnection,
+          datasource,
+          redisService,
           RABBITMQ_SYNC_NFT_EXCHANGE,
           routingKey,
           nftInfo,
@@ -373,5 +386,11 @@ async function notice(
     return;
   }
 
-  return await notice(datasource, amqpConnection, nft, Math.max(...ids));
+  return await notice(
+    datasource,
+    amqpConnection,
+    redisService,
+    nft,
+    Math.max(...ids),
+  );
 }
