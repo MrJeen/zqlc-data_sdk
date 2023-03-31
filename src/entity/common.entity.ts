@@ -5,7 +5,7 @@ import {
 } from 'typeorm';
 
 export class CommonEntity {
-  @PrimaryGeneratedColumn({ comment: 'ID' })
+  @PrimaryGeneratedColumn({ comment: 'ID', type: 'bigint' })
   id: number;
 
   @CreateDateColumn({ comment: '创建时间' })
