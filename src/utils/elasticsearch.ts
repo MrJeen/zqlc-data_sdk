@@ -144,15 +144,16 @@ function formatNftUpdate(data: any[]) {
       {
         script: {
           lang: 'painless',
-          source:
-            'if(params.name != null){ctx._source.name = params.name}if(params.has_metadata != null){ctx._source.has_metadata = params.has_metadata}if(params.is_destroyed != null){ctx._source.is_destroyed = params.is_destroyed}',
+          source: `if(params.name != null){ctx._source.name = params.name}
+          if(params.has_metadata != null){ctx._source.has_metadata = params.has_metadata}
+          if(params.is_destroyed != null){ctx._source.is_destroyed = params.is_destroyed}
+          if(params.sync_metadata_times != null){ctx._source.sync_metadata_times = params.sync_metadata_times}
+          if(params.last_sync_metadata_time != null){ctx._source.last_sync_metadata_time = params.last_sync_metadata_time}
+          if(params.block_number != null){ctx._source.block_number = params.block_number}`,
           params: {
-            ...(nft.hasOwnProperty('name') ? { name: nft.name } : {}),
+            ...nft,
             ...(nft.hasOwnProperty('metadata')
               ? { has_metadata: !_.isEmpty(nft.metadata) ? 1 : 0 }
-              : {}),
-            ...(nft.hasOwnProperty('is_destroyed')
-              ? { is_destroyed: nft.is_destroyed }
               : {}),
           },
         },

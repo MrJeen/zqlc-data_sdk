@@ -1,5 +1,6 @@
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { CommonEntity } from './common.entity';
+import { Transfer } from './transfer.entity';
 
 @Entity('nfts')
 @Index(['chain', 'token_hash'], { unique: true })
@@ -66,6 +67,9 @@ export class Nft extends CommonEntity {
 
   @Column('int', { default: 0, comment: '转移log index' })
   transfer_log_index;
+
+  @OneToMany(() => Transfer, (transfer: Transfer) => transfer.nft)
+  transfers: Transfer[];
 }
 
 export enum DESTROY_STATUS {

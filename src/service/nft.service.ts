@@ -1,31 +1,19 @@
 import axios from 'axios';
 import {
-  erc1155ContractAbi,
-  erc721ContractAbi,
+  BOOLEAN_STATUS,
+  CONTRACT_ATTRIBUTE,
   NFT_METADATA_LOCK,
   RABBITMQ_SYNC_NFT_EXCHANGE,
-} from '../config';
-import {
-  CHAIN,
-  Contract,
-  ContractSync,
-  CONTRACT_TYPE,
-  DESTROY_STATUS,
-  getSimpleNft,
-  Nft,
-  SYNC_STATUS,
-  UserNft,
-} from '../entity';
+} from '../config/constant';
+import { erc1155ContractAbi, erc721ContractAbi } from '../config/abi';
+import { UserNft } from '../entity/user.nft.entity';
+import { CHAIN, CONTRACT_TYPE, SYNC_STATUS } from '../entity/contract.entity';
+import { ContractSync } from '../entity/contract.sync.entity';
+import { DESTROY_STATUS, Nft } from '../entity/nft.entity';
 import _ from 'lodash';
-import {
-  getContract,
-  getJsonRpcProvider,
-  handleNftToEs,
-  handleUserNftToES,
-  md5,
-  toNumber,
-  ZERO_ADDRESS,
-} from '../utils';
+import { filterData, md5, toNumber } from '../utils/helper';
+import { getContract, getJsonRpcProvider, ZERO_ADDRESS } from '../utils/ethers';
+import { handleNftToEs, handleUserNftToES } from '../utils/elasticsearch';
 import { Logger } from '../utils/log4js';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import auth from '../config/auth.api';
@@ -33,6 +21,7 @@ import { mqPublish } from '../utils/rabbitMQ';
 import { DataSource } from 'typeorm';
 import { getOssOmBase64Client } from './aliyun.oss.service';
 import { Readable } from 'stream';
+import { NftResultDto } from '../dto/nft.dto';
 
 export const base64_reg = /^data:[\s\S]+;base64,/;
 
@@ -83,12 +72,17 @@ export async function syncMetadata(
   }
 
   try {
-    const contract = await datasource.getRepository(Contract).findOneBy({
-      chain: nft.chain,
-      token_address: nft.token_address,
-    });
+    // 从redis获取contract的属性，是否需要同步metadata，是否有设置tokenuri前缀
+    const attributeStr = await redisClient.hget(
+      CONTRACT_ATTRIBUTE,
+      nft.chain + ':' + nft.token_address,
+    );
+    let contractArrtibute = {};
+    if (attributeStr) {
+      contractArrtibute = JSON.parse(attributeStr);
+    }
 
-    if (contract.no_metadata == 1) {
+    if (contractArrtibute['no_metadata'] == BOOLEAN_STATUS.YES) {
       return;
     }
 
@@ -96,7 +90,10 @@ export async function syncMetadata(
     if (nft.is_destroyed == DESTROY_STATUS.YES) {
       update['is_destroyed'] = DESTROY_STATUS.YES;
     } else {
-      update = await getMetaDataUpdate(contract, nft);
+      update = await getMetaDataUpdate(
+        contractArrtibute['token_uri_prefix'] ?? '',
+        nft,
+      );
     }
 
     if (_.isEmpty(update)) {
@@ -118,11 +115,11 @@ export async function syncMetadata(
   }
 }
 
-async function getMetaDataUpdate(contract: Contract, nft: Nft) {
+async function getMetaDataUpdate(tokenUriPrefix: string, nft: Nft) {
   const update = {};
   let tokenUri = '';
   try {
-    tokenUri = await getTokenUri(contract, nft);
+    tokenUri = await getTokenUri(tokenUriPrefix, nft);
 
     if (tokenUri) {
       update['token_uri'] = tokenUri;
@@ -218,11 +215,11 @@ export async function updateNft(
   );
 }
 
-async function getTokenUri(contract: Contract, nft: Nft) {
+async function getTokenUri(tokenUriPrefix: string, nft: Nft) {
   let tokenUri = '';
-  if (contract?.token_uri_prefix) {
+  if (tokenUriPrefix) {
     // 直接拼接uri
-    tokenUri = contract.token_uri_prefix + nft.token_id;
+    tokenUri = tokenUriPrefix + nft.token_id;
   } else {
     const provider = getJsonRpcProvider(toNumber(CHAIN[nft.chain]));
     if (nft.contract_type === CONTRACT_TYPE.ERC721) {
@@ -355,19 +352,17 @@ async function notice(
     await Promise.all(
       _.map(data, async (item) => {
         ids.push(item['id']);
-        const simpleNft = getSimpleNft(nft);
-        simpleNft['chain_id'] = CHAIN[nft.chain];
+        const nftInfo = filterData(NftResultDto, nft);
+        nftInfo['chain_id'] = CHAIN[nft.chain];
         const routingKey = md5(
           item['source'] + auth[item['source']] + 'update' + CHAIN[nft.chain],
         );
         // rmq推送
         await mqPublish(
           amqpConnection,
-          datasource,
           RABBITMQ_SYNC_NFT_EXCHANGE,
           routingKey,
-          simpleNft,
-          true,
+          nftInfo,
         );
       }),
     );

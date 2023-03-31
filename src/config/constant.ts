@@ -91,6 +91,10 @@ export const RABBITMQ_METADATA_SYNC_EXCHANGE = 'metadata_sync_exchange';
 export const RABBITMQ_METADATA_SYNC_QUEUE = 'metadata_sync_queue';
 export const RABBITMQ_METADATA_SYNC_ROUTING_KEY = 'metadata_sync';
 
+// 同步某个NFT的metadata
+export const RABBITMQ_NFT_METADATA_QUEUE = 'nft_metadata_queue';
+export const RABBITMQ_NFT_METADATA_ROUTING_KEY = 'nft_metadata_routing';
+
 export const RABBITMQ_SYNC_NFT_EXCHANGE = 'sync_nft_exchange';
 export const RABBITMQ_SYNC_TRANSFER_EXCHANGE = 'sync_transfer_exchange';
 
@@ -102,9 +106,11 @@ export const RABBITMQ_NFT_SYNC_QUEUE = 'nft_sync_queue';
 
 export const RABBITMQ_TRANSFER_EXCHANGE = 'transfer_exchange';
 export const RABBITMQ_TRANSFER_SYNC_ROUTING_KEY = 'transfer_sync';
+export const RABBITMQ_TRANSFER_SYNC_QUEUE = 'transfer_sync_queue';
+
+// 处理某个transfer
 export const RABBITMQ_TRANSFER_HANLDE_ROUTING_KEY = 'transfer_handle';
 export const RABBITMQ_TRANSFER_HANLDE_QUEUE = 'transfer_handle_queue';
-export const RABBITMQ_TRANSFER_SYNC_QUEUE = 'transfer_sync_queue';
 
 export const NFT_METADATA_LOCK = 'nft_metadata_lock';
 
@@ -123,6 +129,12 @@ export const CONTRACT_SYNC_NOTICE = 'contract_sync_notice';
 export const NFT_METADATA_ERROR_LIMIT = 'nft_metadata_error_limit';
 
 export const SYNC_ALL_CONTRACT_LOCK = 'sync_all_contract_lock';
+
+export const CONTRACT_ATTRIBUTE = 'contract_attribute';
+
+export const CONTRACT_INIT_LOCK = 'contract_init_lock';
+
+export const TRANSFER_HANDLE_LOCK = 'transfer_handle_lock';
 
 export function getMetadataLockKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_LOCK + ':' + contractId;

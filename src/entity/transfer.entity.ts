@@ -1,13 +1,10 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { CommonEntity } from './common.entity';
 import { Contract } from './contract.entity';
+import { Nft } from './nft.entity';
 
 @Entity('transfers')
 @Index(['token_address', 'analyse_status'])
-@Index(
-  ['chain', 'transaction_hash', 'token_hash', 'log_index', 'array_index'],
-  { unique: true },
-)
 export class Transfer extends CommonEntity {
   // 需要按chain分区，所以要设置primary
   @Column('varchar', { default: '', comment: '区块链类型', primary: true })
@@ -85,6 +82,13 @@ export class Transfer extends CommonEntity {
     { name: 'token_address', referencedColumnName: 'token_address' },
   ])
   contract: Contract;
+
+  @ManyToOne(() => Nft)
+  @JoinColumn([
+    { name: 'chain', referencedColumnName: 'chain' },
+    { name: 'token_hash', referencedColumnName: 'token_hash' },
+  ])
+  nft: Nft;
 }
 
 export enum ANALYSE_STATUS {
