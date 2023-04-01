@@ -1,15 +1,13 @@
 import {
   CreateDateColumn,
-  Generated,
   Index,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Index(['created_at'])
 export class CommonEntity {
-  @PrimaryColumn()
-  @Generated('uuid')
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @CreateDateColumn({ comment: '创建时间' })
