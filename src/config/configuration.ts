@@ -27,7 +27,7 @@ export default () => ({
     port: ~~(process.env.REDIS_PORT ?? 6379),
     db: ~~(process.env.REDIS_DB ?? 9),
     password: process.env.REDIS_PASSWORD || '',
-    keyPrefix: `app:${process.env.APP_ENV}:` || 'redis',
+    keyPrefix: `nft_sync_om:${process.env.APP_ENV}:` || 'redis',
   },
   redis_moralis: {
     host: process.env.REDIS_HOST || 'localhost',
@@ -37,7 +37,9 @@ export default () => ({
     keyPrefix: REDIS_NAMESPACE_MORALIS + ':',
   },
   queue: {
-    prefix: `app:${process.env.APP_ENV}:${process.env.QUEUE_PREFIX}` || 'queue',
+    prefix:
+      `nft_sync_om:${process.env.APP_ENV}:${process.env.QUEUE_PREFIX}` ||
+      'queue',
     redis: {
       host: process.env.REDIS_HOST || 'localhost',
       port: ~~(process.env.REDIS_PORT ?? 6379),
