@@ -385,8 +385,46 @@ export function loadBalance(data: BALANCE_TYPE[]) {
  * @param tokenId
  * @returns
  */
-export function getTokenHash(address: string, tokenId: any) {
+export function getTokenHash(address: string, tokenId: string) {
   return md5(address + tokenId);
+}
+
+/**
+ * 获取owner hash
+ * @param address
+ * @param tokenId
+ * @returns
+ */
+export function getOwnerHash(
+  address: string,
+  tokenId: string,
+  userAddress: string,
+) {
+  return md5(address + tokenId + userAddress);
+}
+
+/**
+ * 获取owner hash
+ * @param address
+ * @param tokenId
+ * @returns
+ */
+export function getTransferHash(
+  transactionHash: string,
+  transactionIndex: number,
+  logIndex: number,
+  arrayIndex: number,
+  tokenAddress: string,
+  tokenId: string,
+) {
+  return md5(
+    transactionHash +
+      transactionIndex +
+      logIndex +
+      arrayIndex +
+      tokenAddress +
+      tokenId,
+  );
 }
 
 /**

@@ -7,49 +7,49 @@ import { Transfer } from './transfer.entity';
 @Index(['chain', 'token_address'], { unique: true })
 export class Contract extends CommonEntity {
   @Column('varchar', { default: '', comment: '区块链类型' })
-  chain;
+  chain: string;
 
   @Column('int', { default: 0, comment: '区块链id' })
-  chain_id;
+  chain_id: number;
 
   @Column('varchar', { default: '', comment: '合约地址' })
-  token_address;
+  token_address: string;
 
   @Column('varchar', { default: '', comment: '合约类型' })
-  contract_type;
+  contract_type: string;
 
   @Column('varchar', { default: '', comment: '合约名称' })
-  name;
+  name: string;
 
   @Column('varchar', { default: '', comment: '代币标识' })
-  symbol;
+  symbol: string;
 
   @Column('varchar', { default: '', comment: '创建者' })
-  creator;
+  creator: string;
 
   @Column('int', { default: 0, comment: '最后一次同步nft数据的区块高度' })
-  last_sync_block_number;
+  last_sync_block_number: number;
 
   @Column('smallint', {
     default: 0,
     comment: '同步状态（0-未开始 10-同步中 20-同步成功）',
   })
-  sync_status;
+  sync_status: number;
 
   @Column('smallint', { default: 0, comment: '来源（0-默认，1-open_meta）' })
-  source;
+  source: number;
 
   @Column('varchar', { default: '', comment: '同步nft的偏移量' })
-  cursor;
+  cursor: string;
 
   @Column('varchar', { default: '', comment: 'tokenUri前缀' })
-  token_uri_prefix;
+  token_uri_prefix: string;
 
   @Column('smallint', { default: 0, comment: '需要全量同步metadata' })
-  full_sync;
+  full_sync: number;
 
   @Column('smallint', { default: 0, comment: '不需要同步metadata' })
-  no_metadata;
+  no_metadata: number;
 
   @OneToMany(() => Transfer, (transfer: Transfer) => transfer.contract)
   transfers: Transfer[];

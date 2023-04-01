@@ -2,19 +2,19 @@ import { Column, Entity, Index } from 'typeorm';
 import { CommonEntity } from './common.entity';
 
 @Entity('user_nfts')
-@Index(['chain', 'user_address', 'token_hash'], { unique: true })
+@Index(['chain', 'owner_hash'], { unique: true })
 @Index(['updated_at'])
 @Index(['chain', 'token_hash'])
 export class UserNft extends CommonEntity {
   // 需要按chain分区，所以要设置primary
   @Column('varchar', { default: '', comment: '区块链类型', primary: true })
-  chain;
+  chain: string;
 
   @Column('varchar', { default: '', comment: '合约地址' })
-  token_address;
+  token_address: string;
 
   @Column('varchar', { default: '', comment: 'nft id' })
-  token_id;
+  token_id: string;
 
   @Column({
     type: 'numeric',
@@ -23,20 +23,26 @@ export class UserNft extends CommonEntity {
     default: 0,
     comment: 'nft 数量',
   })
-  amount;
+  amount: number;
 
   @Column('varchar', { default: '', comment: '拥有者地址' })
-  user_address;
+  user_address: string;
 
   @Column('varchar', { default: '', comment: '合约类型' })
-  contract_type;
+  contract_type: string;
 
   @Column('int', { default: 0, comment: '当前区块高度' })
-  block_number;
+  block_number: number;
 
   @Column('varchar', { default: '', comment: 'nft哈希 - md5(address+id)' })
-  token_hash;
+  token_hash: string;
 
   @Column('int', { default: 0, comment: '转移log index' })
-  transfer_log_index;
+  transfer_log_index: number;
+
+  @Column('varchar', {
+    default: '',
+    comment: 'owner哈希 - md5(address+id+user_address)',
+  })
+  owner_hash: string;
 }

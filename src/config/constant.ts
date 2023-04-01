@@ -58,12 +58,6 @@ export const HANDLE_TRANSFER_NFT_LOCK = 'handle_transfer_nft_lock';
 export const CHECK_THIRD_CONTRACT_LOCK = 'check_third_contract_lock';
 export const SYNC_CONTRACT_INFO_LOCK = 'sync_contract_info_lock';
 
-/********** contract同步完成触发事件 ***********/
-export const EVENT_CONTRACT_SYNC = 'contract.sync';
-
-/********** transfer同步完成触发事件 ***********/
-export const EVENT_TRANSFER_SYNC = 'transfer.sync';
-
 /********** nft更新完成触发事件 ***********/
 export const EVENT_NFT_SYNC = 'nft.sync';
 export const EVENT_NFT_SYNC_METADATA = 'nft.sync.metadata';

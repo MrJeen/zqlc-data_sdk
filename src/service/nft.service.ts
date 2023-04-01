@@ -18,7 +18,7 @@ import { Logger } from '../utils/log4js';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import auth from '../config/auth.api';
 import { mqPublish } from '../utils/rabbitMQ';
-import { DataSource } from 'typeorm';
+import { DataSource, Not } from 'typeorm';
 import { getOssOmBase64Client } from './aliyun.oss.service';
 import { Readable } from 'stream';
 import { NftResultDto } from '../dto/nft.dto';
@@ -39,7 +39,7 @@ export async function insertNftToEs(
   nft: Nft,
 ) {
   // 同步到ES
-  await handleNftToEs(elasticsearchService, [nft], []);
+  await handleNftToEs(elasticsearchService, [nft]);
 
   // 同步metadata
   syncMetadata(
@@ -173,46 +173,28 @@ export async function updateNft(
   nft = await datasource.getRepository(Nft).findOneBy({ id: nft.id });
   // 已销毁，重置owner
   if (update['is_destroyed'] == DESTROY_STATUS.YES) {
-    const res = await datasource
-      .getRepository(UserNft)
-      .createQueryBuilder()
-      .update(datasource.getRepository(UserNft).create({ amount: 0 }))
-      .where({
+    const res = await datasource.getRepository(UserNft).update(
+      {
         chain: nft.chain,
         token_hash: nft.token_hash,
-      })
-      .andWhere('user_address != :userAddress', {
-        userAddress: ZERO_ADDRESS,
-      })
-      .execute();
+        user_address: Not(ZERO_ADDRESS),
+      },
+      { amount: 0 },
+    );
 
     if (res.affected) {
-      const owners = await datasource
-        .getRepository(UserNft)
-        .createQueryBuilder()
-        .where({
-          chain: nft.chain,
-          token_hash: nft.token_hash,
-        })
-        .andWhere('user_address != :userAddress', {
-          userAddress: ZERO_ADDRESS,
-        })
-        .getMany();
-      let ownerUpdate = [];
+      const owners = await datasource.getRepository(UserNft).findBy({
+        chain: nft.chain,
+        token_hash: nft.token_hash,
+        user_address: Not(ZERO_ADDRESS),
+      });
       if (owners.length) {
-        ownerUpdate = owners.map((owner) => {
-          return {
-            id: owner.id,
-            amount: 0,
-          };
-        });
-      }
-      if (ownerUpdate.length) {
         // 更新ES
-        await handleUserNftToES(elasticsearchService, [], ownerUpdate);
+        await handleUserNftToES(elasticsearchService, owners);
       }
     }
   }
+
   // 同步到三方和ES
   await syncToESAndThird(
     elasticsearchService,
@@ -317,16 +299,7 @@ async function syncToESAndThird(
   }
 
   // 同步ES
-  await handleUserNftToES(
-    elasticsearchService,
-    [],
-    [
-      {
-        id: nft.id,
-        ...update,
-      },
-    ],
-  );
+  await handleNftToEs(elasticsearchService, [nft]);
 }
 
 async function notice(
