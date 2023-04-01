@@ -85,16 +85,16 @@ export class Transfer extends CommonEntity {
   })
   transfer_hash: string;
 
-  // cascade:false 不生成外键
-  @ManyToOne(() => Contract, { cascade: false })
+  // createForeignKeyConstraints:false 不生成外键
+  @ManyToOne(() => Contract, { createForeignKeyConstraints: false })
   @JoinColumn([
     { name: 'chain', referencedColumnName: 'chain' },
     { name: 'token_address', referencedColumnName: 'token_address' },
   ])
   contract: Contract;
 
-  // cascade:false 不生成外键
-  @ManyToOne(() => Nft, { cascade: false })
+  // createForeignKeyConstraints:false 不生成外键
+  @ManyToOne(() => Nft, { createForeignKeyConstraints: false })
   @JoinColumn([
     { name: 'chain', referencedColumnName: 'chain' },
     { name: 'token_hash', referencedColumnName: 'token_hash' },

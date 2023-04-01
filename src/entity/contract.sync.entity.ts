@@ -31,8 +31,8 @@ export class ContractSync extends CommonEntity {
   @Column('smallint', { default: 0, comment: '是否推荐（0：否，1：是）' })
   is_recommend: number;
 
-  // cascade:false 不生成外键
-  @ManyToOne(() => Contract, { cascade: false })
+  // createForeignKeyConstraints:false 不生成外键
+  @ManyToOne(() => Contract, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'contract_id', referencedColumnName: 'id' })
   contract: Contract;
 }
