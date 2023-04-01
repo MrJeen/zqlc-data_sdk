@@ -132,11 +132,11 @@ export const TRANSFER_HANDLE_LOCK = 'transfer_handle_lock';
 
 export const MQ_REPUSH_LOCK = 'mq_repush_lock';
 
-export function getMetadataLockKey(contractId: number) {
+export function getMetadataLockKey(contractId: string) {
   return SYNC_CONTRACT_METADATA_LOCK + ':' + contractId;
 }
 
-export function getSyncMetadataKey(contractId: number) {
+export function getSyncMetadataKey(contractId: string) {
   return SYNC_CONTRACT_METADATA_RUNNING_LOCK + ':' + contractId;
 }
 
