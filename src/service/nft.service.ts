@@ -307,35 +307,27 @@ async function notice(
   amqpConnection: any,
   redisService: any,
   nft: Nft,
-  afterId = 0,
-  limit = 1000,
 ) {
   // 查询该contract对应的三方
   const contractData = await datasource
     .getRepository(ContractSync)
     .createQueryBuilder('c')
     .innerJoin('c.contract', 'contract')
-    .where('c.id > :afterId', { afterId })
     .andWhere({
       token_address: nft.token_address,
       sync_status: SYNC_STATUS.SUCCESS,
     })
     .andWhere(`contract.chain = '${nft.chain}'`)
-    .orderBy('c.id', 'ASC')
-    .limit(limit)
     .getMany();
 
   if (!contractData.length) {
     return;
   }
 
-  const ids = [];
-
   // 分块处理
   for (const data of _.chunk(contractData, 10)) {
     await Promise.all(
       _.map(data, async (item) => {
-        ids.push(item['id']);
         const nftInfo = filterData(NftResultDto, nft);
         nftInfo['chain_id'] = CHAIN[nft.chain];
         const routingKey = md5(
@@ -353,17 +345,4 @@ async function notice(
       }),
     );
   }
-
-  if (contractData.length < limit) {
-    // 已是最后一页
-    return;
-  }
-
-  return await notice(
-    datasource,
-    amqpConnection,
-    redisService,
-    nft,
-    Math.max(...ids),
-  );
 }
