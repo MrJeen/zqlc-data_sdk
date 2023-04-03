@@ -47,7 +47,7 @@ export class Nft extends CommonEntity {
   symbol: string;
 
   @Column('json', { default: {}, comment: 'nft元数据' })
-  metadata: JSON;
+  metadata: object;
 
   @Column('smallint', { default: 0, comment: '是否被销毁（0-否，1-是）' })
   is_destroyed: number;

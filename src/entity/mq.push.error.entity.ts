@@ -10,7 +10,7 @@ export class MQPushErrorLogs extends CommonEntity {
   routing_key: string;
 
   @Column('json', { default: {}, comment: '推送数据' })
-  data: JSON;
+  data: object;
 
   @Column('varchar', { default: '', comment: '错误原因' })
   error_msg: string;
