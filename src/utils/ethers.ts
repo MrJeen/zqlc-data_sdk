@@ -22,17 +22,17 @@ export const getNode = (chainId: number): string => {
  */
 export const getJsonRpcProvider = (
   chainId: number,
-  timeout = -1,
+  timeout = 30, // 默认30秒超时
 ): JsonRpcProvider => {
   const node = getNode(chainId);
   let provider = undefined;
-  if (timeout !== -1) {
+  if (timeout === -1) {
+    provider = new ethers.providers.JsonRpcProvider(node);
+  } else {
     provider = new ethers.providers.JsonRpcProvider({
       url: node,
       timeout: timeout * 1000,
     });
-  } else {
-    provider = new ethers.providers.JsonRpcProvider(node);
   }
   provider['node'] = node;
   return provider;
