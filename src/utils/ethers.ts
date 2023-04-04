@@ -1,8 +1,7 @@
-import { ethers } from 'ethers';
+import { Contract, ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers/src.ts/json-rpc-provider';
 import { Interface } from '@ethersproject/abi/src.ts/interface';
 import { CONTRACT_TYPE } from '../entity/contract.entity';
-import { contractAbi } from '../config/abi';
 import { loadBalance } from './helper';
 import { selectNetwork } from '../config/constant';
 
@@ -67,9 +66,7 @@ export const getContract = (
 export const ZERO_ADDRESS = ethers.constants.AddressZero;
 
 // 获取合约信息
-export async function getContractInfo(chainId: number, address: string) {
-  const provider = getJsonRpcProvider(chainId);
-  const contract = new ethers.Contract(address, contractAbi, provider);
+export async function getContractInfo(contract: Contract) {
   const creator = await getContractCreator(contract);
   const name = await getContractName(contract);
   const symbol = await getContractSymbol(contract);
