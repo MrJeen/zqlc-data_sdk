@@ -168,6 +168,7 @@ export type NETWORK_TYPE = {
   transferIncr: number;
   // 节点在获取网络时 selectNetwork() 初始化
   node?: BALANCE_TYPE[];
+  currentNode?: string;
 };
 
 export const ETH_NETWORK: NETWORK_TYPE = {
@@ -274,9 +275,9 @@ export function selectNetwork(chainId: number): NETWORK_TYPE {
   if (!network) {
     throw Error(`network #${chainId} not found`);
   }
-  if (!network.node) {
+  if (!network.node || !network.node.length) {
     // 节点初始化
-    network.node = JSON.parse(process.env[network.name + '_NODE'] ?? '{}');
+    network.node = JSON.parse(process.env[network.name + '_NODE'] ?? '[]');
   }
   return network;
 }

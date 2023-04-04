@@ -350,6 +350,13 @@ export function filterData(dto, data) {
 }
 
 /**
+ * 顺序获取节点
+ */
+export function selectNode(data: BALANCE_TYPE[]) {
+  return data.shift()?.target;
+}
+
+/**
  * 加权平滑轮询(负载均衡)
  */
 export function loadBalance(data: BALANCE_TYPE[]) {
