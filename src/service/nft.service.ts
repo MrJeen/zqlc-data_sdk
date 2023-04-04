@@ -100,16 +100,22 @@ export async function syncMetadata(
       return;
     }
 
-    await updateNft(
-      elasticsearchService,
-      datasource,
-      amqpConnection,
-      redisService,
-      nft,
+    // 更新NFT
+    await datasource.getRepository(Nft).update(
+      { id: nft.id },
       {
         ...update,
         sync_metadata_times: () => 'sync_metadata_times + 1',
       },
+    );
+
+    await afterUpdateNft(
+      elasticsearchService,
+      datasource,
+      amqpConnection,
+      redisService,
+      nft.id,
+      update['is_destroyed'] ?? false,
     );
   } catch (error) {
     Logger.error({
@@ -160,19 +166,21 @@ async function getMetaDataUpdate(tokenUriPrefix: string, nft: Nft) {
   return update;
 }
 
-export async function updateNft(
+export async function afterUpdateNft(
   elasticsearchService: any,
   datasource: DataSource,
   amqpConnection: any,
   redisService: any,
-  nft: Nft,
-  update: any,
+  nftId: string,
+  isDestroyed: boolean,
 ) {
-  await datasource.getRepository(Nft).update({ id: nft.id }, update);
   // 取最新数据
-  nft = await datasource.getRepository(Nft).findOneBy({ id: nft.id });
-  // 已销毁，重置owner
-  if (update['is_destroyed'] == DESTROY_STATUS.YES) {
+  const nft = await datasource.getRepository(Nft).findOneBy({ id: nftId });
+  // 更新NFT-ES
+  await handleNftToEs(elasticsearchService, [nft]);
+
+  // 已销毁，nft721重置owner
+  if (isDestroyed && nft.contract_type == CONTRACT_TYPE.ERC721) {
     const res = await datasource.getRepository(UserNft).update(
       {
         chain: nft.chain,
@@ -195,15 +203,8 @@ export async function updateNft(
     }
   }
 
-  // 同步到三方和ES
-  await syncToESAndThird(
-    elasticsearchService,
-    datasource,
-    amqpConnection,
-    redisService,
-    nft,
-    update,
-  );
+  // 同步到三方
+  await syncToThird(datasource, amqpConnection, redisService, nft);
 }
 
 async function getTokenUri(tokenUriPrefix: string, nft: Nft) {
@@ -285,24 +286,17 @@ export async function checkMetadataImg(metadata: any, nft: Nft) {
   }
 }
 
-async function syncToESAndThird(
-  elasticsearchService: any,
+async function syncToThird(
   datasource: DataSource,
   amqpConnection: any,
   redisService: any,
   nft: Nft,
-  update: any,
 ) {
-  if (!_.isEmpty(update['metadata'] || update['is_destroyed'])) {
-    // 通知三方
-    await notice(datasource, amqpConnection, redisService, nft);
-  }
-
-  // 同步ES
-  await handleNftToEs(elasticsearchService, [nft]);
+  // 通知三方
+  await nftUpdateNotice(datasource, amqpConnection, redisService, nft);
 }
 
-async function notice(
+async function nftUpdateNotice(
   datasource: DataSource,
   amqpConnection: any,
   redisService: any,
