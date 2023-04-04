@@ -19,17 +19,18 @@ export const getNode = (chainId: number): string => {
 /**
  * 获取provider
  * @param chain
+ * @param timeout 单位秒
  */
 export const getJsonRpcProvider = (
   chainId: number,
-  seconds = -1,
+  timeout = -1,
 ): JsonRpcProvider => {
   const node = getNode(chainId);
   let provider = undefined;
-  if (seconds !== -1) {
+  if (timeout !== -1) {
     provider = new ethers.providers.JsonRpcProvider({
       url: node,
-      timeout: seconds * 1000,
+      timeout: timeout * 1000,
     });
   } else {
     provider = new ethers.providers.JsonRpcProvider(node);
