@@ -1,6 +1,6 @@
 {
   "name": "@zqlc/data_sdk",
-  "version": "1.0.109",
+  "version": "1.0.110",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "license": "MIT",
