@@ -132,6 +132,8 @@ export const TRANSFER_HANDLE_LOCK = 'transfer_handle_lock';
 
 export const MQ_REPUSH_LOCK = 'mq_repush_lock';
 
+export const ALL_CONTRACT_TO_CONTRACT_LOCK = 'all_contract_to_contract_lock';
+
 export function getMetadataLockKey(contractId: string) {
   return SYNC_CONTRACT_METADATA_LOCK + ':' + contractId;
 }
