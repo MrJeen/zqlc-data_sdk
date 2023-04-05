@@ -1,11 +1,9 @@
 import {
   CreateDateColumn,
-  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-@Index(['created_at'])
 export class CommonEntity {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   id: number;
