@@ -171,7 +171,7 @@ export async function afterUpdateNft(
   datasource: DataSource,
   amqpConnection: any,
   redisService: any,
-  nftId: string,
+  nftId: number,
   isDestroyed: boolean,
 ) {
   // 取最新数据
@@ -313,6 +313,8 @@ async function nftUpdateNotice(
     })
     .andWhere(`contract.chain = '${nft.chain}'`)
     .getMany();
+
+  console.log('contractData', contractData);
 
   if (!contractData.length) {
     return;

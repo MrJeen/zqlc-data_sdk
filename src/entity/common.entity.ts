@@ -7,8 +7,8 @@ import {
 
 @Index(['created_at'])
 export class CommonEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
+  id: number;
 
   @CreateDateColumn({ comment: '创建时间' })
   created_at: Date;

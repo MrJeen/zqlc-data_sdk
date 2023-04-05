@@ -13,8 +13,7 @@ import { Contract } from './contract.entity';
 @Index(['contract_id', 'source'], { unique: true })
 export class ContractSync extends CommonEntity {
   @Column()
-  @Generated('uuid')
-  contract_id: string;
+  contract_id: number;
 
   @Column('varchar', { default: '', comment: '合约地址' })
   token_address: string;

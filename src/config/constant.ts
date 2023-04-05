@@ -134,11 +134,11 @@ export const MQ_REPUSH_LOCK = 'mq_repush_lock';
 
 export const ALL_CONTRACT_TO_CONTRACT_LOCK = 'all_contract_to_contract_lock';
 
-export function getMetadataLockKey(contractId: string) {
+export function getMetadataLockKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_LOCK + ':' + contractId;
 }
 
-export function getSyncMetadataKey(contractId: string) {
+export function getSyncMetadataKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_RUNNING_LOCK + ':' + contractId;
 }
 
