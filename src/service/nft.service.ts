@@ -302,8 +302,9 @@ async function nftUpdateNotice(
   redisService: any,
   nft: Nft,
 ) {
+  const redisClient = redisService.getClient();
   const key = getContractSyncSuccessSourceKey(nft.chain, nft.token_address);
-  const sources = await this.redisClient.smembers(key);
+  const sources = await redisClient.smembers(key);
   if (!sources.length) {
     return;
   }
