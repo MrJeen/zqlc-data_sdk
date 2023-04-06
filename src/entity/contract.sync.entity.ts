@@ -1,19 +1,12 @@
-import {
-  Column,
-  Entity,
-  Generated,
-  Index,
-  JoinColumn,
-  ManyToOne,
-} from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { CommonEntity } from './common.entity';
 import { Contract } from './contract.entity';
 
 @Entity('contract_sync')
-@Index(['contract_id', 'source'], { unique: true })
+@Index(['chain', 'token_address', 'source'], { unique: true })
 export class ContractSync extends CommonEntity {
   @Column()
-  contract_id: number;
+  chain: string;
 
   @Column('varchar', { default: '', comment: '合约地址' })
   token_address: string;
@@ -32,6 +25,9 @@ export class ContractSync extends CommonEntity {
 
   // createForeignKeyConstraints:false 不生成外键
   @ManyToOne(() => Contract, { createForeignKeyConstraints: false })
-  @JoinColumn({ name: 'contract_id', referencedColumnName: 'id' })
+  @JoinColumn([
+    { name: 'chain', referencedColumnName: 'chain' },
+    { name: 'token_address', referencedColumnName: 'token_address' },
+  ])
   contract: Contract;
 }
