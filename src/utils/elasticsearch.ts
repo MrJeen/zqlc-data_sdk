@@ -71,18 +71,20 @@ function formatNft(data: Nft[]) {
   let updateBody = [];
   if (data.length) {
     updateBody = data.flatMap((nft) => {
+      // 避免改变nft本身的值
+      const value = { ...nft };
       // 除了metadata不要，其他都存
-      nft['has_metadata'] = !_.isEmpty(nft.metadata) ? 1 : 0;
-      delete nft.metadata;
+      value['has_metadata'] = !_.isEmpty(value.metadata) ? 1 : 0;
+      delete value.metadata;
       return [
         {
           update: {
             _index: process.env.ELASTICSEARCH_NFT_INDEX,
-            _id: `${nft.id}`,
+            _id: `${value.id}`,
           },
         },
         {
-          doc: nft,
+          doc: value,
           doc_as_upsert: true,
         },
       ];
