@@ -5,7 +5,7 @@ import { Contract } from './contract.entity';
 @Entity('contract_sync')
 @Index(['chain', 'token_address', 'source'], { unique: true })
 export class ContractSync extends CommonEntity {
-  @Column()
+  @Column('varchar', { default: '', comment: '区块链名称' })
   chain: string;
 
   @Column('varchar', { default: '', comment: '合约地址' })
