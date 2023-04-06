@@ -2,26 +2,23 @@ import axios from 'axios';
 import {
   BOOLEAN_STATUS,
   CONTRACT_ATTRIBUTE,
-  getContractSyncSuccessSourceKey,
   NFT_METADATA_LOCK,
-  RABBITMQ_SYNC_NFT_EXCHANGE,
+  RABBITMQ_NFT_EXCHANGE,
+  RABBITMQ_NFT_UPDATE_ES_ROUTING_KEY,
 } from '../config/constant';
 import { erc1155ContractAbi, erc721ContractAbi } from '../config/abi';
-import { UserNft } from '../entity/user.nft.entity';
 import { CHAIN, CONTRACT_TYPE } from '../entity/contract.entity';
 import { DESTROY_STATUS, Nft } from '../entity/nft.entity';
 import _ from 'lodash';
-import { filterData, md5, toNumber } from '../utils/helper';
-import { getContract, getJsonRpcProvider, ZERO_ADDRESS } from '../utils/ethers';
-import { handleNftToEs, handleUserNftToES } from '../utils/elasticsearch';
+import { toNumber } from '../utils/helper';
+import { getContract, getJsonRpcProvider } from '../utils/ethers';
+import { handleNftToEs } from '../utils/elasticsearch';
 import { Logger } from '../utils/log4js';
 import { SocksProxyAgent } from 'socks-proxy-agent';
-import auth from '../config/auth.api';
 import { mqPublish } from '../utils/rabbitMQ';
-import { DataSource, Not } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { getOssOmBase64Client } from './aliyun.oss.service';
 import { Readable } from 'stream';
-import { NftResultDto } from '../dto/nft.dto';
 
 export const base64_reg = /^data:[\s\S]+;base64,/;
 
@@ -109,13 +106,13 @@ export async function syncMetadata(
       },
     );
 
-    await afterUpdateNft(
-      elasticsearchService,
-      datasource,
+    mqPublish(
       amqpConnection,
+      datasource,
       redisService,
+      RABBITMQ_NFT_EXCHANGE,
+      RABBITMQ_NFT_UPDATE_ES_ROUTING_KEY,
       { ...nft, ...update },
-      update['is_destroyed'] ?? false,
     );
   } catch (error) {
     Logger.error({
@@ -164,45 +161,6 @@ async function getMetaDataUpdate(tokenUriPrefix: string, nft: Nft) {
   // 记录更新次数和时间
   update['last_sync_metadata_time'] = new Date();
   return update;
-}
-
-export async function afterUpdateNft(
-  elasticsearchService: any,
-  datasource: DataSource,
-  amqpConnection: any,
-  redisService: any,
-  nft: Nft,
-  isDestroyed: boolean,
-) {
-  // 更新NFT-ES
-  await handleNftToEs(elasticsearchService, [nft]);
-
-  // 已销毁，nft721重置owner
-  if (isDestroyed && nft.contract_type == CONTRACT_TYPE.ERC721) {
-    const res = await datasource.getRepository(UserNft).update(
-      {
-        chain: nft.chain,
-        token_hash: nft.token_hash,
-        user_address: Not(ZERO_ADDRESS),
-      },
-      { amount: 0 },
-    );
-
-    if (res.affected) {
-      const owners = await datasource.getRepository(UserNft).findBy({
-        chain: nft.chain,
-        token_hash: nft.token_hash,
-        user_address: Not(ZERO_ADDRESS),
-      });
-      if (owners.length) {
-        // 更新ES
-        await handleUserNftToES(elasticsearchService, owners);
-      }
-    }
-  }
-
-  // 同步到三方
-  await syncToThird(datasource, amqpConnection, redisService, nft);
 }
 
 async function getTokenUri(tokenUriPrefix: string, nft: Nft) {
@@ -281,46 +239,5 @@ export async function checkMetadataImg(metadata: any, nft: Nft) {
       stream,
     );
     metadata.image = result.url;
-  }
-}
-
-async function syncToThird(
-  datasource: DataSource,
-  amqpConnection: any,
-  redisService: any,
-  nft: Nft,
-) {
-  // 通知三方
-  await nftUpdateNotice(datasource, amqpConnection, redisService, nft);
-}
-
-async function nftUpdateNotice(
-  datasource: DataSource,
-  amqpConnection: any,
-  redisService: any,
-  nft: Nft,
-) {
-  const redisClient = redisService.getClient();
-  const key = getContractSyncSuccessSourceKey(nft.chain, nft.token_address);
-  const sources = await redisClient.smembers(key);
-  if (!sources.length) {
-    return;
-  }
-
-  const nftInfo = filterData(NftResultDto, nft);
-  nftInfo['chain_id'] = CHAIN[nft.chain];
-
-  // 分块处理
-  for (const source of sources) {
-    const routingKey = md5(source + auth[source] + 'update' + CHAIN[nft.chain]);
-    // rmq推送
-    await mqPublish(
-      amqpConnection,
-      datasource,
-      redisService,
-      RABBITMQ_SYNC_NFT_EXCHANGE,
-      routingKey,
-      nftInfo,
-    );
   }
 }
