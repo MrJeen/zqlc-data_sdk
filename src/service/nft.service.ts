@@ -109,7 +109,7 @@ export async function syncMetadata(
       },
     );
 
-    afterUpdateNft(
+    await afterUpdateNft(
       elasticsearchService,
       amqpConnection,
       datasource,
