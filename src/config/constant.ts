@@ -134,6 +134,8 @@ export const MQ_REPUSH_LOCK = 'mq_repush_lock';
 
 export const ALL_CONTRACT_TO_CONTRACT_LOCK = 'all_contract_to_contract_lock';
 
+export const CONTRACT_SYNC_SUCCESS_SOURCE = 'contract_source';
+
 export function getMetadataLockKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_LOCK + ':' + contractId;
 }
@@ -148,6 +150,13 @@ export function getTransferSyncKey(chain: string) {
 
 export function getContractInitKey(chain: string, address: string) {
   return SYNC_NFT_LOCK + ':' + chain + ':' + address;
+}
+
+export function getContractSyncSuccessSourceKey(
+  chain: string,
+  address: string,
+) {
+  return CONTRACT_SYNC_SUCCESS_SOURCE + ':' + chain + ':' + address;
 }
 
 export const MICRO_SERVICE = 'MICRO_SERVICE';

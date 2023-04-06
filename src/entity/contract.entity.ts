@@ -2,6 +2,7 @@ import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { CommonEntity } from './common.entity';
 import { ContractSync } from './contract.sync.entity';
 import { Transfer } from './transfer.entity';
+import { COMMON_STATUS } from '../config/constant';
 
 @Entity('contracts')
 @Index(['chain', 'token_address'], { unique: true })
@@ -97,12 +98,6 @@ export enum CONTRACT_TYPE {
   ERC1155 = 'ERC1155',
 }
 
-export enum SYNC_STATUS {
-  DEFAULT = 0,
-  ING = 10,
-  SUCCESS = 20,
-}
-
 export enum CONTRACT_SOURCE {
   DEFAULT,
   OPEN_META = 1000,
@@ -110,7 +105,7 @@ export enum CONTRACT_SOURCE {
 }
 
 // 可同步nft
-export const canSyncStatus = [SYNC_STATUS.DEFAULT, SYNC_STATUS.ING];
+export const canSyncStatus = [COMMON_STATUS.DEFAULT, COMMON_STATUS.DOING];
 export const canSyncNft = (status) => {
   return canSyncStatus.indexOf(status) !== -1;
 };

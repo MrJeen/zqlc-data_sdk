@@ -2,13 +2,13 @@ import axios from 'axios';
 import {
   BOOLEAN_STATUS,
   CONTRACT_ATTRIBUTE,
+  getContractSyncSuccessSourceKey,
   NFT_METADATA_LOCK,
   RABBITMQ_SYNC_NFT_EXCHANGE,
 } from '../config/constant';
 import { erc1155ContractAbi, erc721ContractAbi } from '../config/abi';
 import { UserNft } from '../entity/user.nft.entity';
-import { CHAIN, CONTRACT_TYPE, SYNC_STATUS } from '../entity/contract.entity';
-import { ContractSync } from '../entity/contract.sync.entity';
+import { CHAIN, CONTRACT_TYPE } from '../entity/contract.entity';
 import { DESTROY_STATUS, Nft } from '../entity/nft.entity';
 import _ from 'lodash';
 import { filterData, md5, toNumber } from '../utils/helper';
@@ -302,41 +302,26 @@ async function nftUpdateNotice(
   redisService: any,
   nft: Nft,
 ) {
-  // 查询该contract对应的三方
-  const contractData = await datasource
-    .getRepository(ContractSync)
-    .createQueryBuilder('c')
-    .innerJoin('c.contract', 'contract')
-    .andWhere({
-      chain: nft.chain,
-      token_address: nft.token_address,
-      sync_status: SYNC_STATUS.SUCCESS,
-    })
-    .getMany();
-
-  if (!contractData.length) {
+  const key = getContractSyncSuccessSourceKey(nft.chain, nft.token_address);
+  const sources = await this.redisClient.smembers(key);
+  if (!sources.length) {
     return;
   }
 
+  const nftInfo = filterData(NftResultDto, nft);
+  nftInfo['chain_id'] = CHAIN[nft.chain];
+
   // 分块处理
-  for (const data of _.chunk(contractData, 10)) {
-    await Promise.all(
-      _.map(data, async (item) => {
-        const nftInfo = filterData(NftResultDto, nft);
-        nftInfo['chain_id'] = CHAIN[nft.chain];
-        const routingKey = md5(
-          item['source'] + auth[item['source']] + 'update' + CHAIN[nft.chain],
-        );
-        // rmq推送
-        await mqPublish(
-          amqpConnection,
-          datasource,
-          redisService,
-          RABBITMQ_SYNC_NFT_EXCHANGE,
-          routingKey,
-          nftInfo,
-        );
-      }),
+  for (const source of sources) {
+    const routingKey = md5(source + auth[source] + 'update' + CHAIN[nft.chain]);
+    // rmq推送
+    await mqPublish(
+      amqpConnection,
+      datasource,
+      redisService,
+      RABBITMQ_SYNC_NFT_EXCHANGE,
+      routingKey,
+      nftInfo,
     );
   }
 }
