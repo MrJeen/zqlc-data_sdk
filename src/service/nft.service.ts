@@ -114,7 +114,7 @@ export async function syncMetadata(
       datasource,
       amqpConnection,
       redisService,
-      nft.id,
+      { ...nft, ...update },
       update['is_destroyed'] ?? false,
     );
   } catch (error) {
@@ -171,11 +171,9 @@ export async function afterUpdateNft(
   datasource: DataSource,
   amqpConnection: any,
   redisService: any,
-  nftId: number,
+  nft: Nft,
   isDestroyed: boolean,
 ) {
-  // 取最新数据
-  const nft = await datasource.getRepository(Nft).findOneBy({ id: nftId });
   // 更新NFT-ES
   await handleNftToEs(elasticsearchService, [nft]);
 
