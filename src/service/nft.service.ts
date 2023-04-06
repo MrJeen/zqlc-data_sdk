@@ -3,22 +3,25 @@ import {
   BOOLEAN_STATUS,
   CONTRACT_ATTRIBUTE,
   NFT_METADATA_LOCK,
-  RABBITMQ_NFT_EXCHANGE,
-  RABBITMQ_NFT_UPDATE_ES_ROUTING_KEY,
+  RABBITMQ_SYNC_NFT_EXCHANGE,
+  getContractSyncSuccessSourceKey,
 } from '../config/constant';
 import { erc1155ContractAbi, erc721ContractAbi } from '../config/abi';
 import { CHAIN, CONTRACT_TYPE } from '../entity/contract.entity';
 import { DESTROY_STATUS, Nft } from '../entity/nft.entity';
 import _ from 'lodash';
-import { toNumber } from '../utils/helper';
-import { getContract, getJsonRpcProvider } from '../utils/ethers';
-import { handleNftToEs } from '../utils/elasticsearch';
+import { filterData, md5, toNumber } from '../utils/helper';
+import { ZERO_ADDRESS, getContract, getJsonRpcProvider } from '../utils/ethers';
+import { handleNftToEs, handleUserNftToES } from '../utils/elasticsearch';
 import { Logger } from '../utils/log4js';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import { mqPublish } from '../utils/rabbitMQ';
-import { DataSource } from 'typeorm';
+import { DataSource, Not } from 'typeorm';
 import { getOssOmBase64Client } from './aliyun.oss.service';
 import { Readable } from 'stream';
+import { UserNft } from 'entity';
+import { NftResultDto } from 'dto';
+import auth from '../config/auth.api';
 
 export const base64_reg = /^data:[\s\S]+;base64,/;
 
@@ -106,12 +109,11 @@ export async function syncMetadata(
       },
     );
 
-    mqPublish(
+    afterUpdateNft(
+      elasticsearchService,
       amqpConnection,
       datasource,
       redisService,
-      RABBITMQ_NFT_EXCHANGE,
-      RABBITMQ_NFT_UPDATE_ES_ROUTING_KEY,
       { ...nft, ...update },
     );
   } catch (error) {
@@ -122,6 +124,65 @@ export async function syncMetadata(
     });
   } finally {
     await redisService.unlock(redisClient, key, value);
+  }
+}
+
+export async function afterUpdateNft(
+  elasticsearchService: any,
+  amqpConnection: any,
+  datasource: DataSource,
+  redisService: any,
+  nft: Nft,
+) {
+  // 更新NFT-ES
+  await handleNftToEs(elasticsearchService, [nft]);
+
+  // 已销毁，nft721重置owner
+  if (nft.is_destroyed && nft.contract_type == CONTRACT_TYPE.ERC721) {
+    const res = await datasource.getRepository(UserNft).update(
+      {
+        chain: nft.chain,
+        token_hash: nft.token_hash,
+        user_address: Not(ZERO_ADDRESS),
+      },
+      { amount: 0 },
+    );
+
+    if (res.affected) {
+      const owners = await datasource.getRepository(UserNft).findBy({
+        chain: nft.chain,
+        token_hash: nft.token_hash,
+        user_address: Not(ZERO_ADDRESS),
+      });
+      if (owners.length) {
+        // 更新ES
+        await handleUserNftToES(elasticsearchService, owners);
+      }
+    }
+  }
+
+  // 推送到三方
+  const redisClient = redisService.getClient();
+  const key = getContractSyncSuccessSourceKey(nft.chain, nft.token_address);
+  const sources = await redisClient.smembers(key);
+  if (!sources.length) {
+    return;
+  }
+
+  const nftInfo = filterData(NftResultDto, nft);
+  nftInfo['chain_id'] = CHAIN[nft.chain];
+
+  for (const source of sources) {
+    const routingKey = md5(source + auth[source] + 'update' + CHAIN[nft.chain]);
+    // rmq推送
+    await mqPublish(
+      amqpConnection,
+      datasource,
+      redisService,
+      RABBITMQ_SYNC_NFT_EXCHANGE,
+      routingKey,
+      nftInfo,
+    );
   }
 }
 
