@@ -308,13 +308,11 @@ async function nftUpdateNotice(
     .createQueryBuilder('c')
     .innerJoin('c.contract', 'contract')
     .andWhere({
+      chain: nft.chain,
       token_address: nft.token_address,
       sync_status: SYNC_STATUS.SUCCESS,
     })
-    .andWhere(`contract.chain = '${nft.chain}'`)
     .getMany();
-
-  console.log('contractData', contractData);
 
   if (!contractData.length) {
     return;
