@@ -19,8 +19,8 @@ import { mqPublish } from '../utils/rabbitMQ';
 import { DataSource, Not } from 'typeorm';
 import { getOssOmBase64Client } from './aliyun.oss.service';
 import { Readable } from 'stream';
-import { UserNft } from 'entity';
-import { NftResultDto } from 'dto';
+import { UserNft } from '../entity/user.nft.entity';
+import { NftResultDto } from '../dto/nft.dto';
 import auth from '../config/auth.api';
 
 export const base64_reg = /^data:[\s\S]+;base64,/;
