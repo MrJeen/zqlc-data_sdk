@@ -106,10 +106,6 @@ export const RABBITMQ_TRANSFER_SYNC_QUEUE = 'transfer_sync_queue';
 export const RABBITMQ_TRANSFER_HANLDE_ROUTING_KEY = 'transfer_handle';
 export const RABBITMQ_TRANSFER_HANLDE_QUEUE = 'transfer_handle_queue';
 
-// 更新nft到ES以及推送到三方
-export const RABBITMQ_NFT_UPDATE_ES_ROUTING_KEY = 'nft_update_es';
-export const RABBITMQ_NFT_UPDATE_ES_QUEUE = 'nft_update_es_queue';
-
 export const NFT_METADATA_LOCK = 'nft_metadata_lock';
 
 export const INTERNAL_CRON_LOCK = 'internal_cron_lock';
