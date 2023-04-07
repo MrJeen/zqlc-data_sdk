@@ -3,6 +3,7 @@ import {
   BOOLEAN_STATUS,
   CONTRACT_ATTRIBUTE,
   NFT_METADATA_LOCK,
+  NFT_UPDATE_LIST,
   RABBITMQ_SYNC_NFT_EXCHANGE,
   getContractSyncSuccessSourceKey,
 } from '../config/constant';
@@ -11,57 +12,23 @@ import { CHAIN, CONTRACT_TYPE } from '../entity/contract.entity';
 import { DESTROY_STATUS, Nft } from '../entity/nft.entity';
 import _ from 'lodash';
 import { filterData, md5, toNumber } from '../utils/helper';
-import { ZERO_ADDRESS, getContract, getJsonRpcProvider } from '../utils/ethers';
-import { handleNftToEs, handleUserNftToES } from '../utils/elasticsearch';
+import { getContract, getJsonRpcProvider } from '../utils/ethers';
 import { Logger } from '../utils/log4js';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import { mqPublish } from '../utils/rabbitMQ';
-import { DataSource, Not } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { getOssOmBase64Client } from './aliyun.oss.service';
 import { Readable } from 'stream';
-import { UserNft } from '../entity/user.nft.entity';
 import { NftResultDto } from '../dto/nft.dto';
 import auth from '../config/auth.api';
 
 export const base64_reg = /^data:[\s\S]+;base64,/;
 
 /**
- * 插入NFT到ES
- * @param elasticsearchService
- * @param data
- * @returns
- */
-export async function insertNftToEs(
-  elasticsearchService: any,
-  redisService: any,
-  datasource: DataSource,
-  amqpConnection: any,
-  nft: Nft,
-) {
-  // 同步到ES
-  await handleNftToEs(elasticsearchService, [nft]);
-
-  // 同步metadata
-  syncMetadata(
-    elasticsearchService,
-    redisService,
-    datasource,
-    amqpConnection,
-    nft,
-  );
-}
-
-/**
  * 补全NFT信息
  * @param nft
  */
-export async function syncMetadata(
-  elasticsearchService: any,
-  redisService: any,
-  datasource: DataSource,
-  amqpConnection: any,
-  nft: Nft,
-) {
+export async function syncMetadata(redisService: any, nft: Nft) {
   const redisClient = redisService.getClient();
   // 加锁防止重复处理
   const key = NFT_METADATA_LOCK + ':' + nft.id;
@@ -86,36 +53,34 @@ export async function syncMetadata(
       return;
     }
 
-    let update = {};
-    if (nft.is_destroyed == DESTROY_STATUS.YES) {
-      update['is_destroyed'] = DESTROY_STATUS.YES;
+    const update = {
+      id: nft.id,
+      token_uri: '',
+      name: '',
+      metadata: {},
+      is_destroyed: nft.is_destroyed,
+    };
+    if (update.is_destroyed == DESTROY_STATUS.YES) {
+      // 删除不必要的更新
+      delete update.token_uri, update.name, update.metadata;
     } else {
-      update = await getMetaDataUpdate(
+      await getMetaDataUpdate(
+        update,
         contractArrtibute['token_uri_prefix'] ?? '',
         nft,
       );
     }
 
-    if (_.isEmpty(update)) {
+    // 未销毁并且metadata为空，不处理
+    if (
+      update.is_destroyed == DESTROY_STATUS.NO &&
+      _.isEmpty(update.metadata)
+    ) {
       return;
     }
 
-    // 更新NFT
-    await datasource.getRepository(Nft).update(
-      { id: nft.id },
-      {
-        ...update,
-        sync_metadata_times: () => 'sync_metadata_times + 1',
-      },
-    );
-
-    await afterUpdateNft(
-      elasticsearchService,
-      amqpConnection,
-      datasource,
-      redisService,
-      { ...nft, ...update },
-    );
+    // 先存redis，利用定时任务批量更新
+    await redisClient.lpush(NFT_UPDATE_LIST, JSON.stringify(update));
   } catch (error) {
     Logger.error({
       title: 'NftService-syncMetadata',
@@ -127,40 +92,12 @@ export async function syncMetadata(
   }
 }
 
-export async function afterUpdateNft(
-  elasticsearchService: any,
+export async function nftUpdateNotice(
   amqpConnection: any,
   datasource: DataSource,
   redisService: any,
   nft: Nft,
 ) {
-  // 更新NFT-ES
-  await handleNftToEs(elasticsearchService, [nft]);
-
-  // 已销毁，nft721重置owner
-  if (nft.is_destroyed && nft.contract_type == CONTRACT_TYPE.ERC721) {
-    const res = await datasource.getRepository(UserNft).update(
-      {
-        chain: nft.chain,
-        token_hash: nft.token_hash,
-        user_address: Not(ZERO_ADDRESS),
-      },
-      { amount: 0 },
-    );
-
-    if (res.affected) {
-      const owners = await datasource.getRepository(UserNft).findBy({
-        chain: nft.chain,
-        token_hash: nft.token_hash,
-        user_address: Not(ZERO_ADDRESS),
-      });
-      if (owners.length) {
-        // 更新ES
-        await handleUserNftToES(elasticsearchService, owners);
-      }
-    }
-  }
-
   // 推送到三方
   const redisClient = redisService.getClient();
   const key = getContractSyncSuccessSourceKey(nft.chain, nft.token_address);
@@ -186,42 +123,37 @@ export async function afterUpdateNft(
   }
 }
 
-async function getMetaDataUpdate(tokenUriPrefix: string, nft: Nft) {
-  const update = {};
+async function getMetaDataUpdate(
+  update: any,
+  tokenUriPrefix: string,
+  nft: Nft,
+) {
   let tokenUri = '';
   try {
     tokenUri = await getTokenUri(tokenUriPrefix, nft);
 
     if (tokenUri) {
-      update['token_uri'] = tokenUri;
-      update['sync_metadata_error'] = '';
-      try {
-        const metadata = await getMetadata(nft, tokenUri);
-        // metadata不为空
-        if (!_.isEmpty(metadata)) {
-          update['metadata'] = metadata;
-          if (!nft.name && metadata.hasOwnProperty('name')) {
-            update['name'] = (metadata?.name || '').replace(/\u0000/g, '');
-          }
+      const metadata = await getMetadata(nft, tokenUri);
+      // metadata不为空
+      if (!_.isEmpty(metadata)) {
+        update.metadata = metadata;
+        if (metadata.hasOwnProperty('name')) {
+          update.name = (metadata?.name || '').replace(/\u0000/g, '');
         }
-      } catch (e) {
-        update['sync_metadata_error'] = e + '';
-      }
-      if (base64_reg.test(tokenUri)) {
-        // base64太长了，不存储
-        update['token_uri'] = 'base64 data';
+        if (base64_reg.test(tokenUri)) {
+          // base64太长了，不存储
+          update.token_uri = 'base64 data';
+        } else {
+          update.token_uri = tokenUri;
+        }
       }
     }
   } catch (e) {
     // token已销毁
     if (e?.reason && e.reason.indexOf('nonexistent') != -1) {
-      update['is_destroyed'] = DESTROY_STATUS.YES;
+      update.is_destroyed = DESTROY_STATUS.YES;
     }
   }
-
-  // 记录更新次数和时间
-  update['last_sync_metadata_time'] = new Date();
-  return update;
 }
 
 async function getTokenUri(tokenUriPrefix: string, nft: Nft) {
