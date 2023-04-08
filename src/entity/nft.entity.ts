@@ -71,11 +71,6 @@ export class Nft extends CommonEntity {
   transfers: Transfer[];
 }
 
-export enum DESTROY_STATUS {
-  NO,
-  YES,
-}
-
 export function getSimpleNft(nft) {
   // 需要创建新对象，避免原对象修改后影响后续操作
   const simpleNft = { ...nft };

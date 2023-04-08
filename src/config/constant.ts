@@ -102,7 +102,7 @@ export const RABBITMQ_TRANSFER_EXCHANGE = 'transfer_exchange';
 export const RABBITMQ_TRANSFER_SYNC_ROUTING_KEY = 'transfer_sync';
 export const RABBITMQ_TRANSFER_SYNC_QUEUE = 'transfer_sync_queue';
 
-// 处理某个transfer
+// 处理transfer
 export const RABBITMQ_TRANSFER_HANLDE_ROUTING_KEY = 'transfer_handle';
 export const RABBITMQ_TRANSFER_HANLDE_QUEUE = 'transfer_handle_queue';
 
@@ -130,6 +130,8 @@ export const CONTRACT_INIT_LOCK = 'contract_init_lock';
 
 export const TRANSFER_HANDLE_LOCK = 'transfer_handle_lock';
 
+export const TRANSFER_HANDLE_STOP_LOCK = 'transfer_handle_stop_lock';
+
 export const MQ_REPUSH_LOCK = 'mq_repush_lock';
 
 export const ALL_CONTRACT_TO_CONTRACT_LOCK = 'all_contract_to_contract_lock';
@@ -152,6 +154,14 @@ export function getTransferSyncKey(chain: string) {
 
 export function getContractInitKey(chain: string, address: string) {
   return SYNC_NFT_LOCK + ':' + chain + ':' + address;
+}
+
+export function getTransferHandleLockKey(chainId: number) {
+  return TRANSFER_HANDLE_LOCK + ':' + chainId;
+}
+
+export function getTransferHandleStopKey(chainId: number) {
+  return TRANSFER_HANDLE_STOP_LOCK + ':' + chainId;
 }
 
 export function getContractSyncSuccessSourceKey(

@@ -9,7 +9,7 @@ import {
 } from '../config/constant';
 import { erc1155ContractAbi, erc721ContractAbi } from '../config/abi';
 import { CHAIN, CONTRACT_TYPE } from '../entity/contract.entity';
-import { DESTROY_STATUS, Nft } from '../entity/nft.entity';
+import { Nft } from '../entity/nft.entity';
 import _ from 'lodash';
 import { filterData, md5, toNumber } from '../utils/helper';
 import { getContract, getJsonRpcProvider } from '../utils/ethers';
@@ -60,7 +60,7 @@ export async function syncMetadata(redisService: any, nft: Nft) {
       metadata: {},
       is_destroyed: nft.is_destroyed,
     };
-    if (update.is_destroyed == DESTROY_STATUS.YES) {
+    if (update.is_destroyed == BOOLEAN_STATUS.YES) {
       // 删除不必要的更新
       delete update.token_uri, update.name, update.metadata;
     } else {
@@ -73,7 +73,7 @@ export async function syncMetadata(redisService: any, nft: Nft) {
 
     // 未销毁并且metadata为空，不处理
     if (
-      update.is_destroyed == DESTROY_STATUS.NO &&
+      update.is_destroyed == BOOLEAN_STATUS.NO &&
       _.isEmpty(update.metadata)
     ) {
       return;
@@ -151,7 +151,7 @@ async function getMetaDataUpdate(
   } catch (e) {
     // token已销毁
     if (e?.reason && e.reason.indexOf('nonexistent') != -1) {
-      update.is_destroyed = DESTROY_STATUS.YES;
+      update.is_destroyed = BOOLEAN_STATUS.YES;
     }
   }
 }
