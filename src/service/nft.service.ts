@@ -55,6 +55,7 @@ export async function syncMetadata(redisService: any, nft: Nft) {
 
     const update = {
       id: nft.id,
+      chain: nft.chain,
       token_uri: '',
       name: '',
       metadata: {},
