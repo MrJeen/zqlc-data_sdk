@@ -12,6 +12,7 @@ import {
   MORALIS_API_SECOND_LIMIT_KEY,
   MORALIS_API_SECOND_LIMIT_TIMES,
   MORALIS_API_SECOND_LIMIT_TTL,
+  NOT_SUPPORT_CHAIN,
   REDIS_MORALIS_NAME,
 } from '../config/constant';
 import { Logger } from '../utils/log4js';
@@ -44,11 +45,6 @@ export async function getNFTOwners(
   redisService: any,
   options: GetNFTOwnersRequest,
 ) {
-  if (!isSupportChain(options.chain)) {
-    // moralis不支持的链
-    return;
-  }
-
   return await callTokenApi('getNFTOwners', options, redisService);
 }
 
@@ -60,10 +56,6 @@ export async function getContractNFTs(
   redisService: any,
   options: GetContractNFTsRequest,
 ) {
-  if (!isSupportChain(options.chain)) {
-    // moralis不支持的链
-    return;
-  }
   return await callTokenApi('getContractNFTs', options, redisService);
 }
 
@@ -75,10 +67,6 @@ export async function getNFTMetadata(
   redisService: any,
   options: GetNFTMetadataRequest,
 ) {
-  if (!isSupportChain(options.chain)) {
-    // moralis不支持的链
-    return;
-  }
   return await callTokenApi('getNFTMetadata', options, redisService);
 }
 
@@ -97,6 +85,11 @@ function isSupportChain(chainId: EvmChainish) {
  * @param options
  */
 async function callTokenApi(method: string, options: any, redisService: any) {
+  if (!isSupportChain(options.chain)) {
+    // moralis不支持的链
+    return NOT_SUPPORT_CHAIN;
+  }
+
   const key = MORALIS_API_SECOND_IP_LIMIT_KEY + ':' + process.env.APP_NAME;
   const redisClient = redisService.getClient(REDIS_MORALIS_NAME);
   try {

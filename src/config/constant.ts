@@ -76,6 +76,7 @@ export const SYNC_METADATA_EXCLUDE = 'sync_metadata_exclude';
 
 export const LOCK_FAILED = -1;
 export const RECURSION_LIMIT = -2;
+export const NOT_SUPPORT_CHAIN = -3;
 
 // 新队列，同步metadata
 export const SYNC_CONTRACT_METADATA_LOCK = 'sync_contract_metadata_lock';
