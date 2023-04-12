@@ -140,6 +140,8 @@ export const CONTRACT_SYNC_SUCCESS_SOURCE = 'contract_source';
 
 export const NFT_UPDATE_LIST = 'nft_update_list';
 
+export const USER_UPDATE_LIST = 'user_update_list';
+
 export function getMetadataLockKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_LOCK + ':' + contractId;
 }

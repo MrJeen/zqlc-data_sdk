@@ -80,7 +80,7 @@ export async function syncMetadata(redisService: any, nft: Nft) {
     }
 
     // 先存redis，利用定时任务批量更新
-    await redisClient.lpush(NFT_UPDATE_LIST, JSON.stringify(update));
+    await redisClient.rpush(NFT_UPDATE_LIST, JSON.stringify(update));
   } catch (error) {
     Logger.error({
       title: 'NftService-syncMetadata',
