@@ -16,7 +16,7 @@ export async function handleUserNftToES(
   const body = formatUser(users);
   try {
     if (body.length) {
-      await elasticsearchService.bulk({ body });
+      return await elasticsearchService.bulk({ body });
     }
   } catch (e) {
     Logger.error({
@@ -35,7 +35,7 @@ export async function handleNftToEs(elasticsearchService: any, nfts: Nft[]) {
   const body = formatNft(nfts);
   try {
     if (body.length) {
-      await elasticsearchService.bulk({ body });
+      return await elasticsearchService.bulk({ body });
     }
   } catch (e) {
     Logger.error({
