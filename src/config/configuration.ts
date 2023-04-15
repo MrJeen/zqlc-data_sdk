@@ -10,6 +10,7 @@ import {
 export default () => ({
   app_name: process.env.APP_NAME || 'data_micro_service',
   port: ~~(process.env.PORT ?? 3001),
+  moralis_api_key: process.env.MORALIS_API_KEY,
   database: {
     postgres: {
       type: 'postgres',

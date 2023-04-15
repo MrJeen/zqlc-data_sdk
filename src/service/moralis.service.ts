@@ -23,20 +23,6 @@ import {
   GetNFTOwnersRequest,
 } from '@moralisweb3/common-evm-utils';
 
-let moralisInstance = undefined;
-
-/**
- * moralis初始化
- */
-async function init() {
-  if (!moralisInstance) {
-    await Moralis.start({
-      apiKey: process.env.MORALIS_API_KEY,
-    });
-    moralisInstance = 1;
-  }
-}
-
 /**
  * 获取nft拥有者
  * @param options
@@ -98,9 +84,6 @@ async function callTokenApi(method: string, options: any, redisService: any) {
     if (lock === LOCK_FAILED) {
       return LOCK_FAILED;
     }
-
-    // 初始化
-    await init();
 
     const response = await Moralis.EvmApi.nft[method](options);
     // 转换为rest-api数据格式
