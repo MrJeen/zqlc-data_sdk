@@ -27,6 +27,7 @@ export default () => ({
     host: process.env.REDIS_HOST || 'localhost',
     port: ~~(process.env.REDIS_PORT ?? 6379),
     db: ~~(process.env.REDIS_DB ?? 9),
+    username: process.env.REDIS_USER_NAME || '',
     password: process.env.REDIS_PASSWORD || '',
     keyPrefix: `nft_sync_om:${process.env.APP_ENV}:` || 'redis',
   },
@@ -34,6 +35,7 @@ export default () => ({
     host: process.env.REDIS_HOST || 'localhost',
     port: ~~(process.env.REDIS_PORT ?? 6379),
     db: 0,
+    username: process.env.REDIS_USER_NAME || '',
     password: process.env.REDIS_PASSWORD || '',
     keyPrefix: REDIS_NAMESPACE_MORALIS + ':',
   },
@@ -45,6 +47,7 @@ export default () => ({
       host: process.env.REDIS_HOST || 'localhost',
       port: ~~(process.env.REDIS_PORT ?? 6379),
       db: ~~(process.env.REDIS_QUEUE_DB ?? 8),
+      username: process.env.REDIS_USER_NAME || '',
       password: process.env.REDIS_PASSWORD || '',
     },
     settings: {
