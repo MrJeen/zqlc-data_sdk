@@ -1,6 +1,5 @@
 import { validate } from 'class-validator';
 import _ from 'lodash';
-import { Response } from 'express';
 import { QueryFailedError } from 'typeorm/error/QueryFailedError';
 import { Logger } from './log4js';
 import {
@@ -51,29 +50,6 @@ export function buildSignature(data: object, secret: string): string {
   // 拼接secret
   str += 'secret=' + secret;
   return md5(str);
-}
-
-/**
- * api响应
- * @param response
- * @param statusCode
- * @param message
- * @param result
- * @param code
- */
-export function apiResponse(
-  response: Response,
-  statusCode: number,
-  message: string,
-  result: object,
-  code = 0,
-): void {
-  response.status(200).json({
-    code,
-    statusCode,
-    message,
-    result,
-  });
 }
 
 /**
