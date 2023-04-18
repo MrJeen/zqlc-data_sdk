@@ -23,6 +23,12 @@ import {
   GetNFTOwnersRequest,
 } from '@moralisweb3/common-evm-utils';
 
+export async function moralisInit(key: string) {
+  await Moralis.start({
+    apiKey: key,
+  });
+}
+
 /**
  * 获取nft拥有者
  * @param options
