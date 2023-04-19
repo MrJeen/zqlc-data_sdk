@@ -61,10 +61,9 @@ export async function syncMetadata(redisService: any, nft: Nft) {
       metadata: {},
       is_destroyed: nft.is_destroyed,
     };
-    if (update.is_destroyed == BOOLEAN_STATUS.YES) {
-      // 删除不必要的更新
-      delete update.token_uri, update.name, update.metadata;
-    } else {
+
+    if (update.is_destroyed == BOOLEAN_STATUS.NO) {
+      // 未销毁才需要查询metadata
       await getMetaDataUpdate(
         update,
         contractArrtibute['token_uri_prefix'] ?? '',
@@ -72,11 +71,11 @@ export async function syncMetadata(redisService: any, nft: Nft) {
       );
     }
 
-    // 未销毁并且metadata为空，不处理
-    if (
-      update.is_destroyed == BOOLEAN_STATUS.NO &&
-      _.isEmpty(update.metadata)
-    ) {
+    if (update.is_destroyed == BOOLEAN_STATUS.YES) {
+      // 已销毁，删除不必要的更新
+      delete update.token_uri, update.name, update.metadata;
+    } else if (_.isEmpty(update.metadata)) {
+      // 未销毁并且metadata为空，不处理
       return;
     }
 
