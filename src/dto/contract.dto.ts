@@ -10,7 +10,7 @@ import { CONTRACT_TYPE } from '../entity/contract.entity';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { IsEtherAddress } from '../validator/custom.validator';
 import { ToLowerCase, ToUpperCase } from '../decorator/custom.decorator';
-import { NETWORKS } from 'config';
+import { NETWORKS } from '../config/constant';
 
 @Exclude()
 export class ContractBaseDto {
