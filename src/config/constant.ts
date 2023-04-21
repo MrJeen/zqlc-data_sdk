@@ -64,11 +64,6 @@ export const EVENT_NFT_SYNC_METADATA = 'nft.sync.metadata';
 export const EVENT_NFT_SYNC_TO_ES = 'nft.sync.es';
 export const EVENT_USER_NFT_SYNC_TO_ES = 'user.nft.sync.es';
 
-/********** 系列hash field ***********/
-export const getContractField = (chain: string, address: string) => {
-  return chain + '|' + address;
-};
-
 /********** 无需同步metadata的系列 ***********/
 export const SYNC_METADATA_EXCLUDE = 'sync_metadata_exclude';
 
@@ -149,12 +144,12 @@ export function getSyncMetadataKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_RUNNING_LOCK + ':' + contractId;
 }
 
-export function getTransferSyncKey(chain: string) {
-  return SYNC_TRANSFER_LOCK + ':' + chain;
+export function getTransferSyncKey(chainId: number) {
+  return SYNC_TRANSFER_LOCK + ':' + chainId;
 }
 
-export function getContractInitKey(chain: string, address: string) {
-  return SYNC_NFT_LOCK + ':' + chain + ':' + address;
+export function getContractInitKey(chainId: number, address: string) {
+  return SYNC_NFT_LOCK + ':' + chainId + ':' + address;
 }
 
 export function getTransferHandleLockKey(chainId: number) {
