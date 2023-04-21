@@ -6,20 +6,21 @@ import {
   Validate,
   ValidateIf,
 } from 'class-validator';
-import { CHAIN, CONTRACT_TYPE } from '../entity/contract.entity';
+import { CONTRACT_TYPE } from '../entity/contract.entity';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { IsEtherAddress } from '../validator/custom.validator';
 import { ToLowerCase, ToUpperCase } from '../decorator/custom.decorator';
+import { NETWORKS } from 'config';
 
 @Exclude()
 export class ContractBaseDto {
   @Expose()
   @ApiProperty({
     description: '区块链',
-    enum: CHAIN,
+    enum: NETWORKS.map((item) => item.name),
   })
   @IsString()
-  @IsEnum(CHAIN, { message: 'Illegal chain.' })
+  @IsEnum(NETWORKS.map((item) => item.name), { message: 'Illegal chain.' })
   @ToUpperCase()
   chain: string;
 
@@ -27,9 +28,11 @@ export class ContractBaseDto {
   @Type(() => Number)
   @ApiProperty({
     description: '区块链ID',
-    enum: CHAIN,
+    enum: NETWORKS.map((item) => item.chainId),
   })
-  @IsEnum(CHAIN, { message: 'Illegal chain id.' })
+  @IsEnum(NETWORKS.map((item) => item.chainId), {
+    message: 'Illegal chain id.',
+  })
   chain_id: number;
 
   @Expose()

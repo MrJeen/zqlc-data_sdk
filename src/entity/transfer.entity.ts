@@ -102,12 +102,6 @@ export class Transfer extends CommonEntity {
   nft: Nft;
 }
 
-export enum ANALYSE_STATUS {
-  DEFAULT = 0,
-  ING = 10,
-  SUCCESS = 20,
-}
-
 export function getSimpleTransfer(transfer) {
   // 需要创建新对象，避免原对象修改后影响后续操作
   const simpleTransfer = { ...transfer };

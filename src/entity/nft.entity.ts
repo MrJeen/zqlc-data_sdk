@@ -70,14 +70,3 @@ export class Nft extends CommonEntity {
   @OneToMany(() => Transfer, (transfer: Transfer) => transfer.nft)
   transfers: Transfer[];
 }
-
-export function getSimpleNft(nft) {
-  // 需要创建新对象，避免原对象修改后影响后续操作
-  const simpleNft = { ...nft };
-  delete simpleNft.id;
-  delete simpleNft.created_at;
-  delete simpleNft.updated_at;
-  delete simpleNft.version;
-  delete simpleNft.sync_metadata_error;
-  return simpleNft;
-}

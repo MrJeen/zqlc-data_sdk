@@ -21,8 +21,3 @@ export class MQPushErrorLogs extends CommonEntity {
   })
   status: number;
 }
-
-export enum MQ_HANDLE_STATUS {
-  DEFAULT = 0,
-  SUCCESS = 20,
-}

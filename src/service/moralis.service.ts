@@ -1,4 +1,4 @@
-import { MORALIS_SUPPORT_CHAIN } from '../entity/contract.entity';
+import { MORALIS_SUPPORT_CHAIN } from '../config/constant';
 import Moralis from 'moralis';
 import { sleep, toNumber } from '../utils/helper';
 import {

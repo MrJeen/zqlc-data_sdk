@@ -62,37 +62,6 @@ export class Contract extends CommonEntity {
   contractSyncs: ContractSync[];
 }
 
-/**
- * moralis支持的链
- */
-export const MORALIS_SUPPORT_CHAIN = {
-  ETH: 1,
-  GOERLI: 5,
-  SEPOLIA: 11155111,
-  POLYGON: 137,
-  MUMBAI: 80001,
-  BSC: 56,
-  BSC_TESTNET: 97,
-  AVALANCHE: 43114,
-  FUJI: 43113,
-  FANTOM: 250,
-  CRONOS: 25,
-  CRONOS_TESTNET: 338,
-  PALM: 11297108109,
-  ARBITRUM: 42161,
-};
-
-export enum CHAIN {
-  ETH = 1,
-  BSC = 56,
-  POLYGON = 137,
-  GOERLI = 5,
-  ZKSYNC = 280,
-  ZKSYNC_MAINNET = 324,
-  ARBITRUM = 42161,
-  ARBITRUM_TEST = 421613,
-}
-
 export enum CONTRACT_TYPE {
   ERC721 = 'ERC721',
   ERC1155 = 'ERC1155',

@@ -2,16 +2,17 @@ import axios from 'axios';
 import {
   BOOLEAN_STATUS,
   CONTRACT_ATTRIBUTE,
+  NETWORKS,
   NFT_METADATA_LOCK,
   NFT_UPDATE_LIST,
   RABBITMQ_SYNC_NFT_EXCHANGE,
   getContractSyncSuccessSourceKey,
 } from '../config/constant';
 import { erc1155ContractAbi, erc721ContractAbi } from '../config/abi';
-import { CHAIN, CONTRACT_TYPE } from '../entity/contract.entity';
+import { CONTRACT_TYPE } from '../entity/contract.entity';
 import { Nft } from '../entity/nft.entity';
 import _ from 'lodash';
-import { filterData, md5, toNumber } from '../utils/helper';
+import { filterData, md5 } from '../utils/helper';
 import { getContract, getJsonRpcProvider } from '../utils/ethers';
 import { Logger } from '../utils/log4js';
 import { SocksProxyAgent } from 'socks-proxy-agent';
@@ -107,10 +108,13 @@ export async function nftUpdateNotice(
   }
 
   const nftInfo = filterData(NftResultDto, nft);
-  nftInfo['chain_id'] = CHAIN[nft.chain];
+
+  const network = NETWORKS.find((item) => item.name == nft.chain);
+
+  nftInfo['chain_id'] = network.chainId;
 
   for (const source of sources) {
-    const routingKey = md5(source + auth[source] + 'update' + CHAIN[nft.chain]);
+    const routingKey = md5(source + auth[source] + 'update' + network.chainId);
     // rmq推送
     await mqPublish(
       amqpConnection,
@@ -162,7 +166,8 @@ async function getTokenUri(tokenUriPrefix: string, nft: Nft) {
     // 直接拼接uri
     tokenUri = tokenUriPrefix + nft.token_id;
   } else {
-    const provider = getJsonRpcProvider(toNumber(CHAIN[nft.chain]));
+    const network = NETWORKS.find((item) => item.name == nft.chain);
+    const provider = getJsonRpcProvider(network.chainId);
     if (nft.contract_type === CONTRACT_TYPE.ERC721) {
       const contract = getContract(
         nft.token_address,

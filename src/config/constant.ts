@@ -1,5 +1,3 @@
-import { toNumber } from '../utils/helper';
-
 /********** pm2 0实例 ***********/
 export const ZERO_INSTANCE = '0';
 
@@ -243,49 +241,41 @@ export const ARBITRUM_TEST_NETWORK: NETWORK_TYPE = {
   transferIncr: 1000,
 };
 
-const networks = [];
+export const NETWORKS = [];
 
-export function getNetworks(): NETWORK_TYPE[] {
-  if (networks.length) {
-    return networks;
-  }
-
-  const supportChains = process.env.SUPPORT_CHAINS.split(',').filter(
-    (item) => item != '',
-  );
-  if (supportChains.length) {
-    for (const chainId of supportChains) {
-      switch (toNumber(chainId)) {
+export function initNetworks(chainIds: number[]) {
+  if (chainIds.length) {
+    for (const chainId of chainIds) {
+      switch (chainId) {
         case ETH_NETWORK.chainId:
-          networks.push(ETH_NETWORK);
+          NETWORKS.push(ETH_NETWORK);
           break;
         case GOERLI_NETWORK.chainId:
-          networks.push(GOERLI_NETWORK);
+          NETWORKS.push(GOERLI_NETWORK);
           break;
         case BSC_NETWORK.chainId:
-          networks.push(BSC_NETWORK);
+          NETWORKS.push(BSC_NETWORK);
           break;
         case POLYGON_NETWORK.chainId:
-          networks.push(POLYGON_NETWORK);
+          NETWORKS.push(POLYGON_NETWORK);
           break;
         case ZKSYNC_NETWORK.chainId:
-          networks.push(ZKSYNC_NETWORK);
+          NETWORKS.push(ZKSYNC_NETWORK);
           break;
         case ZKSYNC_MAINNET_NETWORK.chainId:
-          networks.push(ZKSYNC_MAINNET_NETWORK);
+          NETWORKS.push(ZKSYNC_MAINNET_NETWORK);
           break;
         case ARBITRUM_NETWORK.chainId:
-          networks.push(ARBITRUM_NETWORK);
+          NETWORKS.push(ARBITRUM_NETWORK);
           break;
         case ARBITRUM_TEST_NETWORK.chainId:
-          networks.push(ARBITRUM_TEST_NETWORK);
+          NETWORKS.push(ARBITRUM_TEST_NETWORK);
           break;
         default:
           break;
       }
     }
   }
-  return networks;
 }
 
 /**
@@ -294,8 +284,7 @@ export function getNetworks(): NETWORK_TYPE[] {
  * @returns
  */
 export function selectNetwork(chainId: number): NETWORK_TYPE {
-  const networks = getNetworks();
-  const network = networks.find((network) => network.chainId == chainId);
+  const network = NETWORKS.find((network) => network.chainId == chainId);
   if (!network) {
     throw Error(`network #${chainId} not found`);
   }
@@ -317,3 +306,23 @@ export enum BOOLEAN_STATUS {
   NO,
   YES,
 }
+
+/**
+ * moralis支持的链
+ */
+export const MORALIS_SUPPORT_CHAIN = {
+  ETH: 1,
+  GOERLI: 5,
+  SEPOLIA: 11155111,
+  POLYGON: 137,
+  MUMBAI: 80001,
+  BSC: 56,
+  BSC_TESTNET: 97,
+  AVALANCHE: 43114,
+  FUJI: 43113,
+  FANTOM: 250,
+  CRONOS: 25,
+  CRONOS_TESTNET: 338,
+  PALM: 11297108109,
+  ARBITRUM: 42161,
+};
