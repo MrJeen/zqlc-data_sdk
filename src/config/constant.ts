@@ -238,33 +238,51 @@ export const ARBITRUM_TEST_NETWORK: NETWORK_TYPE = {
 
 export const NETWORKS: NETWORK_TYPE[] = [];
 
+export const CHAINS = {};
+
 export function initNetworks(chainIds: number[]) {
   if (chainIds.length) {
     for (const chainId of chainIds) {
       switch (chainId) {
         case ETH_NETWORK.chainId:
           NETWORKS.push(ETH_NETWORK);
+          CHAINS[chainId] = ETH_NETWORK.name;
+          CHAINS[ETH_NETWORK.name] = chainId;
           break;
         case GOERLI_NETWORK.chainId:
           NETWORKS.push(GOERLI_NETWORK);
+          CHAINS[chainId] = GOERLI_NETWORK.name;
+          CHAINS[GOERLI_NETWORK.name] = chainId;
           break;
         case BSC_NETWORK.chainId:
           NETWORKS.push(BSC_NETWORK);
+          CHAINS[chainId] = BSC_NETWORK.name;
+          CHAINS[BSC_NETWORK.name] = chainId;
           break;
         case POLYGON_NETWORK.chainId:
           NETWORKS.push(POLYGON_NETWORK);
+          CHAINS[chainId] = POLYGON_NETWORK.name;
+          CHAINS[POLYGON_NETWORK.name] = chainId;
           break;
         case ZKSYNC_NETWORK.chainId:
           NETWORKS.push(ZKSYNC_NETWORK);
+          CHAINS[chainId] = ZKSYNC_NETWORK.name;
+          CHAINS[ZKSYNC_NETWORK.name] = chainId;
           break;
         case ZKSYNC_MAINNET_NETWORK.chainId:
           NETWORKS.push(ZKSYNC_MAINNET_NETWORK);
+          CHAINS[chainId] = ZKSYNC_MAINNET_NETWORK.name;
+          CHAINS[ZKSYNC_MAINNET_NETWORK.name] = chainId;
           break;
         case ARBITRUM_NETWORK.chainId:
           NETWORKS.push(ARBITRUM_NETWORK);
+          CHAINS[chainId] = ARBITRUM_NETWORK.name;
+          CHAINS[ARBITRUM_NETWORK.name] = chainId;
           break;
         case ARBITRUM_TEST_NETWORK.chainId:
           NETWORKS.push(ARBITRUM_TEST_NETWORK);
+          CHAINS[chainId] = ARBITRUM_TEST_NETWORK.name;
+          CHAINS[ARBITRUM_TEST_NETWORK.name] = chainId;
           break;
         default:
           break;
