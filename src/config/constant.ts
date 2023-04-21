@@ -241,7 +241,7 @@ export const ARBITRUM_TEST_NETWORK: NETWORK_TYPE = {
   transferIncr: 1000,
 };
 
-export const NETWORKS = [];
+export const NETWORKS: NETWORK_TYPE[] = [];
 
 export function initNetworks(chainIds: number[]) {
   if (chainIds.length) {
