@@ -22,12 +22,14 @@ import {
   GetNFTMetadataRequest,
   GetNFTOwnersRequest,
 } from '@moralisweb3/common-evm-utils';
+import dotenv from 'dotenv';
 
-export async function moralisInit(key: string) {
-  await Moralis.start({
-    apiKey: key,
-  });
-}
+// 加载 .env 文件中的环境变量
+dotenv.config();
+
+Moralis.start({
+  apiKey: process.env.MORALIS_API_KEY,
+});
 
 /**
  * 获取nft拥有者
