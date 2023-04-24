@@ -1,3 +1,9 @@
+import dotenv from 'dotenv';
+import { toNumber } from '../utils/helper';
+
+// 加载 .env 文件中的环境变量
+dotenv.config();
+
 /********** pm2 0实例 ***********/
 export const ZERO_INSTANCE = '0';
 
@@ -240,7 +246,7 @@ export const NETWORKS: NETWORK_TYPE[] = [];
 
 export const CHAINS = {};
 
-export function initNetworks(chainIds: number[]) {
+function initNetworks(chainIds: number[]) {
   if (chainIds.length) {
     for (const chainId of chainIds) {
       switch (chainId) {
@@ -290,6 +296,12 @@ export function initNetworks(chainIds: number[]) {
     }
   }
 }
+
+// 初始化chain配置
+const supportChains = process.env.SUPPORT_CHAINS.split(',')
+  .filter((item: string) => item != '')
+  .map((item: string) => toNumber(item));
+initNetworks(supportChains);
 
 /**
  * 获取网络

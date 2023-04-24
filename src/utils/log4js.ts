@@ -13,37 +13,28 @@ export interface Message {
 // 注入配置
 Log4js.configure(config);
 const logger = Log4js.getLogger();
-const errorLogger = Log4js.getLogger('error');
 
 export class Logger {
-  static checkLevel() {
-    const level = process.env.LOGGER_LEVEL;
-    if (level != logger.level) {
-      logger.level = level;
-    }
-    return logger;
-  }
-
   static log(message: Message) {
-    this.checkLevel().log(this.getStackTrace(), JSON.stringify(message));
+    logger.log(this.getStackTrace(), JSON.stringify(message));
   }
 
   static debug(message: Message) {
-    this.checkLevel().debug(this.getStackTrace(), JSON.stringify(message));
+    logger.debug(this.getStackTrace(), JSON.stringify(message));
   }
 
   static info(message: Message) {
-    this.checkLevel().info(this.getStackTrace(), JSON.stringify(message));
+    logger.info(this.getStackTrace(), JSON.stringify(message));
   }
 
   static warn(message: Message) {
-    this.checkLevel().warn(this.getStackTrace(), JSON.stringify(message));
+    logger.warn(this.getStackTrace(), JSON.stringify(message));
   }
 
   static error(message: Message) {
     const msg = JSON.stringify(message);
     const trace = this.getStackTrace();
-    errorLogger.error(trace, msg);
+    logger.error(trace, msg);
     // 发送钉钉通知
     sendMsg(
       process.env.DINGDING_ROBOT_WEBHOOK,
@@ -55,7 +46,7 @@ export class Logger {
   static fatal(message: Message) {
     const msg = JSON.stringify(message);
     const trace = this.getStackTrace();
-    errorLogger.fatal(trace, msg);
+    logger.fatal(trace, msg);
     // 发送钉钉通知
     sendMsg(
       process.env.DINGDING_ROBOT_WEBHOOK,

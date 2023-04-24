@@ -1,4 +1,9 @@
 import path from 'path';
+import dotenv from 'dotenv';
+
+// 加载 .env 文件中的环境变量
+dotenv.config();
+
 // 配置日志写入的目录
 const baseLogPath = path.resolve('./logs');
 
@@ -40,11 +45,11 @@ const log4jsConfig = {
   categories: {
     default: {
       appenders: ['console', 'access'],
-      level: 'debug',
+      level: process.env.LOGGER_LEVEL ?? 'debug',
     },
     error: {
       appenders: ['console', 'error'],
-      level: 'warn',
+      level: process.env.LOGGER_ERROR_LEVEL ?? 'warn',
     },
   },
   // 使用pm2来管理项目时打开
