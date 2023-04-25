@@ -18,7 +18,7 @@ import { Logger } from '../utils/log4js';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import { mqPublish } from '../utils/rabbitMQ';
 import { DataSource } from 'typeorm';
-import { getOssOmBase64Client } from './aliyun.oss.service';
+import { OSS_OM_BASE64_CLIENT } from './aliyun.oss.service';
 import { Readable } from 'stream';
 import { NftResultDto } from '../dto/nft.dto';
 import auth from '../config/auth.api';
@@ -229,12 +229,11 @@ async function getMetadata(nft: Nft, tokenUri: string) {
 export async function checkMetadataImg(metadata: any, nft: Nft) {
   if (metadata.hasOwnProperty('image') && base64_reg.test(metadata.image)) {
     // 上传图片信息到oss
-    const client = getOssOmBase64Client();
     const stream = Readable.from(metadata.image);
-    const result = await client.putStream(
+    const result = (await OSS_OM_BASE64_CLIENT.putStream(
       `${nft.chain}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
       stream,
-    );
+    )) as any;
     metadata.image = result.url;
   }
 }
