@@ -94,14 +94,16 @@ export async function syncMetadata(
   } catch (error) {
     if (error?.response?.status == 429) {
       // 推送到队列
-      await mqPublish(
-        amqpConnection,
-        datasource,
-        redisService,
-        RABBITMQ_METADATA_SYNC_EXCHANGE,
-        RABBITMQ_NFT_METADATA_ROUTING_KEY,
-        nft,
-      );
+      setTimeout(async () => {
+        await mqPublish(
+          amqpConnection,
+          datasource,
+          redisService,
+          RABBITMQ_METADATA_SYNC_EXCHANGE,
+          RABBITMQ_NFT_METADATA_ROUTING_KEY,
+          nft,
+        );
+      }, 5000);
     } else {
       Logger.error({
         title: 'NftService-syncMetadata',
