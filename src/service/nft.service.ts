@@ -5,6 +5,8 @@ import {
   CONTRACT_ATTRIBUTE,
   NFT_METADATA_LOCK,
   NFT_UPDATE_LIST,
+  RABBITMQ_METADATA_SYNC_EXCHANGE,
+  RABBITMQ_NFT_METADATA_ROUTING_KEY,
   RABBITMQ_SYNC_NFT_EXCHANGE,
   getContractSyncSuccessSourceKey,
 } from '../config/constant';
@@ -29,7 +31,12 @@ export const base64_reg = /^data:[\s\S]+;base64,/;
  * 补全NFT信息
  * @param nft
  */
-export async function syncMetadata(redisService: any, nft: Nft) {
+export async function syncMetadata(
+  amqpConnection: any,
+  datasource: DataSource,
+  redisService: any,
+  nft: Nft,
+) {
   const redisClient = redisService.getClient();
   // 加锁防止重复处理
   const key = NFT_METADATA_LOCK + ':' + nft.id;
@@ -85,11 +92,23 @@ export async function syncMetadata(redisService: any, nft: Nft) {
 
     return update;
   } catch (error) {
-    Logger.error({
-      title: 'NftService-syncMetadata',
-      data: nft,
-      error: error + '',
-    });
+    if (error?.response?.status == 429) {
+      // 推送到队列
+      await mqPublish(
+        amqpConnection,
+        datasource,
+        redisService,
+        RABBITMQ_METADATA_SYNC_EXCHANGE,
+        RABBITMQ_NFT_METADATA_ROUTING_KEY,
+        nft,
+      );
+    } else {
+      Logger.error({
+        title: 'NftService-syncMetadata',
+        data: nft,
+        error: error + '',
+      });
+    }
   } finally {
     await redisService.unlock(redisClient, key, value);
   }
@@ -155,15 +174,18 @@ async function getMetaDataUpdate(
       }
     }
   } catch (e) {
-    Logger.error({
-      title: 'NftService-getMetaDataUpdate',
-      data: nft,
-      error: e + '',
-    });
-
     // token已销毁
     if (e?.reason && e.reason.indexOf('nonexistent') != -1) {
       update.is_destroyed = BOOLEAN_STATUS.YES;
+    } else if (e?.response?.status == 429) {
+      // 抛异常，重新推回队列
+      throw e;
+    } else {
+      Logger.error({
+        title: 'NftService-getMetaDataUpdate',
+        data: nft,
+        error: e + '',
+      });
     }
   }
 }
