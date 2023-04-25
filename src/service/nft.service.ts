@@ -103,7 +103,7 @@ export async function syncMetadata(
           RABBITMQ_NFT_METADATA_ROUTING_KEY,
           nft,
         );
-      }, 5000);
+      }, Math.floor(10000 * Math.random()));
     } else {
       Logger.error({
         title: 'NftService-syncMetadata',
@@ -246,7 +246,17 @@ async function getMetadata(nft: Nft, tokenUri: string) {
   if (typeof metadata == 'string') {
     try {
       metadata = JSON.parse(metadata);
-    } catch (error) {}
+    } catch (error) {
+      Logger.error({
+        title: 'getMetadata-parse',
+        data: {
+          nft,
+          tokenUri,
+          metadata,
+        },
+        error: error + '',
+      });
+    }
   }
 
   if (!(metadata && typeof metadata === 'object')) {
