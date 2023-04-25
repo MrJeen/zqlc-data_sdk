@@ -82,6 +82,8 @@ export async function syncMetadata(redisService: any, nft: Nft) {
 
     // 先存redis，利用定时任务批量更新
     await redisClient.rpush(NFT_UPDATE_LIST, JSON.stringify(update));
+
+    return update;
   } catch (error) {
     Logger.error({
       title: 'NftService-syncMetadata',
@@ -153,6 +155,12 @@ async function getMetaDataUpdate(
       }
     }
   } catch (e) {
+    Logger.error({
+      title: 'NftService-getMetaDataUpdate',
+      data: nft,
+      error: e + '',
+    });
+
     // token已销毁
     if (e?.reason && e.reason.indexOf('nonexistent') != -1) {
       update.is_destroyed = BOOLEAN_STATUS.YES;
