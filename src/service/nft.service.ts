@@ -24,6 +24,7 @@ import { OSS_OM_BASE64_CLIENT } from './aliyun.oss.service';
 import { Readable } from 'stream';
 import { NftResultDto } from '../dto/nft.dto';
 import auth from '../config/auth.api';
+import { HttpException } from '@nestjs/common';
 
 export const base64_reg = /^data:[\s\S]+;base64,/;
 
@@ -115,16 +116,24 @@ export async function syncMetadata(
 
     return update;
   } catch (error) {
-    const errMsg = error + '';
-
     Logger.error({
       title: 'NftService-syncMetadata',
       data: nft,
-      error: errMsg,
+      error: error + '',
     });
 
-    // 非语法错误的，重新处理
-    if (errMsg.indexOf('SyntaxError') != -1) {
+    const status = error?.response?.status ?? error?.status;
+    if (status && (status == 403 || status.toString().slice(0, 1) == '5')) {
+      // 不同步
+      await redisClient.hset(
+        CONTRACT_ATTRIBUTE,
+        nft.chain + ':' + nft.token_address,
+        JSON.stringify({
+          ...contractArrtibute,
+          no_metadata: BOOLEAN_STATUS.YES,
+        }),
+      );
+    } else {
       // 推送到延时队列
       await mqPublish(
         amqpConnection,
@@ -138,16 +147,6 @@ export async function syncMetadata(
             'x-delay': Math.ceil(10000 * Math.random()),
           },
         },
-      );
-    } else {
-      // 语法错误，该系列不同步
-      await redisClient.hset(
-        CONTRACT_ATTRIBUTE,
-        nft.chain + ':' + nft.token_address,
-        JSON.stringify({
-          ...contractArrtibute,
-          no_metadata: BOOLEAN_STATUS.YES,
-        }),
       );
     }
   } finally {
@@ -269,6 +268,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
   if (base64_reg.test(tokenUri)) {
     const base64 = tokenUri.replace(base64_reg, '');
     let string = Buffer.from(base64, 'base64').toString();
+    // 个别json有问题
     string = string.replace(/""/g, '"');
     metadata = JSON.parse(string);
   } else {
@@ -280,6 +280,12 @@ async function getMetadata(nft: Nft, tokenUri: string) {
         ? { httpsAgent: new SocksProxyAgent(process.env.PROXY_HOST) }
         : {}),
     });
+
+    // 响应为一个图片
+    if (response?.headers['content-type'].startsWith('image')) {
+      throw new HttpException('metadata is an image', 403);
+    }
+
     metadata = response?.data;
   }
 

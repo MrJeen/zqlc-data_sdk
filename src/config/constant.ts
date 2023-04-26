@@ -149,6 +149,8 @@ export const NFT_SYNC_RECURSION_LIMIT = 'nft_sync_recursion_limit';
 
 export const SYNC_CONTRACT_LIMIT = 'sync_contract_limit';
 
+export const SYNC_NFT_ES_AFTER = 'sync_nft_es_after';
+
 export function getMetadataLockKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_LOCK + ':' + contractId;
 }
@@ -249,6 +251,12 @@ export const ARBITRUM_TEST_NETWORK: NETWORK_TYPE = {
   transferIncr: 1000,
 };
 
+export const SEPOLIA_NETWORK: NETWORK_TYPE = {
+  name: 'SEPOLIA',
+  chainId: 11155111,
+  transferIncr: 5,
+};
+
 export const NETWORKS: NETWORK_TYPE[] = [];
 
 export const CHAINS = {};
@@ -296,6 +304,11 @@ function initNetworks(chainIds: number[]) {
           NETWORKS.push(ARBITRUM_TEST_NETWORK);
           CHAINS[chainId] = ARBITRUM_TEST_NETWORK.name;
           CHAINS[ARBITRUM_TEST_NETWORK.name] = chainId;
+          break;
+        case SEPOLIA_NETWORK.chainId:
+          NETWORKS.push(SEPOLIA_NETWORK);
+          CHAINS[chainId] = SEPOLIA_NETWORK.name;
+          CHAINS[SEPOLIA_NETWORK.name] = chainId;
           break;
         default:
           break;
