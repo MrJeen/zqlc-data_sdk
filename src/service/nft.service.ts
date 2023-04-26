@@ -123,7 +123,7 @@ export async function syncMetadata(
     });
 
     const status = error?.response?.status ?? error?.status;
-    if (status == HttpStatus.TOO_MANY_REQUESTS) {
+    if (status == HttpStatus.TOO_MANY_REQUESTS || status == -1) {
       // 推送到延时队列
       await mqPublish(
         amqpConnection,
@@ -237,22 +237,26 @@ async function getTokenUri(tokenUriPrefix: string, nft: Nft) {
     // 直接拼接uri
     tokenUri = tokenUriPrefix + nft.token_id;
   } else {
-    const provider = getJsonRpcProvider(CHAINS[nft.chain]);
-    if (nft.contract_type === CONTRACT_TYPE.ERC721) {
-      const contract = getContract(
-        nft.token_address,
-        erc721ContractAbi,
-        provider,
-      );
-      tokenUri = await contract.tokenURI(nft.token_id);
-    }
-    if (nft.contract_type === CONTRACT_TYPE.ERC1155) {
-      const contract = getContract(
-        nft.token_address,
-        erc1155ContractAbi,
-        provider,
-      );
-      tokenUri = await contract.uri(nft.token_id);
+    try {
+      const provider = getJsonRpcProvider(CHAINS[nft.chain]);
+      if (nft.contract_type === CONTRACT_TYPE.ERC721) {
+        const contract = getContract(
+          nft.token_address,
+          erc721ContractAbi,
+          provider,
+        );
+        tokenUri = await contract.tokenURI(nft.token_id);
+      }
+      if (nft.contract_type === CONTRACT_TYPE.ERC1155) {
+        const contract = getContract(
+          nft.token_address,
+          erc1155ContractAbi,
+          provider,
+        );
+        tokenUri = await contract.uri(nft.token_id);
+      }
+    } catch (error) {
+      throw new HttpException('jsonrpc error: ' + error, -1);
     }
   }
   // 个别uri有异常
