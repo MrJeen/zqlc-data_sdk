@@ -268,7 +268,9 @@ async function getMetadata(nft: Nft, tokenUri: string) {
   // 有些tokenUri是base64编码，这种情况无需使请求接口
   if (base64_reg.test(tokenUri)) {
     const base64 = tokenUri.replace(base64_reg, '');
-    metadata = JSON.parse(Buffer.from(base64, 'base64').toString());
+    let string = Buffer.from(base64, 'base64').toString();
+    string = string.replace(/""/g, '"');
+    metadata = JSON.parse(string);
   } else {
     // 本地需要设置proxy
     const response = await axios({
