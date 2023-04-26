@@ -14,7 +14,7 @@ import { erc1155ContractAbi, erc721ContractAbi } from '../config/abi';
 import { CONTRACT_TYPE } from '../entity/contract.entity';
 import { Nft } from '../entity/nft.entity';
 import _ from 'lodash';
-import { filterData, md5 } from '../utils/helper';
+import { filterData, isValidUrl, md5 } from '../utils/helper';
 import { getContract, getJsonRpcProvider } from '../utils/ethers';
 import { Logger } from '../utils/log4js';
 import { SocksProxyAgent } from 'socks-proxy-agent';
@@ -24,7 +24,7 @@ import { OSS_OM_BASE64_CLIENT } from './aliyun.oss.service';
 import { Readable } from 'stream';
 import { NftResultDto } from '../dto/nft.dto';
 import auth from '../config/auth.api';
-import { HttpException } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 export const base64_reg = /^data:[\s\S]+;base64,/;
 
@@ -123,17 +123,7 @@ export async function syncMetadata(
     });
 
     const status = error?.response?.status ?? error?.status;
-    if (status && (status == 403 || status.toString().slice(0, 1) == '5')) {
-      // 不同步
-      await redisClient.hset(
-        CONTRACT_ATTRIBUTE,
-        nft.chain + ':' + nft.token_address,
-        JSON.stringify({
-          ...contractArrtibute,
-          no_metadata: BOOLEAN_STATUS.YES,
-        }),
-      );
-    } else {
+    if (status == HttpStatus.TOO_MANY_REQUESTS) {
       // 推送到延时队列
       await mqPublish(
         amqpConnection,
@@ -147,6 +137,18 @@ export async function syncMetadata(
             'x-delay': Math.ceil(10000 * Math.random()),
           },
         },
+      );
+    }
+
+    if (status && (status == 403 || status.toString().slice(0, 1) == '5')) {
+      // 不同步
+      await redisClient.hset(
+        CONTRACT_ATTRIBUTE,
+        nft.chain + ':' + nft.token_address,
+        JSON.stringify({
+          ...contractArrtibute,
+          no_metadata: BOOLEAN_STATUS.YES,
+        }),
       );
     }
   } finally {
@@ -271,6 +273,9 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     // 个别json有问题
     string = string.replace(/""/g, '"');
     metadata = JSON.parse(string);
+  } else if (!isValidUrl(tokenUri)) {
+    // 非有效url
+    throw new HttpException('url is invalid', HttpStatus.FORBIDDEN);
   } else {
     // 本地需要设置proxy
     const response = await axios({
@@ -283,7 +288,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
 
     // 响应为一个图片
     if (response?.headers['content-type'].startsWith('image')) {
-      throw new HttpException('metadata is an image', 403);
+      throw new HttpException('metadata is an image', HttpStatus.FORBIDDEN);
     }
 
     metadata = response?.data;

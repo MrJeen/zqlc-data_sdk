@@ -419,3 +419,17 @@ export function toNumber(target: any) {
   const result = Number(target);
   return isNaN(result) ? 0 : result;
 }
+
+/**
+ * 判断是否为有效url
+ * @param url
+ * @returns
+ */
+export function isValidUrl(url: string) {
+  try {
+    new URL(url);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
