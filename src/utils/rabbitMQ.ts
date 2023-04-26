@@ -10,9 +10,10 @@ export async function mqPublish(
   exchange: string,
   routingKey: string,
   data: any,
+  options?: object,
 ) {
   try {
-    await amqpConnection.publish(exchange, routingKey, data);
+    await amqpConnection.publish(exchange, routingKey, data, options);
     Logger.info({
       title: 'rabbitmq-publish-success',
       data: {

@@ -5,7 +5,7 @@ import {
   CONTRACT_ATTRIBUTE,
   NFT_METADATA_LOCK,
   NFT_UPDATE_LIST,
-  RABBITMQ_METADATA_SYNC_EXCHANGE,
+  RABBITMQ_DELAY_EXCHANGE,
   RABBITMQ_NFT_METADATA_ROUTING_KEY,
   RABBITMQ_SYNC_NFT_EXCHANGE,
   getContractSyncSuccessSourceKey,
@@ -93,17 +93,20 @@ export async function syncMetadata(
     return update;
   } catch (error) {
     if (error?.response?.status == 429) {
-      // 推送到队列
-      setTimeout(async () => {
-        await mqPublish(
-          amqpConnection,
-          datasource,
-          redisService,
-          RABBITMQ_METADATA_SYNC_EXCHANGE,
-          RABBITMQ_NFT_METADATA_ROUTING_KEY,
-          nft,
-        );
-      }, Math.floor(10000 * Math.random()));
+      // 推送到延时队列
+      await mqPublish(
+        amqpConnection,
+        datasource,
+        redisService,
+        RABBITMQ_DELAY_EXCHANGE,
+        RABBITMQ_NFT_METADATA_ROUTING_KEY,
+        nft,
+        {
+          headers: {
+            'x-delay': Math.floor(10000 * Math.random()),
+          },
+        },
+      );
     } else {
       Logger.error({
         title: 'NftService-syncMetadata',

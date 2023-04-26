@@ -1,4 +1,5 @@
 import {
+  RABBITMQ_DELAY_EXCHANGE,
   RABBITMQ_METADATA_SYNC_EXCHANGE,
   RABBITMQ_NFT_EXCHANGE,
   RABBITMQ_SYNC_NFT_EXCHANGE,
@@ -100,11 +101,21 @@ export default () => ({
         name: RABBITMQ_TRANSFER_EXCHANGE,
         type: 'direct',
       },
+      // 声明一个延时队列交换机
+      {
+        name: RABBITMQ_DELAY_EXCHANGE,
+        type: 'x-delayed-message',
+        options: {
+          arguments: {
+            'x-delayed-type': 'direct',
+          },
+        },
+      },
     ],
     uri: process.env.RABBITMQ_URI,
     connectionInitOptions: { wait: false },
     enableDirectReplyTo: false,
-    // 限流（每个进程&每个队列&每次只消费1条消息；大于1时，每个进程，每个队列会同时消费多条消息）
+    // 默认每个队列消费者为1
     prefetchCount: 1,
   },
 });

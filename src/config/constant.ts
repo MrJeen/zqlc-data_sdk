@@ -106,6 +106,9 @@ export const RABBITMQ_TRANSFER_SYNC_QUEUE = 'transfer_sync_queue';
 export const RABBITMQ_TRANSFER_HANLDE_ROUTING_KEY = 'transfer_handle';
 export const RABBITMQ_TRANSFER_HANLDE_QUEUE = 'transfer_handle_queue';
 
+// 延时队列交换机
+export const RABBITMQ_DELAY_EXCHANGE = 'delay_exchange';
+
 export const NFT_METADATA_LOCK = 'nft_metadata_lock';
 
 export const INTERNAL_CRON_LOCK = 'internal_cron_lock';
@@ -141,6 +144,10 @@ export const CONTRACT_SYNC_SUCCESS_SOURCE = 'contract_source';
 export const NFT_UPDATE_LIST = 'nft_update_list';
 
 export const USER_UPDATE_LIST = 'user_update_list';
+
+export const NFT_SYNC_RECURSION_LIMIT = 'nft_sync_recursion_limit';
+
+export const SYNC_CONTRACT_LIMIT = 'sync_contract_limit';
 
 export function getMetadataLockKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_LOCK + ':' + contractId;
