@@ -144,7 +144,10 @@ export async function syncMetadata(
       await redisClient.hset(
         CONTRACT_ATTRIBUTE,
         nft.chain + ':' + nft.token_address,
-        { ...contractArrtibute, no_metadata: BOOLEAN_STATUS.YES },
+        JSON.stringify({
+          ...contractArrtibute,
+          no_metadata: BOOLEAN_STATUS.YES,
+        }),
       );
     }
   } finally {
