@@ -168,7 +168,11 @@ async function getMetaDataUpdate(
       if (!_.isEmpty(metadata)) {
         update.metadata = metadata;
         if (metadata.hasOwnProperty('name')) {
-          update.name = (metadata?.name || '').replace(/\u0000/g, '');
+          // 有些名字是数字，会报错
+          update.name = JSON.stringify(metadata?.name || '').replace(
+            /\u0000/g,
+            '',
+          );
         }
         if (base64_reg.test(tokenUri)) {
           // base64太长了，不存储
