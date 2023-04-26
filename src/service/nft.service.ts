@@ -92,7 +92,16 @@ export async function syncMetadata(
 
     return update;
   } catch (error) {
-    if (error?.response?.status == 429) {
+    const errMsg = error + '';
+
+    Logger.error({
+      title: 'NftService-syncMetadata',
+      data: nft,
+      error: errMsg,
+    });
+
+    // 非语法错误的，重新处理
+    if (errMsg.indexOf('SyntaxError') != -1) {
       // 推送到延时队列
       await mqPublish(
         amqpConnection,
@@ -107,12 +116,6 @@ export async function syncMetadata(
           },
         },
       );
-    } else {
-      Logger.error({
-        title: 'NftService-syncMetadata',
-        data: nft,
-        error: error + '',
-      });
     }
   } finally {
     await redisService.unlock(redisClient, key, value);
@@ -186,15 +189,9 @@ async function getMetaDataUpdate(
     // token已销毁
     if (e?.reason && e.reason.indexOf('nonexistent') != -1) {
       update.is_destroyed = BOOLEAN_STATUS.YES;
-    } else if (e?.response?.status == 429) {
+    } else {
       // 抛异常，重新推回队列
       throw e;
-    } else {
-      Logger.error({
-        title: 'NftService-getMetaDataUpdate',
-        data: nft,
-        error: e + '',
-      });
     }
   }
 }
