@@ -46,17 +46,40 @@ export async function syncMetadata(
     return;
   }
 
-  try {
-    // 从redis获取contract的属性，是否需要同步metadata，是否有设置tokenuri前缀
-    const attributeStr = await redisClient.hget(
-      CONTRACT_ATTRIBUTE,
-      nft.chain + ':' + nft.token_address,
-    );
-    let contractArrtibute = {};
-    if (attributeStr) {
-      contractArrtibute = JSON.parse(attributeStr);
-    }
+  // 一次只能处理一个系列
+  const contractKey = NFT_METADATA_LOCK + ':' + nft.token_address;
+  const contractValue = await redisService.lock(redisClient, contractKey);
 
+  if (!contractValue) {
+    // 重新抛回队列
+    await mqPublish(
+      amqpConnection,
+      datasource,
+      redisService,
+      RABBITMQ_DELAY_EXCHANGE,
+      RABBITMQ_NFT_METADATA_ROUTING_KEY,
+      nft,
+      {
+        headers: {
+          'x-delay': Math.ceil(10000 * Math.random()),
+        },
+      },
+    );
+    await redisService.unlock(redisClient, key, value);
+    return;
+  }
+
+  // 从redis获取contract的属性，是否需要同步metadata，是否有设置tokenuri前缀
+  const attributeStr = await redisClient.hget(
+    CONTRACT_ATTRIBUTE,
+    nft.chain + ':' + nft.token_address,
+  );
+  let contractArrtibute = {};
+  if (attributeStr) {
+    contractArrtibute = JSON.parse(attributeStr);
+  }
+
+  try {
     if (contractArrtibute['no_metadata'] == BOOLEAN_STATUS.YES) {
       return;
     }
@@ -112,13 +135,21 @@ export async function syncMetadata(
         nft,
         {
           headers: {
-            'x-delay': Math.floor(10000 * Math.random()),
+            'x-delay': Math.ceil(10000 * Math.random()),
           },
         },
+      );
+    } else {
+      // 语法错误，该系列不同步
+      await redisClient.hset(
+        CONTRACT_ATTRIBUTE,
+        nft.chain + ':' + nft.token_address,
+        { ...contractArrtibute, no_metadata: BOOLEAN_STATUS.YES },
       );
     }
   } finally {
     await redisService.unlock(redisClient, key, value);
+    await redisService.unlock(redisClient, contractKey, contractValue);
   }
 }
 
