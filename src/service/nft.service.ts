@@ -58,7 +58,7 @@ export async function syncMetadata(
       datasource,
       redisService,
       nft,
-      Math.ceil(10 * 1000 * Math.random()),
+      Math.ceil(10 + 1000 * Math.random()),
     );
     await redisService.unlock(redisClient, key, value);
     return;
@@ -126,7 +126,7 @@ export async function syncMetadata(
         datasource,
         redisService,
         nft,
-        Math.ceil(60 * 60 * 1000 * Math.random()),
+        Math.ceil(60 * 60 + 1000 * Math.random()),
       );
       return;
     }
@@ -139,7 +139,7 @@ export async function syncMetadata(
         datasource,
         redisService,
         nft,
-        Math.ceil(10 * 1000 * Math.random()),
+        Math.ceil(10 + 1000 * Math.random()),
       );
       return;
     }
