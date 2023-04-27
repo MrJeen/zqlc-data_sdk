@@ -53,18 +53,12 @@ export async function syncMetadata(
 
   if (!contractValue) {
     // 重新抛回队列
-    await mqPublish(
+    await pushMetadataDelayMq(
       amqpConnection,
       datasource,
       redisService,
-      RABBITMQ_DELAY_EXCHANGE,
-      RABBITMQ_NFT_METADATA_ROUTING_KEY,
       nft,
-      {
-        headers: {
-          'x-delay': Math.ceil(10000 * Math.random()),
-        },
-      },
+      Math.ceil(10 * 1000 * Math.random()),
     );
     await redisService.unlock(redisClient, key, value);
     return;
@@ -123,23 +117,34 @@ export async function syncMetadata(
     });
 
     const status = error?.response?.status ?? error?.status;
-    if (status == HttpStatus.TOO_MANY_REQUESTS || status == -1) {
+
+    // 请求太频繁
+    if (status == HttpStatus.TOO_MANY_REQUESTS) {
       // 推送到延时队列
-      await mqPublish(
+      await pushMetadataDelayMq(
         amqpConnection,
         datasource,
         redisService,
-        RABBITMQ_DELAY_EXCHANGE,
-        RABBITMQ_NFT_METADATA_ROUTING_KEY,
         nft,
-        {
-          headers: {
-            'x-delay': Math.ceil(10000 * Math.random()),
-          },
-        },
+        Math.ceil(60 * 60 * 1000 * Math.random()),
       );
+      return;
     }
 
+    // URL不对
+    if (status == -1) {
+      // 推送到延时队列
+      await pushMetadataDelayMq(
+        amqpConnection,
+        datasource,
+        redisService,
+        nft,
+        Math.ceil(10 * 1000 * Math.random()),
+      );
+      return;
+    }
+
+    // 没权限或三方服务器错误
     if (status && (status == 403 || status.toString().slice(0, 1) == '5')) {
       // 不同步
       await redisClient.hset(
@@ -333,4 +338,34 @@ export async function checkMetadataImg(metadata: any, nft: Nft) {
     )) as any;
     metadata.image = result.url;
   }
+}
+
+/**
+ * metadata同步的延迟队列
+ * @param amqpConnection
+ * @param datasource
+ * @param redisService
+ * @param nft
+ * @param times
+ */
+async function pushMetadataDelayMq(
+  amqpConnection: any,
+  datasource: DataSource,
+  redisService: any,
+  nft: Nft,
+  times: number,
+) {
+  await mqPublish(
+    amqpConnection,
+    datasource,
+    redisService,
+    RABBITMQ_DELAY_EXCHANGE,
+    RABBITMQ_NFT_METADATA_ROUTING_KEY,
+    nft,
+    {
+      headers: {
+        'x-delay': times,
+      },
+    },
+  );
 }
