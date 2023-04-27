@@ -14,10 +14,9 @@ import { erc1155ContractAbi, erc721ContractAbi } from '../config/abi';
 import { CONTRACT_TYPE } from '../entity/contract.entity';
 import { Nft } from '../entity/nft.entity';
 import _ from 'lodash';
-import { filterData, isValidUrl, md5 } from '../utils/helper';
+import { filterData, isValidUrl, md5, toNumber } from '../utils/helper';
 import { getContract, getJsonRpcProvider } from '../utils/ethers';
 import { Logger } from '../utils/log4js';
-import { SocksProxyAgent } from 'socks-proxy-agent';
 import { mqPublish } from '../utils/rabbitMQ';
 import { DataSource } from 'typeorm';
 import { OSS_OM_BASE64_CLIENT } from './aliyun.oss.service';
@@ -116,37 +115,18 @@ export async function syncMetadata(
       error: error + '',
     });
 
-    const status = error?.response?.status ?? error?.status;
+    // axios请求
+    const status1 = error?.response?.status;
+    // httpexception
+    const status2 = error?.status;
 
-    // 请求太频繁
-    if (status == HttpStatus.TOO_MANY_REQUESTS) {
-      // 推送到延时队列
-      await pushMetadataDelayMq(
-        amqpConnection,
-        datasource,
-        redisService,
-        nft,
-        Math.ceil(60 * 60 + 1000 * Math.random()),
-      );
-      return;
-    }
-
-    // URL不对
-    if (status == -1) {
-      // 推送到延时队列
-      await pushMetadataDelayMq(
-        amqpConnection,
-        datasource,
-        redisService,
-        nft,
-        Math.ceil(10 + 1000 * Math.random()),
-      );
-      return;
-    }
-
-    // 没权限或三方服务器错误
-    if (status && (status == 403 || status.toString().slice(0, 1) == '5')) {
-      // 不同步
+    if (
+      status1 == HttpStatus.FORBIDDEN ||
+      status2 == HttpStatus.FORBIDDEN ||
+      (status1 + '').startsWith('5') ||
+      (status2 + '').startsWith('5')
+    ) {
+      // 黑名单
       await redisClient.hset(
         CONTRACT_ATTRIBUTE,
         nft.chain + ':' + nft.token_address,
@@ -155,7 +135,17 @@ export async function syncMetadata(
           no_metadata: BOOLEAN_STATUS.YES,
         }),
       );
+      return;
     }
+
+    // 推送到延时队列
+    await pushMetadataDelayMq(
+      amqpConnection,
+      datasource,
+      redisService,
+      nft,
+      Math.ceil(5 * 60 + 1000 * Math.random()),
+    );
   } finally {
     await redisService.unlock(redisClient, key, value);
     await redisService.unlock(redisClient, contractKey, contractValue);
@@ -203,8 +193,7 @@ async function getMetaDataUpdate(
 ) {
   let tokenUri = '';
   try {
-    tokenUri = await getTokenUri(tokenUriPrefix, nft);
-
+    tokenUri = await getTokenUri(tokenUriPrefix, nft, update);
     if (tokenUri) {
       const metadata = await getMetadata(nft, tokenUri);
       // metadata不为空
@@ -226,17 +215,12 @@ async function getMetaDataUpdate(
       }
     }
   } catch (e) {
-    // token已销毁
-    if (e?.reason && e.reason.indexOf('nonexistent') != -1) {
-      update.is_destroyed = BOOLEAN_STATUS.YES;
-    } else {
-      // 抛异常，重新推回队列
-      throw e;
-    }
+    // 抛异常，重新推回队列
+    throw e;
   }
 }
 
-async function getTokenUri(tokenUriPrefix: string, nft: Nft) {
+async function getTokenUri(tokenUriPrefix: string, nft: Nft, update: any) {
   let tokenUri = '';
   if (tokenUriPrefix) {
     // 直接拼接uri
@@ -261,7 +245,17 @@ async function getTokenUri(tokenUriPrefix: string, nft: Nft) {
         tokenUri = await contract.uri(nft.token_id);
       }
     } catch (error) {
-      throw new HttpException('jsonrpc error: ' + error, -1);
+      // token已销毁
+      if (error?.reason && error.reason.indexOf('nonexistent') != -1) {
+        update.is_destroyed = BOOLEAN_STATUS.YES;
+        return tokenUri;
+      }
+
+      if (error?.code == 'SERVER_ERROR') {
+        throw new HttpException(error + '', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+
+      throw error;
     }
   }
   // 个别uri有异常
@@ -284,20 +278,27 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     metadata = JSON.parse(string);
   } else if (!isValidUrl(tokenUri)) {
     // 非有效url
-    throw new HttpException('url is invalid', HttpStatus.FORBIDDEN);
+    throw new HttpException('url is invalid', HttpStatus.INTERNAL_SERVER_ERROR);
   } else {
-    // 本地需要设置proxy
     const response = await axios({
+      method: 'GET',
       url: tokenUri,
-      method: 'get',
-      ...(process.env.PROXY === 'true'
-        ? { httpsAgent: new SocksProxyAgent(process.env.PROXY_HOST) }
-        : {}),
+      proxy: {
+        host: process.env.PROXY_HOST,
+        port: toNumber(process.env.PROXY_PORT),
+        auth: {
+          username: process.env.PROXY_AUTH_USERNAME,
+          password: process.env.PROXY_AUTH_PASSWORD,
+        },
+      },
     });
 
     // 响应为一个图片
     if (response?.headers['content-type'].startsWith('image')) {
-      throw new HttpException('metadata is an image', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'metadata is an image',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
     metadata = response?.data;
