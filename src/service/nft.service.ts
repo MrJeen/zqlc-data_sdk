@@ -280,10 +280,12 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     // 非有效url
     throw new HttpException('url is invalid', HttpStatus.INTERNAL_SERVER_ERROR);
   } else {
+    nft.token_uri = tokenUri;
     const response = await axios({
       method: 'GET',
       url: tokenUri,
       proxy: {
+        protocol: 'http',
         host: process.env.PROXY_HOST,
         port: toNumber(process.env.PROXY_PORT),
         auth: {
