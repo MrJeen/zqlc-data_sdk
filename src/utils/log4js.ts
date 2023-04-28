@@ -2,6 +2,7 @@ import Path from 'path';
 import Log4js from 'log4js';
 import StackTrace from 'stacktrace-js';
 import config from '../config/log4js';
+import { sendMsg } from './dingding';
 
 export interface Message {
   title: string;
@@ -31,11 +32,27 @@ export class Logger {
   }
 
   static error(message: Message) {
-    logger.error(this.getStackTrace(), JSON.stringify(message));
+    const trace = this.getStackTrace();
+    const msg = JSON.stringify(message);
+    logger.error(trace, msg);
+    // 发送钉钉通知
+    sendMsg(
+      process.env.DINGDING_ROBOT_WEBHOOK,
+      process.env.DINGDING_ROBOT_SECRET,
+      trace + msg,
+    );
   }
 
   static fatal(message: Message) {
-    logger.fatal(this.getStackTrace(), JSON.stringify(message));
+    const trace = this.getStackTrace();
+    const msg = JSON.stringify(message);
+    logger.fatal(trace, msg);
+    // 发送钉钉通知
+    sendMsg(
+      process.env.DINGDING_ROBOT_WEBHOOK,
+      process.env.DINGDING_ROBOT_SECRET,
+      trace + msg,
+    );
   }
 
   // 日志追踪，可以追溯到哪个文件、第几行第几列
