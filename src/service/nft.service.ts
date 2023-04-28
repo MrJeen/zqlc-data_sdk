@@ -113,7 +113,8 @@ export async function syncMetadata(
       nft,
       {
         headers: {
-          'x-delay': Math.ceil(5 * 60 + 1000 * Math.random()),
+          // 5-10分钟
+          'x-delay': Math.ceil(5 * 60 * 1000 * (1 + Math.random())),
         },
       },
     );
