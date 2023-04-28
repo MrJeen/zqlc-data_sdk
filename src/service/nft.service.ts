@@ -94,7 +94,7 @@ export async function syncMetadata(
   } catch (error) {
     Logger.error({
       title: 'NftService-syncMetadata',
-      data: nft,
+      data: { nft, node: error['node'] },
       error: error + '',
     });
 
@@ -214,8 +214,9 @@ async function getTokenUri(tokenUriPrefix: string, nft: Nft, update: any) {
     // 直接拼接uri
     tokenUri = tokenUriPrefix + nft.token_id;
   } else {
+    let provider = null;
     try {
-      const provider = getJsonRpcProvider(CHAINS[nft.chain]);
+      provider = getJsonRpcProvider(CHAINS[nft.chain]);
       if (nft.contract_type === CONTRACT_TYPE.ERC721) {
         const contract = getContract(
           nft.token_address,
@@ -242,6 +243,8 @@ async function getTokenUri(tokenUriPrefix: string, nft: Nft, update: any) {
       if (error?.code == 'SERVER_ERROR') {
         throw new HttpException(error + '', HttpStatus.INTERNAL_SERVER_ERROR);
       }
+
+      error['node'] = provider ? provider['node'] : '';
 
       throw error;
     }
