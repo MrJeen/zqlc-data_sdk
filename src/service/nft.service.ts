@@ -298,7 +298,10 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     });
 
     // 响应为一个图片
-    if (response?.headers['content-type'].startsWith('image')) {
+    if (
+      response?.headers['content-type'] &&
+      response.headers['content-type'].startsWith('image')
+    ) {
       throw new HttpException(
         'metadata is an image',
         HttpStatus.INTERNAL_SERVER_ERROR,
