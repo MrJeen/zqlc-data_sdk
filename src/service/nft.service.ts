@@ -194,11 +194,12 @@ async function getMetaDataUpdate(
       if (!_.isEmpty(metadata)) {
         update.metadata = metadata;
         if (metadata.hasOwnProperty('name')) {
-          // 有些名字是数字，会报错
-          update.name = JSON.stringify(metadata?.name || '').replace(
-            /\u0000/g,
-            '',
-          );
+          if (typeof metadata.name == 'string') {
+            update.name = metadata.name.replace(/\u0000/g, '');
+          } else {
+            // 有些名字是数字
+            update.name = metadata.name + '';
+          }
         }
         if (base64_reg.test(tokenUri)) {
           // base64太长了，不存储
