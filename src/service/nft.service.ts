@@ -121,6 +121,12 @@ export async function syncMetadata(
       return;
     }
 
+    if (nft['times'] && nft['times'] >= 3) {
+      return;
+    }
+
+    nft['times'] = (nft['times'] ?? 0) + 1;
+
     // 推送到延时队列
     await mqPublish(
       amqpConnection,
@@ -234,17 +240,22 @@ async function getTokenUri(tokenUriPrefix: string, nft: Nft, update: any) {
         tokenUri = await contract.uri(nft.token_id);
       }
     } catch (error) {
+      const node = provider ? provider['node'] : '';
+
       // token已销毁
       if (error?.reason && error.reason.indexOf('nonexistent') != -1) {
         update.is_destroyed = BOOLEAN_STATUS.YES;
         return tokenUri;
       }
 
-      if (error?.code == 'SERVER_ERROR') {
-        throw new HttpException(error + '', HttpStatus.INTERNAL_SERVER_ERROR);
+      if (error?.code != 'NETWORK_ERROR' || error?.code != 'TIMEOUT') {
+        throw new HttpException(
+          error + ', node: ' + node,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
 
-      error['node'] = provider ? provider['node'] : '';
+      error['node'] = node;
 
       throw error;
     }
