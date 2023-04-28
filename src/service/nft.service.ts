@@ -275,9 +275,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
   // 有些tokenUri是base64编码，这种情况无需使请求接口
   if (base64_reg.test(tokenUri)) {
     const base64 = tokenUri.replace(base64_reg, '');
-    let string = Buffer.from(base64, 'base64').toString();
-    // 个别json有问题
-    string = string.replace(/""/g, '"');
+    const string = Buffer.from(base64, 'base64').toString();
     metadata = JSON.parse(string);
   } else if (!isValidUrl(tokenUri)) {
     // 非有效url
