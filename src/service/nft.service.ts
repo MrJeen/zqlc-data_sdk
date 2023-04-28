@@ -23,7 +23,6 @@ import { OSS_OM_BASE64_CLIENT } from './aliyun.oss.service';
 import { Readable } from 'stream';
 import { NftResultDto } from '../dto/nft.dto';
 import auth from '../config/auth.api';
-import { HttpException, HttpStatus } from '@nestjs/common';
 
 export const base64_reg = /^data:[\s\S]+;base64,/;
 
@@ -92,34 +91,11 @@ export async function syncMetadata(
 
     return update;
   } catch (error) {
-    Logger.error({
+    Logger.warn({
       title: 'NftService-syncMetadata',
       data: { nft, node: error['node'] },
       error: error + '',
     });
-
-    // axios请求
-    const status1 = error?.response?.status;
-    // httpexception
-    const status2 = error?.status;
-
-    if (
-      status1 == HttpStatus.FORBIDDEN ||
-      status2 == HttpStatus.FORBIDDEN ||
-      (status1 + '').startsWith('5') ||
-      (status2 + '').startsWith('5')
-    ) {
-      // 黑名单
-      await redisClient.hset(
-        CONTRACT_ATTRIBUTE,
-        nft.chain + ':' + nft.token_address,
-        JSON.stringify({
-          ...contractArrtibute,
-          no_metadata: BOOLEAN_STATUS.YES,
-        }),
-      );
-      return;
-    }
 
     if (nft['times'] && nft['times'] >= 3) {
       return;
@@ -241,22 +217,13 @@ async function getTokenUri(tokenUriPrefix: string, nft: Nft, update: any) {
         tokenUri = await contract.uri(nft.token_id);
       }
     } catch (error) {
-      const node = provider ? provider['node'] : '';
-
       // token已销毁
       if (error?.reason && error.reason.indexOf('nonexistent') != -1) {
         update.is_destroyed = BOOLEAN_STATUS.YES;
         return tokenUri;
       }
 
-      if (error?.code != 'NETWORK_ERROR' || error?.code != 'TIMEOUT') {
-        throw new HttpException(
-          error + ', node: ' + node,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-
-      error['node'] = node;
+      error['node'] = provider ? provider['node'] : '';
 
       throw error;
     }
@@ -279,7 +246,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     metadata = JSON.parse(string);
   } else if (!isValidUrl(tokenUri)) {
     // 非有效url
-    throw new HttpException('url is invalid', HttpStatus.INTERNAL_SERVER_ERROR);
+    return;
   } else {
     nft.token_uri = tokenUri;
     const response = await axios({
@@ -301,10 +268,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
       response?.headers['content-type'] &&
       response.headers['content-type'].startsWith('image')
     ) {
-      throw new HttpException(
-        'metadata is an image',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      return;
     }
 
     metadata = response?.data;
