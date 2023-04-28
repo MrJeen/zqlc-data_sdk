@@ -46,23 +46,6 @@ export async function syncMetadata(
     return;
   }
 
-  // 一次只能处理一个系列
-  const contractKey = NFT_METADATA_LOCK + ':' + nft.token_address;
-  const contractValue = await redisService.lock(redisClient, contractKey);
-
-  if (!contractValue) {
-    // 重新抛回队列
-    await pushMetadataDelayMq(
-      amqpConnection,
-      datasource,
-      redisService,
-      nft,
-      Math.ceil(10 + 1000 * Math.random()),
-    );
-    await redisService.unlock(redisClient, key, value);
-    return;
-  }
-
   // 从redis获取contract的属性，是否需要同步metadata，是否有设置tokenuri前缀
   const attributeStr = await redisClient.hget(
     CONTRACT_ATTRIBUTE,
@@ -139,16 +122,21 @@ export async function syncMetadata(
     }
 
     // 推送到延时队列
-    await pushMetadataDelayMq(
+    await mqPublish(
       amqpConnection,
       datasource,
       redisService,
+      RABBITMQ_DELAY_EXCHANGE,
+      RABBITMQ_NFT_METADATA_ROUTING_KEY,
       nft,
-      Math.ceil(5 * 60 + 1000 * Math.random()),
+      {
+        headers: {
+          'x-delay': Math.ceil(5 * 60 + 1000 * Math.random()),
+        },
+      },
     );
   } finally {
     await redisService.unlock(redisClient, key, value);
-    await redisService.unlock(redisClient, contractKey, contractValue);
   }
 }
 
@@ -341,34 +329,4 @@ export async function checkMetadataImg(metadata: any, nft: Nft) {
     )) as any;
     metadata.image = result.url;
   }
-}
-
-/**
- * metadata同步的延迟队列
- * @param amqpConnection
- * @param datasource
- * @param redisService
- * @param nft
- * @param times
- */
-async function pushMetadataDelayMq(
-  amqpConnection: any,
-  datasource: DataSource,
-  redisService: any,
-  nft: Nft,
-  times: number,
-) {
-  await mqPublish(
-    amqpConnection,
-    datasource,
-    redisService,
-    RABBITMQ_DELAY_EXCHANGE,
-    RABBITMQ_NFT_METADATA_ROUTING_KEY,
-    nft,
-    {
-      headers: {
-        'x-delay': times,
-      },
-    },
-  );
 }
