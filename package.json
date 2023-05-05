@@ -19,7 +19,7 @@
     "@nestjs/core": "^9.2.1",
     "@nestjs/swagger": "^6.1.4",
     "ali-oss": "^6.17.1",
-    "axios": "^1.2.1",
+    "axios": "^1.4.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "ethers": "^5.7.2",
