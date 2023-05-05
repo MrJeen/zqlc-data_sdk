@@ -1,6 +1,7 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { CommonEntity } from './common.entity';
 import { Transfer } from './transfer.entity';
+import { UserNft } from './user.nft.entity';
 
 @Entity('nfts')
 @Index(['chain', 'token_hash'], { unique: true })
@@ -69,4 +70,7 @@ export class Nft extends CommonEntity {
 
   @OneToMany(() => Transfer, (transfer: Transfer) => transfer.nft)
   transfers: Transfer[];
+
+  @OneToMany(() => UserNft, (owner: UserNft) => owner.nft)
+  owners: UserNft[];
 }

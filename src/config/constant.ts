@@ -151,6 +151,8 @@ export const SYNC_CONTRACT_LIMIT = 'sync_contract_limit';
 
 export const SYNC_NFT_ES_AFTER = 'sync_nft_es_after';
 
+export const SYNC_NFT_LAST_TIME = 'sync_nft_last_time';
+
 export function getMetadataLockKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_LOCK + ':' + contractId;
 }

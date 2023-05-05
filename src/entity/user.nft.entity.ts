@@ -1,10 +1,12 @@
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { CommonEntity } from './common.entity';
+import { Nft } from './nft.entity';
 
 @Entity('user_nfts')
 @Index(['chain', 'owner_hash'], { unique: true })
 @Index(['updated_at'])
 @Index(['chain', 'token_hash'])
+@Index(['chain', 'token_address'])
 export class UserNft extends CommonEntity {
   // 需要按chain分区，所以要设置primary
   @Column('varchar', { default: '', comment: '区块链类型', primary: true })
@@ -45,4 +47,12 @@ export class UserNft extends CommonEntity {
     comment: 'owner哈希 - md5(address+id+user_address)',
   })
   owner_hash: string;
+
+  // createForeignKeyConstraints:false 不生成外键
+  @ManyToOne(() => Nft, { createForeignKeyConstraints: false })
+  @JoinColumn([
+    { name: 'chain', referencedColumnName: 'chain' },
+    { name: 'token_hash', referencedColumnName: 'token_hash' },
+  ])
+  nft: Nft;
 }
