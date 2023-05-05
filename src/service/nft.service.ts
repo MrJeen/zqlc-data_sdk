@@ -163,32 +163,27 @@ async function getMetaDataUpdate(
   nft: Nft,
 ) {
   let tokenUri = '';
-  try {
-    tokenUri = await getTokenUri(tokenUriPrefix, nft, update);
-    if (tokenUri) {
-      const metadata = await getMetadata(nft, tokenUri);
-      // metadata不为空
-      if (!_.isEmpty(metadata)) {
-        update.metadata = metadata;
-        if (metadata.hasOwnProperty('name')) {
-          if (typeof metadata.name == 'string') {
-            update.name = metadata.name.replace(/\u0000/g, '');
-          } else {
-            // 有些名字是数字
-            update.name = metadata.name + '';
-          }
-        }
-        if (base64_reg.test(tokenUri)) {
-          // base64太长了，不存储
-          update.token_uri = 'base64 data';
+  tokenUri = await getTokenUri(tokenUriPrefix, nft, update);
+  if (tokenUri) {
+    const metadata = await getMetadata(nft, tokenUri);
+    // metadata不为空
+    if (!_.isEmpty(metadata)) {
+      update.metadata = metadata;
+      if (metadata.hasOwnProperty('name')) {
+        if (typeof metadata.name == 'string') {
+          update.name = metadata.name.replace(/\u0000/g, '');
         } else {
-          update.token_uri = tokenUri;
+          // 有些名字是数字
+          update.name = metadata.name + '';
         }
       }
+      if (base64_reg.test(tokenUri)) {
+        // base64太长了，不存储
+        update.token_uri = 'base64 data';
+      } else {
+        update.token_uri = tokenUri;
+      }
     }
-  } catch (e) {
-    // 抛异常，重新推回队列
-    throw e;
   }
 }
 
@@ -276,19 +271,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
   }
 
   if (typeof metadata == 'string') {
-    try {
-      metadata = JSON.parse(metadata);
-    } catch (error) {
-      Logger.error({
-        title: 'getMetadata-parse',
-        data: {
-          nft,
-          tokenUri,
-          metadata,
-        },
-        error: error + '',
-      });
-    }
+    metadata = JSON.parse(metadata);
   }
 
   if (!(metadata && typeof metadata === 'object')) {
