@@ -97,7 +97,10 @@ export class Logger {
 
   static getErrorStack(error: any) {
     if (error instanceof Error) {
-      return error.stack.split('\n');
+      const stack = error.stack.split('\n');
+      stack.unshift(error.message);
+      stack.unshift(error.name);
+      return stack;
     }
     return error + '';
   }

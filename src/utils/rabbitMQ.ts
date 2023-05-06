@@ -25,7 +25,7 @@ export async function mqPublish(
   } catch (err) {
     Logger.error({
       title: 'rabbitmq-publish-error',
-      error: err + '',
+      error: err,
       data: {
         exchange,
         routingKey,
