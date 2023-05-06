@@ -12,29 +12,50 @@ export interface Message {
 
 // 注入配置
 Log4js.configure(config);
-const logger = Log4js.getLogger();
+const logger = Log4js.getLogger('access');
+const errorLogger = Log4js.getLogger('error');
 
 export class Logger {
   static log(message: Message) {
-    logger.log(this.getStackTrace(), JSON.stringify(message));
+    if (message.error) {
+      message.error = this.getErrorStack(message.error);
+    }
+
+    logger.log(this.getStackTrace(), JSON.stringify(message, null, 2));
   }
 
   static debug(message: Message) {
-    logger.debug(this.getStackTrace(), JSON.stringify(message));
+    if (message.error) {
+      message.error = this.getErrorStack(message.error);
+    }
+
+    logger.debug(this.getStackTrace(), JSON.stringify(message, null, 2));
   }
 
   static info(message: Message) {
-    logger.info(this.getStackTrace(), JSON.stringify(message));
+    if (message.error) {
+      message.error = this.getErrorStack(message.error);
+    }
+
+    logger.info(this.getStackTrace(), JSON.stringify(message, null, 2));
   }
 
   static warn(message: Message) {
-    logger.warn(this.getStackTrace(), JSON.stringify(message));
+    if (message.error) {
+      message.error = this.getErrorStack(message.error);
+    }
+
+    logger.warn(this.getStackTrace(), JSON.stringify(message, null, 2));
   }
 
   static error(message: Message) {
+    if (message.error) {
+      message.error = this.getErrorStack(message.error);
+    }
+
     const trace = this.getStackTrace();
-    const msg = JSON.stringify(message);
-    logger.error(trace, msg);
+    const msg = JSON.stringify(message, null, 2);
+    errorLogger.error(trace, msg);
     // 发送钉钉通知
     sendMsg(
       process.env.DINGDING_ROBOT_WEBHOOK,
@@ -44,9 +65,13 @@ export class Logger {
   }
 
   static fatal(message: Message) {
+    if (message.error) {
+      message.error = this.getErrorStack(message.error);
+    }
+
     const trace = this.getStackTrace();
-    const msg = JSON.stringify(message);
-    logger.fatal(trace, msg);
+    const msg = JSON.stringify(message, null, 2);
+    errorLogger.fatal(trace, msg);
     // 发送钉钉通知
     sendMsg(
       process.env.DINGDING_ROBOT_WEBHOOK,
@@ -68,5 +93,12 @@ export class Logger {
     const appName = process.env.APP_NAME ?? 'unknown_app_name';
     const env = process.env.APP_ENV;
     return `${appName}:${env}:${basename}:${functionName}(line: ${lineNumber}, column: ${columnNumber}):`;
+  }
+
+  static getErrorStack(error: any) {
+    if (error instanceof Error) {
+      return error.stack.split('\n');
+    }
+    return error + '';
   }
 }

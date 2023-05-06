@@ -22,7 +22,7 @@ export async function handleUserNftToES(
     Logger.error({
       title: 'handle-user-nft-es',
       data: '',
-      error: e + '',
+      error: e,
     });
   }
 }
@@ -41,7 +41,7 @@ export async function handleNftToEs(elasticsearchService: any, nfts: Nft[]) {
     Logger.error({
       title: 'handle-nft-to-es',
       data: '',
-      error: e + '',
+      error: e,
     });
   }
 }

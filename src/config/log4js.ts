@@ -22,9 +22,14 @@ const log4jsConfig = {
         pattern:
           '{"date":"%d{yyyy-MM-dd hh:mm:ss.SSS}","level":"%p","category":"%c","host":"%h","pid":"%z","data":\'%m\'}',
       },
-      //日志文件按日期切割
+      // 日志文件按日期切割
       pattern: 'yyyyMMdd',
-      numBackups: 120,
+      // 每个日志文件最大300M
+      maxLogSize: 314572800,
+      // 最多保留10个文件
+      numBackups: 10,
+      // 开启日志压缩
+      compress: true,
       keepFileExt: true,
     },
     error: {
@@ -38,18 +43,23 @@ const log4jsConfig = {
       },
       //日志文件按日期切割
       pattern: 'yyyyMMdd',
-      numBackups: 120,
+      // 每个日志文件最大300M
+      maxLogSize: 314572800,
+      // 最多保留10个文件
+      numBackups: 10,
+      // 开启日志压缩
+      compress: true,
       keepFileExt: true,
     },
   },
   categories: {
     default: {
       appenders: ['console', 'access'],
-      level: process.env.LOGGER_LEVEL ?? 'debug',
+      level: process.env.LOGGER_LEVEL || 'debug',
     },
     error: {
       appenders: ['console', 'error'],
-      level: process.env.LOGGER_ERROR_LEVEL ?? 'warn',
+      level: process.env.LOGGER_ERROR_LEVEL || 'error',
     },
   },
   // 使用pm2来管理项目时打开

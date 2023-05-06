@@ -94,7 +94,7 @@ export async function syncMetadata(
     Logger.warn({
       title: 'NftService-syncMetadata',
       data: { nft, node: error['node'] },
-      error: error + '',
+      error: error,
     });
 
     if (nft['times'] && nft['times'] >= 3) {
