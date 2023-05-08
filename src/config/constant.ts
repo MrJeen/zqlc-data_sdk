@@ -155,6 +155,8 @@ export const SYNC_NFT_LAST_TIME = 'sync_nft_last_time';
 
 export const CONTRACTS = 'contracts';
 
+export const MQ_PUSH_LOCK = 'mq_push_lock';
+
 export function getMetadataLockKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_LOCK + ':' + contractId;
 }
