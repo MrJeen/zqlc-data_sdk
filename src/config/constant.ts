@@ -153,6 +153,8 @@ export const SYNC_NFT_ES_AFTER = 'sync_nft_es_after';
 
 export const SYNC_NFT_LAST_TIME = 'sync_nft_last_time';
 
+export const CONTRACTS = 'contracts';
+
 export function getMetadataLockKey(contractId: number) {
   return SYNC_CONTRACT_METADATA_LOCK + ':' + contractId;
 }
@@ -182,6 +184,10 @@ export function getContractSyncSuccessSourceKey(
   address: string,
 ) {
   return CONTRACT_SYNC_SUCCESS_SOURCE + ':' + chain + ':' + address;
+}
+
+export function getContractsKey(chain: string) {
+  return CONTRACTS + ':' + chain;
 }
 
 export const MICRO_SERVICE = 'MICRO_SERVICE';
