@@ -435,19 +435,12 @@ export function isValidUrl(url: string) {
 }
 
 /**
- * 判断字符串是否为base64
+ * 判断字符串是否为base64-data
  * @param url
  * @returns
  */
 export function isBase64(str: string) {
-  if (str === '' || str.trim() === '') {
-    return false;
-  }
-  try {
-    return Buffer.from(str, 'base64').toString('base64') === str;
-  } catch (error) {
-    return false;
-  }
+  return /^data:[\s\S]+;base64,/.test(str);
 }
 
 /**

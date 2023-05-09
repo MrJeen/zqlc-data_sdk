@@ -12,6 +12,19 @@ export async function mqPublish(
   data: any,
   options?: object,
 ) {
+  const length = Buffer.byteLength(JSON.stringify(data), 'utf-8');
+  if (length >= 65536) {
+    Logger.error({
+      title: 'rabbitmq-data-too-large',
+      error: '',
+      data: {
+        exchange,
+        routingKey,
+        data,
+      },
+    });
+  }
+
   const redisClient = redisService.getClient();
 
   while (!(await lock(redisClient))) {}
