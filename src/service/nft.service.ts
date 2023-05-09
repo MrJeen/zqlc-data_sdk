@@ -14,7 +14,14 @@ import { erc1155ContractAbi, erc721ContractAbi } from '../config/abi';
 import { CONTRACT_TYPE } from '../entity/contract.entity';
 import { Nft } from '../entity/nft.entity';
 import _ from 'lodash';
-import { filterData, isValidUrl, md5, toNumber } from '../utils/helper';
+import {
+  filterData,
+  generateRandomString,
+  isBase64,
+  isValidUrl,
+  md5,
+  toNumber,
+} from '../utils/helper';
 import { getContract, getJsonRpcProvider } from '../utils/ethers';
 import { Logger } from '../utils/log4js';
 import { mqPublish } from '../utils/rabbitMQ';
@@ -23,8 +30,6 @@ import { OSS_OM_BASE64_CLIENT } from './aliyun.oss.service';
 import { Readable } from 'stream';
 import { NftResultDto } from '../dto/nft.dto';
 import auth from '../config/auth.api';
-
-export const base64_reg = /^data:[\s\S]+;base64,/;
 
 /**
  * 补全NFT信息
@@ -177,7 +182,7 @@ async function getMetaDataUpdate(
           update.name = metadata.name + '';
         }
       }
-      if (base64_reg.test(tokenUri)) {
+      if (isBase64(tokenUri)) {
         // base64太长了，不存储
         update.token_uri = 'base64 data';
       } else {
@@ -236,8 +241,8 @@ async function getTokenUri(tokenUriPrefix: string, nft: Nft, update: any) {
 async function getMetadata(nft: Nft, tokenUri: string) {
   let metadata: any;
   // 有些tokenUri是base64编码，这种情况无需使请求接口
-  if (base64_reg.test(tokenUri)) {
-    const base64 = tokenUri.replace(base64_reg, '');
+  if (isBase64(tokenUri)) {
+    const base64 = tokenUri.replace(/^data:[\s\S]+;base64,/, '');
     const string = Buffer.from(base64, 'base64').toString();
     metadata = JSON.parse(string);
   } else if (!isValidUrl(tokenUri)) {
@@ -284,13 +289,30 @@ async function getMetadata(nft: Nft, tokenUri: string) {
 }
 
 export async function checkMetadataImg(metadata: any, nft: Nft) {
-  if (metadata.hasOwnProperty('image') && base64_reg.test(metadata.image)) {
-    // 上传图片信息到oss
-    const stream = Readable.from(metadata.image);
-    const result = (await OSS_OM_BASE64_CLIENT.putStream(
-      `${nft.chain}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
-      stream,
-    )) as any;
-    metadata.image = result.url;
+  // 递归metadata里的所有字段，把base64全部存到oss
+  if (typeof metadata == 'object') {
+    await traverse(metadata, nft);
+  }
+}
+
+async function traverse(obj: object, nft: Nft) {
+  for (const key in obj) {
+    if (obj[key] !== null && typeof obj[key] === 'object') {
+      // 对象类型，递归遍历
+      await traverse(obj[key], nft);
+    } else {
+      // 非对象类型，判断是否为base64编码
+      if (typeof obj[key] === 'string' && isBase64(obj[key])) {
+        // 上传内容到oss
+        const stream = Readable.from(obj[key]);
+        const randomString = generateRandomString(16);
+        const result = (await OSS_OM_BASE64_CLIENT.putStream(
+          `${nft.chain}/${nft.token_address}/${nft.token_id}/`.toLowerCase() +
+            randomString,
+          stream,
+        )) as any;
+        obj[key] = result.url;
+      }
+    }
   }
 }

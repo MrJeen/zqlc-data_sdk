@@ -433,3 +433,34 @@ export function isValidUrl(url: string) {
     return false;
   }
 }
+
+/**
+ * 判断字符串是否为base64
+ * @param url
+ * @returns
+ */
+export function isBase64(str: string) {
+  if (str === '' || str.trim() === '') {
+    return false;
+  }
+  try {
+    return Buffer.from(str, 'base64').toString('base64') === str;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * 生成指定长度的随机字符串
+ * @param length
+ * @returns
+ */
+export function generateRandomString(length: number) {
+  let result = '';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
