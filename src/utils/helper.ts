@@ -14,6 +14,8 @@ import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ExecutionContext } from '@nestjs/common';
 import { BALANCE_TYPE, selectNetwork } from '../config/constant';
 
+export const base64_reg_exp = /^data:[\s\S]+;base64,/;
+
 /**
  * 等待函数
  * @param milliseconds 毫秒
@@ -440,7 +442,7 @@ export function isValidUrl(url: string) {
  * @returns
  */
 export function isBase64(str: string) {
-  return /^data:[\s\S]+;base64,/.test(str);
+  return base64_reg_exp.test(str);
 }
 
 /**

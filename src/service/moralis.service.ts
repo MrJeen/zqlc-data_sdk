@@ -165,11 +165,10 @@ async function logApiError(
   message[MORALIS_API_MINUTE_LIMIT_KEY] = await redisClient.get(
     MORALIS_API_MINUTE_LIMIT_KEY,
   );
-  message['error'] = e + '';
   Logger.error({
     title: 'moralis-error',
-    data: {},
-    error: message,
+    data: { ...message },
+    error: e,
   });
 }
 

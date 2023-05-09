@@ -9,12 +9,14 @@ import {
   RABBITMQ_NFT_METADATA_ROUTING_KEY,
   RABBITMQ_SYNC_NFT_EXCHANGE,
   getContractSyncSuccessSourceKey,
+  getNftTokenUriKey,
 } from '../config/constant';
 import { erc1155ContractAbi, erc721ContractAbi } from '../config/abi';
 import { CONTRACT_TYPE } from '../entity/contract.entity';
 import { Nft } from '../entity/nft.entity';
 import _ from 'lodash';
 import {
+  base64_reg_exp,
   filterData,
   generateRandomString,
   isBase64,
@@ -80,6 +82,7 @@ export async function syncMetadata(
         update,
         contractArrtibute['token_uri_prefix'] ?? '',
         nft,
+        redisClient,
       );
     }
 
@@ -166,10 +169,18 @@ async function getMetaDataUpdate(
   update: any,
   tokenUriPrefix: string,
   nft: Nft,
+  redisClient: any,
 ) {
   let tokenUri = '';
-  tokenUri = await getTokenUri(tokenUriPrefix, nft, update);
+  tokenUri = await getTokenUri(tokenUriPrefix, nft, update, redisClient);
   if (tokenUri) {
+    // 保存tokenuri
+    await redisClient.setex(
+      getNftTokenUriKey(nft.chain, nft.token_hash),
+      3600,
+      tokenUri,
+    );
+
     const metadata = await getMetadata(nft, tokenUri);
     // metadata不为空
     if (!_.isEmpty(metadata)) {
@@ -192,7 +203,19 @@ async function getMetaDataUpdate(
   }
 }
 
-async function getTokenUri(tokenUriPrefix: string, nft: Nft, update: any) {
+async function getTokenUri(
+  tokenUriPrefix: string,
+  nft: Nft,
+  update: any,
+  redisClient: any,
+) {
+  const cache = await redisClient.get(
+    getNftTokenUriKey(nft.chain, nft.token_hash),
+  );
+  if (cache) {
+    return cache;
+  }
+
   let tokenUri = '';
   if (tokenUriPrefix) {
     // 直接拼接uri
@@ -242,7 +265,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
   let metadata: any;
   // 有些tokenUri是base64编码，这种情况无需使请求接口
   if (isBase64(tokenUri)) {
-    const base64 = tokenUri.replace(/^data:[\s\S]+;base64,/, '');
+    const base64 = tokenUri.replace(base64_reg_exp, '');
     const string = Buffer.from(base64, 'base64').toString();
     metadata = JSON.parse(string);
   } else if (!isValidUrl(tokenUri)) {
