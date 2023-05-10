@@ -28,9 +28,7 @@ export async function mqPublish(
 
   const redisClient = redisService.getClient();
 
-  while (!(await lock(redisClient))) {
-    await sleep(5);
-  }
+  // while (!(await lock(redisClient))) {}
 
   try {
     await amqpConnection.publish(exchange, routingKey, data, options);
