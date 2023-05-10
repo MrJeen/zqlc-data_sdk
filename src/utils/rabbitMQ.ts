@@ -2,6 +2,7 @@ import { MQPushErrorLogs } from '../entity/mq.push.error.entity';
 import { DataSource } from 'typeorm';
 import { Logger } from './log4js';
 import { MQ_PUSH_LOCK, MQ_REPUSH_LOCK } from '../config/constant';
+import { sleep } from './helper';
 
 export async function mqPublish(
   amqpConnection: any,
@@ -27,7 +28,9 @@ export async function mqPublish(
 
   const redisClient = redisService.getClient();
 
-  while (!(await lock(redisClient))) {}
+  while (!(await lock(redisClient))) {
+    await sleep(5);
+  }
 
   try {
     await amqpConnection.publish(exchange, routingKey, data, options);
