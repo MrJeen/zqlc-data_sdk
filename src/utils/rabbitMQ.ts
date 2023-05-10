@@ -79,6 +79,6 @@ async function lock(redisClient: any) {
     return 1
   `;
 
-  // 本服务限制300次/秒【MQ服务TPS为1000次/秒】
-  return await redisClient.eval(lua, 1, MQ_PUSH_LOCK, 1, 500);
+  // 本服务限制400次/秒【MQ服务TPS为1000次/秒】
+  return await redisClient.eval(lua, 1, MQ_PUSH_LOCK, 1, 400);
 }
