@@ -87,6 +87,7 @@ export const RABBITMQ_METADATA_SYNC_ROUTING_KEY = 'metadata_sync';
 
 // 同步某个NFT的metadata
 export const RABBITMQ_NFT_METADATA_QUEUE = 'nft_metadata_queue';
+export const RABBITMQ_NFT_METADATA_DELAY_QUEUE = 'nft_metadata_delay_queue';
 export const RABBITMQ_NFT_METADATA_ROUTING_KEY = 'nft_metadata_routing';
 
 export const RABBITMQ_SYNC_NFT_EXCHANGE = 'sync_nft_exchange';
