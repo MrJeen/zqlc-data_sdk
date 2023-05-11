@@ -18,7 +18,6 @@ import _ from 'lodash';
 import {
   base64_reg_exp,
   filterData,
-  generateRandomString,
   isBase64,
   isValidUrl,
   md5,
@@ -223,7 +222,8 @@ async function getTokenUri(
   } else {
     let provider = null;
     try {
-      provider = getJsonRpcProvider(CHAINS[nft.chain]);
+      // 设置5秒超时
+      provider = getJsonRpcProvider(CHAINS[nft.chain], 5);
       if (nft.contract_type === CONTRACT_TYPE.ERC721) {
         const contract = getContract(
           nft.token_address,
@@ -273,9 +273,11 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     return;
   } else {
     nft.token_uri = tokenUri;
+    // 设置5秒超时
     const response = await axios({
       method: 'GET',
       url: tokenUri,
+      timeout: 5000,
       proxy: {
         protocol: 'http',
         host: process.env.PROXY_HOST,
@@ -318,7 +320,17 @@ export async function checkMetadataImg(metadata: any, nft: Nft) {
   }
 }
 
+// 只存储image字段，其他base64设置为空
 async function traverse(obj: object, nft: Nft) {
+  if (obj.hasOwnProperty('image') && isBase64(obj['image'])) {
+    const stream = Readable.from(obj['image']);
+    const result = (await OSS_OM_BASE64_CLIENT.putStream(
+      `${nft.chain}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
+      stream,
+    )) as any;
+    obj['image'] = result.url;
+  }
+
   for (const key in obj) {
     if (obj[key] !== null && typeof obj[key] === 'object') {
       // 对象类型，递归遍历
@@ -326,15 +338,7 @@ async function traverse(obj: object, nft: Nft) {
     } else {
       // 非对象类型，判断是否为base64编码
       if (typeof obj[key] === 'string' && isBase64(obj[key])) {
-        // 上传内容到oss
-        const stream = Readable.from(obj[key]);
-        const randomString = generateRandomString(16);
-        const result = (await OSS_OM_BASE64_CLIENT.putStream(
-          `${nft.chain}/${nft.token_address}/${nft.token_id}/`.toLowerCase() +
-            randomString,
-          stream,
-        )) as any;
-        obj[key] = result.url;
+        obj[key] = '';
       }
     }
   }
