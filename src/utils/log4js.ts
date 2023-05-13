@@ -12,7 +12,7 @@ export interface Message {
 
 // 注入配置
 Log4js.configure(config);
-const logger = Log4js.getLogger('access');
+const logger = Log4js.getLogger();
 const errorLogger = Log4js.getLogger('error');
 
 export class Logger {

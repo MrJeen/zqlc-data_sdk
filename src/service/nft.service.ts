@@ -267,7 +267,11 @@ async function getMetadata(nft: Nft, tokenUri: string) {
   if (isBase64(tokenUri)) {
     const base64 = tokenUri.replace(base64_reg_exp, '');
     const string = Buffer.from(base64, 'base64').toString();
-    metadata = JSON.parse(string);
+    try {
+      metadata = JSON.parse(string);
+    } catch (error) {
+      // 解析不了的就不处理了
+    }
   } else if (!isValidUrl(tokenUri)) {
     // 非有效url
     return;
@@ -301,7 +305,11 @@ async function getMetadata(nft: Nft, tokenUri: string) {
   }
 
   if (typeof metadata == 'string') {
-    metadata = JSON.parse(metadata);
+    try {
+      metadata = JSON.parse(metadata);
+    } catch (error) {
+      // 解析不了的就不处理了
+    }
   }
 
   if (!(metadata && typeof metadata === 'object')) {
@@ -316,21 +324,20 @@ async function getMetadata(nft: Nft, tokenUri: string) {
 export async function checkMetadataImg(metadata: any, nft: Nft) {
   // 递归metadata里的所有字段，把base64全部存到oss
   if (typeof metadata == 'object') {
+    if (metadata.hasOwnProperty('image') && isBase64(metadata['image'])) {
+      const stream = Readable.from(metadata['image']);
+      const result = (await OSS_OM_BASE64_CLIENT.putStream(
+        `${nft.chain}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
+        stream,
+      )) as any;
+      metadata['image'] = result.url;
+    }
     await traverse(metadata, nft);
   }
 }
 
-// 只存储image字段，其他base64设置为空
+// base64设置为空
 async function traverse(obj: object, nft: Nft) {
-  if (obj.hasOwnProperty('image') && isBase64(obj['image'])) {
-    const stream = Readable.from(obj['image']);
-    const result = (await OSS_OM_BASE64_CLIENT.putStream(
-      `${nft.chain}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
-      stream,
-    )) as any;
-    obj['image'] = result.url;
-  }
-
   for (const key in obj) {
     if (obj[key] !== null && typeof obj[key] === 'object') {
       // 对象类型，递归遍历
