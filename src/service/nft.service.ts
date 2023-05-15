@@ -241,14 +241,7 @@ async function getTokenUri(
         tokenUri = await contract.uri(nft.token_id);
       }
     } catch (error) {
-      // token已销毁
-      if (error?.reason && error.reason.indexOf('nonexistent') != -1) {
-        update.is_destroyed = BOOLEAN_STATUS.YES;
-        return tokenUri;
-      }
-
       error['node'] = provider ? provider['node'] : '';
-
       throw error;
     }
   }
