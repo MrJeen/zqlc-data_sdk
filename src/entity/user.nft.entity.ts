@@ -4,7 +4,6 @@ import { Nft } from './nft.entity';
 
 @Entity('user_nfts')
 @Index(['chain', 'owner_hash'], { unique: true })
-@Index(['updated_at'])
 @Index(['chain', 'token_hash'])
 @Index(['chain', 'token_address'])
 export class UserNft extends CommonEntity {

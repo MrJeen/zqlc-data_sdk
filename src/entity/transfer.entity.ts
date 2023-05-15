@@ -4,7 +4,6 @@ import { Contract } from './contract.entity';
 import { Nft } from './nft.entity';
 
 @Entity('transfers')
-@Index(['token_address', 'analyse_status'])
 @Index(['chain', 'transfer_hash'], { unique: true })
 export class Transfer extends CommonEntity {
   // 需要按chain分区，所以要设置primary
