@@ -4,7 +4,7 @@ import { Nft } from './nft.entity';
 
 @Entity('user_nfts')
 @Index(['chain', 'owner_hash'], { unique: true })
-@Index(['chain', 'token_hash'])
+@Index(['chain', 'token_hash', 'id'])
 @Index(['chain', 'token_address', 'id'])
 export class UserNft extends CommonEntity {
   // 需要按chain分区，所以要设置primary
