@@ -136,8 +136,8 @@ async function getLock(
   // 未获得锁
   if (!lockRes) {
     const waitTime = 100;
-    wait += 100;
     await sleep(waitTime);
+    wait += waitTime;
     return await getLock(redisClient, key, method, wait);
   }
   return true;

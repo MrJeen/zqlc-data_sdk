@@ -4,8 +4,8 @@ import { Nft } from './nft.entity';
 
 @Entity('user_nfts')
 @Index(['chain', 'owner_hash'], { unique: true })
-@Index(['chain', 'token_hash', 'id'])
-@Index(['chain', 'token_address', 'id'])
+@Index(['chain', 'token_hash', 'id']) // api-userList 使用
+@Index(['chain', 'token_address', 'id']) // api-userList 使用
 export class UserNft extends CommonEntity {
   // 需要按chain分区，所以要设置primary
   @Column('varchar', { default: '', comment: '区块链类型', primary: true })

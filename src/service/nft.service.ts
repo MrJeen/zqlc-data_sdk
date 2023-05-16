@@ -27,7 +27,7 @@ import { getContract, getJsonRpcProvider } from '../utils/ethers';
 import { Logger } from '../utils/log4js';
 import { mqPublish } from '../utils/rabbitMQ';
 import { DataSource } from 'typeorm';
-import { OSS_OM_BASE64_CLIENT } from './aliyun.oss.service';
+import { getOssOmBase64Client } from './aliyun.oss.service';
 import { Readable } from 'stream';
 import { NftResultDto } from '../dto/nft.dto';
 import auth from '../config/auth.api';
@@ -85,10 +85,10 @@ export async function syncMetadata(
       );
     }
 
-    if (update.is_destroyed == BOOLEAN_STATUS.YES) {
-      // 已销毁，删除不必要的更新
-      delete update.token_uri, update.name, update.metadata;
-    } else if (_.isEmpty(update.metadata)) {
+    if (
+      update.is_destroyed == BOOLEAN_STATUS.NO &&
+      _.isEmpty(update.metadata)
+    ) {
       // 未销毁并且metadata为空，不处理
       return;
     }
@@ -319,7 +319,8 @@ export async function checkMetadataImg(metadata: any, nft: Nft) {
   if (typeof metadata == 'object') {
     if (metadata.hasOwnProperty('image') && isBase64(metadata['image'])) {
       const stream = Readable.from(metadata['image']);
-      const result = (await OSS_OM_BASE64_CLIENT.putStream(
+      const client = getOssOmBase64Client({});
+      const result = (await client.putStream(
         `${nft.chain}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
         stream,
       )) as any;

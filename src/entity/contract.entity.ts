@@ -1,7 +1,6 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { CommonEntity } from './common.entity';
 import { ContractSync } from './contract.sync.entity';
-import { Transfer } from './transfer.entity';
 import { COMMON_STATUS } from '../config/constant';
 
 @Entity('contracts')
@@ -51,9 +50,6 @@ export class Contract extends CommonEntity {
 
   @Column('smallint', { default: 0, comment: '不需要同步metadata' })
   no_metadata: number;
-
-  @OneToMany(() => Transfer, (transfer: Transfer) => transfer.contract)
-  transfers: Transfer[];
 
   @OneToMany(
     () => ContractSync,

@@ -1,11 +1,10 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { CommonEntity } from './common.entity';
-import { Transfer } from './transfer.entity';
 import { UserNft } from './user.nft.entity';
 
 @Entity('nfts')
 @Index(['chain', 'token_hash'], { unique: true })
-@Index(['updated_at'])
+@Index(['updated_at']) // cron-syncNftMetadata 使用
 export class Nft extends CommonEntity {
   // 需要按chain分区，所以要设置primary
   @Column('varchar', { default: '', comment: '区块链类型', primary: true })
@@ -67,9 +66,6 @@ export class Nft extends CommonEntity {
 
   @Column('int', { default: 0, comment: '转移log index' })
   transfer_log_index: number;
-
-  @OneToMany(() => Transfer, (transfer: Transfer) => transfer.nft)
-  transfers: Transfer[];
 
   @OneToMany(() => UserNft, (owner: UserNft) => owner.nft)
   owners: UserNft[];

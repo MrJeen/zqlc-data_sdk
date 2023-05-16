@@ -1,7 +1,5 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { CommonEntity } from './common.entity';
-import { Contract } from './contract.entity';
-import { Nft } from './nft.entity';
 
 @Entity('transfers')
 @Index(['chain', 'transfer_hash'], { unique: true })
@@ -83,22 +81,6 @@ export class Transfer extends CommonEntity {
       'transfer哈希 - md5(transaction_hash+transaction_index+log_index+array_index+token_address+token_id)',
   })
   transfer_hash: string;
-
-  // createForeignKeyConstraints:false 不生成外键
-  @ManyToOne(() => Contract, { createForeignKeyConstraints: false })
-  @JoinColumn([
-    { name: 'chain', referencedColumnName: 'chain' },
-    { name: 'token_address', referencedColumnName: 'token_address' },
-  ])
-  contract: Contract;
-
-  // createForeignKeyConstraints:false 不生成外键
-  @ManyToOne(() => Nft, { createForeignKeyConstraints: false })
-  @JoinColumn([
-    { name: 'chain', referencedColumnName: 'chain' },
-    { name: 'token_hash', referencedColumnName: 'token_hash' },
-  ])
-  nft: Nft;
 }
 
 export function getSimpleTransfer(transfer) {
