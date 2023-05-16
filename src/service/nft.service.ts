@@ -171,7 +171,7 @@ async function getMetaDataUpdate(
   redisClient: any,
 ) {
   let tokenUri = '';
-  tokenUri = await getTokenUri(tokenUriPrefix, nft, update, redisClient);
+  tokenUri = await getTokenUri(tokenUriPrefix, nft, redisClient);
   if (tokenUri) {
     // 保存tokenuri
     await redisClient.setex(
@@ -202,12 +202,7 @@ async function getMetaDataUpdate(
   }
 }
 
-async function getTokenUri(
-  tokenUriPrefix: string,
-  nft: Nft,
-  update: any,
-  redisClient: any,
-) {
+async function getTokenUri(tokenUriPrefix: string, nft: Nft, redisClient: any) {
   const cache = await redisClient.get(
     getNftTokenUriKey(nft.chain, nft.token_hash),
   );
@@ -245,12 +240,23 @@ async function getTokenUri(
       throw error;
     }
   }
-  // 个别uri有异常
-  tokenUri = tokenUri.replace(/\u0000/g, '');
-  // 判断协议
-  if (tokenUri.startsWith('ipfs://')) {
-    tokenUri = tokenUri.replace('ipfs://', 'https://ipfs.io/ipfs/');
+
+  if (tokenUri) {
+    // 个别有特殊字符
+    tokenUri = tokenUri.replace(/\u0000/g, '');
+
+    // 个别需要替换{id}
+    tokenUri = tokenUri.replace('{id}', nft.token_id);
+
+    // 个别需要判断协议
+    if (tokenUri.startsWith('ipfs://')) {
+      tokenUri = tokenUri.replace(
+        'ipfs://',
+        'https://cloudflare-ipfs.com/ipfs/',
+      );
+    }
   }
+
   return tokenUri;
 }
 
