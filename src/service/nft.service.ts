@@ -242,22 +242,26 @@ async function getTokenUri(tokenUriPrefix: string, nft: Nft, redisClient: any) {
   }
 
   if (tokenUri) {
-    // 个别有特殊字符
-    tokenUri = tokenUri.replace(/\u0000/g, '');
-
-    // 个别需要替换{id}
-    tokenUri = tokenUri.replace('{id}', nft.token_id);
-
-    // 个别需要判断协议
-    if (tokenUri.startsWith('ipfs://')) {
-      tokenUri = tokenUri.replace(
-        'ipfs://',
-        'https://cloudflare-ipfs.com/ipfs/',
-      );
-    }
+    tokenUri = formatUri(tokenUri, nft.token_id);
   }
 
   return tokenUri;
+}
+
+/**
+ * 替换特殊字符
+ * 替换{id}
+ * 替换协议
+ * @param uri
+ * @param tokenId
+ * @returns
+ */
+function formatUri(uri: string, tokenId: string) {
+  uri = uri
+    .replace(/\u0000/g, '')
+    .replace('{id}', tokenId)
+    .replace('ipfs://', 'https://cloudflare-ipfs.com/ipfs/');
+  return uri;
 }
 
 async function getMetadata(nft: Nft, tokenUri: string) {
