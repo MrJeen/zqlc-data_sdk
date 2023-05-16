@@ -117,7 +117,7 @@ export async function syncMetadata(
       redisService,
       RABBITMQ_DELAY_EXCHANGE,
       RABBITMQ_NFT_METADATA_ROUTING_KEY,
-      nft,
+      { ...nft, token_uri: '', metadata: {} },
       {
         headers: {
           // 5-10分钟
