@@ -20,9 +20,6 @@ export class ContractSync extends CommonEntity {
   })
   sync_status: number;
 
-  @Column('smallint', { default: 0, comment: '是否推荐（0：否，1：是）' })
-  is_recommend: number;
-
   // createForeignKeyConstraints:false 不生成外键
   @ManyToOne(() => Contract, { createForeignKeyConstraints: false })
   @JoinColumn([

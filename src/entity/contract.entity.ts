@@ -51,6 +51,12 @@ export class Contract extends CommonEntity {
   @Column('smallint', { default: 0, comment: '不需要同步metadata' })
   no_metadata: number;
 
+  @Column('smallint', { default: 0, comment: '是否推荐（0：否，1：是）' })
+  is_recommend: number;
+
+  @Column('varchar', { default: '', comment: 'logo url' })
+  logo_url: string;
+
   @OneToMany(
     () => ContractSync,
     (contractSync: ContractSync) => contractSync.contract,

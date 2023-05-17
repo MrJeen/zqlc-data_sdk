@@ -27,4 +27,7 @@ export class AllContract extends CommonEntity {
 
   @Column('smallint', { default: 0, comment: '是否推荐（0：否，1：是）' })
   is_recommend: number;
+
+  @Column('varchar', { default: '', comment: 'logo url' })
+  logo_url: string;
 }
