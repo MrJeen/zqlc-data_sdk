@@ -174,7 +174,7 @@ async function getMetaDataUpdate(
   if (tokenUri) {
     // 保存tokenuri
     await redisClient.setex(
-      getNftTokenUriKey(nft.chain, nft.token_hash),
+      getNftTokenUriKey(nft.chain, nft.token_address, nft.token_hash),
       3600,
       tokenUri,
     );
@@ -203,7 +203,7 @@ async function getMetaDataUpdate(
 
 async function getTokenUri(tokenUriPrefix: string, nft: Nft, redisClient: any) {
   const cache = await redisClient.get(
-    getNftTokenUriKey(nft.chain, nft.token_hash),
+    getNftTokenUriKey(nft.chain, nft.token_address, nft.token_hash),
   );
   if (cache) {
     return cache;

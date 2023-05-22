@@ -182,8 +182,12 @@ export function getTransferHandleStopKey(chainId: number) {
   return TRANSFER_HANDLE_STOP_LOCK + ':' + chainId;
 }
 
-export function getNftTokenUriKey(chain: string, tokenHash: string) {
-  return 'token_uri' + ':' + chain + ':' + tokenHash;
+export function getNftTokenUriKey(
+  chain: string,
+  address: string,
+  tokenHash: string,
+) {
+  return 'token_uri' + ':' + chain + ':' + address + ':' + tokenHash;
 }
 
 export function getContractSyncSuccessSourceKey(
