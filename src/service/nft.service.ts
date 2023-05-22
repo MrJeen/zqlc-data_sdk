@@ -21,7 +21,6 @@ import {
   isBase64,
   isValidUrl,
   md5,
-  toNumber,
 } from '../utils/helper';
 import { getContract, getJsonRpcProvider } from '../utils/ethers';
 import { Logger } from '../utils/log4js';
@@ -288,7 +287,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
       proxy: {
         protocol: 'http',
         host: process.env.PROXY_HOST,
-        port: toNumber(process.env.PROXY_PORT),
+        port: eval(process.env.PROXY_PORT),
         auth: {
           username: process.env.PROXY_AUTH_USERNAME,
           password: process.env.PROXY_AUTH_PASSWORD,

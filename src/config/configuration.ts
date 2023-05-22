@@ -10,14 +10,14 @@ import {
 
 export default () => ({
   app_name: process.env.APP_NAME || 'data_micro_service',
-  port: ~~(process.env.PORT ?? 3001),
+  port: eval(process.env.PORT ?? '3001'),
   moralis_api_key: process.env.MORALIS_API_KEY,
   support_chain_ids: process.env.SUPPORT_CHAINS,
   database: {
     postgres: {
       type: 'postgres',
       host: process.env.POSTGRES_HOST || 'localhost',
-      port: ~~(process.env.POSTGRES_PORT ?? 5432),
+      port: eval(process.env.POSTGRES_PORT ?? '5432'),
       username: process.env.POSTGRES_USERNAME || 'root',
       password: process.env.POSTGRES_PASSWORD || 'root',
       database: process.env.POSTGRES_DATABASE || 'test',
@@ -27,15 +27,15 @@ export default () => ({
   },
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
-    port: ~~(process.env.REDIS_PORT ?? 6379),
-    db: ~~(process.env.REDIS_DB ?? 9),
+    port: eval(process.env.REDIS_PORT ?? '6379'),
+    db: eval(process.env.REDIS_DB ?? '9'),
     username: process.env.REDIS_USER_NAME || '',
     password: process.env.REDIS_PASSWORD || '',
     keyPrefix: `nft_sync_om:${process.env.APP_ENV}:` || 'redis',
   },
   redis_moralis: {
     host: process.env.REDIS_HOST || 'localhost',
-    port: ~~(process.env.REDIS_PORT ?? 6379),
+    port: eval(process.env.REDIS_PORT ?? '6379'),
     db: 0,
     username: process.env.REDIS_USER_NAME || '',
     password: process.env.REDIS_PASSWORD || '',
@@ -47,8 +47,8 @@ export default () => ({
       'queue',
     redis: {
       host: process.env.REDIS_HOST || 'localhost',
-      port: ~~(process.env.REDIS_PORT ?? 6379),
-      db: ~~(process.env.REDIS_QUEUE_DB ?? 8),
+      port: eval(process.env.REDIS_PORT ?? '6379'),
+      db: eval(process.env.REDIS_QUEUE_DB ?? '8'),
       username: process.env.REDIS_USER_NAME || '',
       password: process.env.REDIS_PASSWORD || '',
     },
@@ -56,13 +56,12 @@ export default () => ({
       maxStalledCount: 0,
     },
     options: {
-      attempts: ~~(process.env.QUEUE_ATTEMPTS ?? 3),
-      removeOnComplete:
-        (process.env.QUEUE_REMOVE_ON_COMPLETE || 'true') === 'true',
-      removeOnFail: (process.env.QUEUE_REMOVE_ON_FAIL || 'true') === 'true',
+      attempts: eval(process.env.QUEUE_ATTEMPTS ?? '3'),
+      removeOnComplete: eval(process.env.QUEUE_REMOVE_ON_COMPLETE || 'true'),
+      removeOnFail: eval(process.env.QUEUE_REMOVE_ON_FAIL || 'true'),
       backoff: {
         type: process.env.QUEUE_BACKOFF_TYPE || 'fixed',
-        delay: ~~(process.env.QUEUE_BACKOFF_DELAY ?? 3000),
+        delay: eval(process.env.QUEUE_BACKOFF_DELAY ?? '3000'),
       },
     },
   },
@@ -71,12 +70,8 @@ export default () => ({
   },
   dingding: {
     default: {
-      webhook:
-        process.env.DINGDING_ROBOT_WEBHOOK ||
-        'https://oapi.dingtalk.com/robot/send?access_token=6bafd58f09ff00820f658956319779787de30eda10c93db91c623b7dcb630516',
-      secret:
-        process.env.DINGDING_ROBOT_SECRET ||
-        'SEC09aabe0749dea3cc14bebb0281c89b3e42d7e7b198b016d567dacfd4ff1c69a9',
+      webhook: process.env.DINGDING_ROBOT_WEBHOOK,
+      secret: process.env.DINGDING_ROBOT_SECRET,
     },
   },
   rabbitMQ: {

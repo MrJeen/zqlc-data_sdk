@@ -350,7 +350,7 @@ export function selectNetwork(chainId: number): NETWORK_TYPE {
   }
   if (!network.node || !network.node.length) {
     // 节点初始化
-    network.node = JSON.parse(process.env[network.name + '_NODE'] ?? '[]');
+    network.node = eval(process.env[network.name + '_NODE'] ?? '[]');
   }
   return network;
 }

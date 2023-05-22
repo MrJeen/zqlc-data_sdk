@@ -3,6 +3,8 @@ import { CommonEntity } from './common.entity';
 
 @Entity('transfers')
 @Index(['chain', 'transfer_hash'], { unique: true })
+@Index(['chain', 'token_address'])
+@Index(['updated_at'])
 export class Transfer extends CommonEntity {
   // 需要按chain分区，所以要设置primary
   @Column('varchar', { default: '', comment: '区块链类型', primary: true })

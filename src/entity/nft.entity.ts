@@ -5,6 +5,7 @@ import { UserNft } from './user.nft.entity';
 @Entity('nfts')
 @Index(['chain', 'token_hash'], { unique: true })
 @Index(['updated_at']) // cron-syncNftMetadata 使用
+@Index(['chain', 'token_address', 'is_destroyed'])
 export class Nft extends CommonEntity {
   // 需要按chain分区，所以要设置primary
   @Column('varchar', { default: '', comment: '区块链类型', primary: true })
