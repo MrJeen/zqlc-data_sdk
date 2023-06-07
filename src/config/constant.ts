@@ -278,6 +278,12 @@ export const SEPOLIA_NETWORK: NETWORK_TYPE = {
   transferIncr: 5,
 };
 
+export const OPTIMISM_NETWORK: NETWORK_TYPE = {
+  name: 'OPTIMISM',
+  chainId: 10,
+  transferIncr: 10,
+};
+
 export const NETWORKS: NETWORK_TYPE[] = [];
 
 export const CHAINS = {};
@@ -330,6 +336,11 @@ function initNetworks(chainIds: number[]) {
           NETWORKS.push(SEPOLIA_NETWORK);
           CHAINS[chainId] = SEPOLIA_NETWORK.name;
           CHAINS[SEPOLIA_NETWORK.name] = chainId;
+          break;
+        case OPTIMISM_NETWORK.chainId:
+          NETWORKS.push(OPTIMISM_NETWORK);
+          CHAINS[chainId] = OPTIMISM_NETWORK.name;
+          CHAINS[OPTIMISM_NETWORK.name] = chainId;
           break;
         default:
           break;
@@ -385,10 +396,8 @@ export const MORALIS_SUPPORT_CHAIN = {
   BSC: 56,
   BSC_TESTNET: 97,
   AVALANCHE: 43114,
-  FUJI: 43113,
   FANTOM: 250,
   CRONOS: 25,
-  CRONOS_TESTNET: 338,
   PALM: 11297108109,
   ARBITRUM: 42161,
 };
