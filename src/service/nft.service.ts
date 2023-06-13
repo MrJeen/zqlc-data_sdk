@@ -274,7 +274,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     } catch (error) {
       // 解析不了的就不处理了
     }
-    return formatMetadata(nft, metadata);
+    return await formatMetadata(nft, metadata);
   }
 
   // 个别tokenUri是jsonstring
@@ -286,7 +286,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     } catch (error) {
       // 解析不了的就不处理了
     }
-    return formatMetadata(nft, metadata);
+    return await formatMetadata(nft, metadata);
   }
 
   // 非data格式，亦非有效url
@@ -309,8 +309,8 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     timeout: 5000,
     headers: {
       'User-Agent':
-        // mac浏览器个别无法访问，切换使用iphone浏览器
-        'Mozilla/5.0 (iPhone; CPU iPhone OS............TML, like Gecko) Version/9.0 Mobile/13E233 Safari/601.1',
+        // 带版本号个别url是403，省略版本才可以访问
+        'Mozilla/5.0 (...) AppleWebKit/537.36 (...) Chrome/114.0.0.0 Safari/537.36',
     },
     proxy: {
       protocol: 'http',
