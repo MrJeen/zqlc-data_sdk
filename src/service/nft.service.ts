@@ -274,50 +274,68 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     } catch (error) {
       // 解析不了的就不处理了
     }
-  } else if (!isValidUrl(tokenUri)) {
-    // 非有效url
-    return;
-  } else {
-    nft.token_uri = tokenUri;
-
-    if (tokenUri.startsWith('ar://')) {
-      return;
-    }
-
-    // 设置5秒超时
-    const response = await axios({
-      method: 'GET',
-      url: tokenUri,
-      timeout: 5000,
-      headers: {
-        'User-Agent':
-          // mac（个别403，切换iphone ua）
-          // 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
-          // iphone
-          'Mozilla/5.0 (iPhone; CPU iPhone OS............TML, like Gecko) Version/9.0 Mobile/13E233 Safari/601.1',
-      },
-      proxy: {
-        protocol: 'http',
-        host: process.env.PROXY_HOST,
-        port: eval(process.env.PROXY_PORT),
-        auth: {
-          username: process.env.PROXY_AUTH_USERNAME,
-          password: process.env.PROXY_AUTH_PASSWORD,
-        },
-      },
-    });
-
-    // 响应为一个图片
-    if (
-      response?.headers['content-type'] &&
-      response.headers['content-type'].startsWith('image')
-    ) {
-      return;
-    }
-
-    metadata = response?.data;
+    return formatMetadata(nft, metadata);
   }
 
+  // 个别tokenUri是jsonstring
+  const utf8_json_reg = /^data:[\s\S]+;utf8,/;
+  if (utf8_json_reg.test(tokenUri)) {
+    const string = tokenUri.replace(utf8_json_reg, '');
+    try {
+      metadata = JSON.parse(string);
+    } catch (error) {
+      // 解析不了的就不处理了
+    }
+    return formatMetadata(nft, metadata);
+  }
+
+  // 非data格式，亦非有效url
+  if (!isValidUrl(tokenUri)) {
+    // 非有效url
+    return;
+  }
+
+  nft.token_uri = tokenUri;
+
+  // ar://替换成https://arweave.net/，仍无法访问
+  if (tokenUri.startsWith('ar://')) {
+    return;
+  }
+
+  // 设置5秒超时
+  const response = await axios({
+    method: 'GET',
+    url: tokenUri,
+    timeout: 5000,
+    headers: {
+      'User-Agent':
+        // mac浏览器个别无法访问，切换使用iphone浏览器
+        'Mozilla/5.0 (iPhone; CPU iPhone OS............TML, like Gecko) Version/9.0 Mobile/13E233 Safari/601.1',
+    },
+    proxy: {
+      protocol: 'http',
+      host: process.env.PROXY_HOST,
+      port: eval(process.env.PROXY_PORT),
+      auth: {
+        username: process.env.PROXY_AUTH_USERNAME,
+        password: process.env.PROXY_AUTH_PASSWORD,
+      },
+    },
+  });
+
+  // 响应为一个图片
+  if (
+    response?.headers['content-type'] &&
+    response.headers['content-type'].startsWith('image')
+  ) {
+    return;
+  }
+
+  metadata = response?.data;
+  return await formatMetadata(nft, metadata);
+}
+
+async function formatMetadata(nft: Nft, metadata: any) {
   if (typeof metadata == 'string') {
     try {
       metadata = JSON.parse(metadata);
