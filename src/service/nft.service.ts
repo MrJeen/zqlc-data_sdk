@@ -279,6 +279,11 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     return;
   } else {
     nft.token_uri = tokenUri;
+
+    if (tokenUri.startsWith('ar://')) {
+      return;
+    }
+
     // 设置5秒超时
     const response = await axios({
       method: 'GET',
