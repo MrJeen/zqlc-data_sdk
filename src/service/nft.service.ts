@@ -30,6 +30,7 @@ import { getOssOmBase64Client } from './aliyun.oss.service';
 import { Readable } from 'stream';
 import { NftResultDto } from '../dto/nft.dto';
 import auth from '../config/auth.api';
+import puppeteer from 'puppeteer';
 
 /**
  * 补全NFT信息
@@ -259,6 +260,7 @@ function formatUri(uri: string, tokenId: string) {
   uri = uri
     .replace(/\u0000/g, '')
     .replace('{id}', tokenId)
+    .replace('ar://', 'https://arweave.net/')
     .replace('ipfs://', 'https://cloudflare-ipfs.com/ipfs/');
   return uri;
 }
@@ -297,50 +299,67 @@ async function getMetadata(nft: Nft, tokenUri: string) {
 
   nft.token_uri = tokenUri;
 
-  // ar://替换成https://arweave.net/，仍无法访问
-  if (tokenUri.startsWith('ar://')) {
-    return;
-  }
-
   // 设置5秒超时
-  const response = await axios({
-    method: 'GET',
-    url: tokenUri,
-    timeout: 5000,
-    headers: {
-      'User-Agent':
-        // 带版本号个别url是403，省略版本才可以访问
-        'Mozilla/5.0 (...) AppleWebKit/537.36 (...) Chrome/114.0.0.0 Safari/537.36',
-    },
-    proxy: {
-      protocol: 'http',
-      host: process.env.PROXY_HOST,
-      port: eval(process.env.PROXY_PORT),
-      auth: {
-        username: process.env.PROXY_AUTH_USERNAME,
-        password: process.env.PROXY_AUTH_PASSWORD,
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: tokenUri,
+      timeout: 5000,
+      headers: {
+        'User-Agent':
+          // 带版本号个别url是403，省略版本才可以访问
+          'Mozilla/5.0 (...) AppleWebKit/537.36 (...) Chrome/114.0.0.0 Safari/537.36',
       },
-    },
-  });
+      proxy: {
+        protocol: 'http',
+        host: process.env.PROXY_HOST,
+        port: eval(process.env.PROXY_PORT),
+        auth: {
+          username: process.env.PROXY_AUTH_USERNAME,
+          password: process.env.PROXY_AUTH_PASSWORD,
+        },
+      },
+    });
 
-  // 响应为一个图片
-  if (
-    response?.headers['content-type'] &&
-    response.headers['content-type'].startsWith('image')
-  ) {
-    return;
+    // 响应为一个图片
+    if (
+      response?.headers['content-type'] &&
+      response.headers['content-type'].startsWith('image')
+    ) {
+      return;
+    }
+
+    metadata = response?.data;
+    return await formatMetadata(nft, metadata);
+  } catch (error) {
+    // 使用爬虫
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      // 容器chrome路径，本地不需要填写
+      executablePath: process.env.CHROME_EXECUTABLE_PATH,
+      args: ['--no-sandbox', '--disable-dev-shm-usage'],
+    });
+    const page = await browser.newPage();
+    await page.goto(tokenUri, {
+      timeout: 5000,
+    });
+    const bodyHandle = await page.$('body');
+    const bodyContent = await bodyHandle.getProperty('textContent');
+    const metadata = await bodyContent.jsonValue();
+    await browser.close();
+    return await formatMetadata(nft, metadata);
   }
-
-  metadata = response?.data;
-  return await formatMetadata(nft, metadata);
 }
 
 async function formatMetadata(nft: Nft, metadata: any) {
+  // 个别metadata是数组，取第一个元素
+  metadata = filterArrayMetadata(metadata);
+
   if (typeof metadata == 'string') {
     try {
       metadata = JSON.parse(metadata);
     } catch (error) {
-      // 解析不了的就不处理了
+      metadata = {};
     }
   }
 
@@ -351,6 +370,15 @@ async function formatMetadata(nft: Nft, metadata: any) {
   await checkMetadataImg(metadata, nft);
 
   return metadata;
+}
+
+function filterArrayMetadata(metadata: any) {
+  if (_.isArray(metadata)) {
+    metadata = metadata[0];
+  } else {
+    return metadata;
+  }
+  return filterArrayMetadata(metadata);
 }
 
 export async function checkMetadataImg(metadata: any, nft: Nft) {
