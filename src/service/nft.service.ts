@@ -333,26 +333,26 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     return await formatMetadata(nft, metadata);
   } catch (error) {
     // 使用爬虫
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      // 容器chrome路径，本地不需要填写
-      executablePath: process.env.CHROME_EXECUTABLE_PATH,
-      args: ['--no-sandbox', '--disable-dev-shm-usage'],
-    });
-    const page = await browser.newPage();
-    await page.goto(tokenUri, {
-      timeout: 5000,
-    });
-    // 等待元素出现
-    await page.waitForSelector('body', { timeout: 2000 });
-    // 在页面上下文中运行 JavaScript 代码，并返回结果
-    const metadata = await page.evaluate(() => {
-      // 获取页面中的数据
-      const bodyContent = document.querySelector('body').textContent;
-      return JSON.parse(bodyContent);
-    });
-    await browser.close();
-    return await formatMetadata(nft, metadata);
+    // const browser = await puppeteer.launch({
+    //   headless: 'new',
+    //   // 容器chrome路径，本地不需要填写
+    //   executablePath: process.env.CHROME_EXECUTABLE_PATH,
+    //   args: ['--no-sandbox', '--disable-dev-shm-usage'],
+    // });
+    // const page = await browser.newPage();
+    // await page.goto(tokenUri, {
+    //   timeout: 5000,
+    // });
+    // // 等待元素出现
+    // await page.waitForSelector('body', { timeout: 2000 });
+    // // 在页面上下文中运行 JavaScript 代码，并返回结果
+    // const metadata = await page.evaluate(() => {
+    //   // 获取页面中的数据
+    //   const bodyContent = document.querySelector('body').textContent;
+    //   return JSON.parse(bodyContent);
+    // });
+    // await browser.close();
+    // return await formatMetadata(nft, metadata);
   }
 }
 
