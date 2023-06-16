@@ -300,54 +300,60 @@ async function getMetadata(nft: Nft, tokenUri: string) {
   nft.token_uri = tokenUri;
 
   // 设置5秒超时
-
-  const response = await axios({
-    method: 'GET',
-    url: tokenUri,
-    timeout: 5000,
-    headers: {
-      'User-Agent':
-        // 带版本号个别url是403，省略版本才可以访问
-        'Mozilla/5.0 (...) AppleWebKit/537.36 (...) Chrome/114.0.0.0 Safari/537.36',
-    },
-    proxy: {
-      protocol: 'http',
-      host: process.env.PROXY_HOST,
-      port: eval(process.env.PROXY_PORT),
-      auth: {
-        username: process.env.PROXY_AUTH_USERNAME,
-        password: process.env.PROXY_AUTH_PASSWORD,
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: tokenUri,
+      timeout: 5000,
+      headers: {
+        'User-Agent':
+          // 带版本号个别url是403，省略版本才可以访问
+          'Mozilla/5.0 (...) AppleWebKit/537.36 (...) Chrome/114.0.0.0 Safari/537.36',
       },
-    },
-  });
+      proxy: {
+        protocol: 'http',
+        host: process.env.PROXY_HOST,
+        port: eval(process.env.PROXY_PORT),
+        auth: {
+          username: process.env.PROXY_AUTH_USERNAME,
+          password: process.env.PROXY_AUTH_PASSWORD,
+        },
+      },
+    });
 
-  // 响应为一个图片
-  if (
-    response?.headers['content-type'] &&
-    response.headers['content-type'].startsWith('image')
-  ) {
-    return;
+    // 响应为一个图片
+    if (
+      response?.headers['content-type'] &&
+      response.headers['content-type'].startsWith('image')
+    ) {
+      return;
+    }
+
+    metadata = response?.data;
+    return await formatMetadata(nft, metadata);
+  } catch (error) {
+    // 使用爬虫
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      // 容器chrome路径，本地不需要填写
+      executablePath: process.env.CHROME_EXECUTABLE_PATH,
+      args: ['--no-sandbox', '--disable-dev-shm-usage'],
+    });
+    const page = await browser.newPage();
+    await page.goto(tokenUri, {
+      timeout: 5000,
+    });
+    // 等待元素出现
+    await page.waitForSelector('body', { timeout: 2000 });
+    // 在页面上下文中运行 JavaScript 代码，并返回结果
+    const metadata = await page.evaluate(() => {
+      // 获取页面中的数据
+      const bodyContent = document.querySelector('body').textContent;
+      return JSON.parse(bodyContent);
+    });
+    await browser.close();
+    return await formatMetadata(nft, metadata);
   }
-
-  metadata = response?.data;
-  return await formatMetadata(nft, metadata);
-
-  // 使用爬虫
-  // const browser = await puppeteer.launch({
-  //   headless: 'new',
-  //   // 容器chrome路径，本地不需要填写
-  //   executablePath: process.env.CHROME_EXECUTABLE_PATH,
-  //   args: ['--no-sandbox', '--disable-dev-shm-usage'],
-  // });
-  // const page = await browser.newPage();
-  // await page.goto(tokenUri, {
-  //   timeout: 5000,
-  // });
-  // const bodyHandle = await page.$('body');
-  // const bodyContent = await bodyHandle.getProperty('textContent');
-  // const metadata = await bodyContent.jsonValue();
-  // await browser.close();
-  // return await formatMetadata(nft, metadata);
 }
 
 async function formatMetadata(nft: Nft, metadata: any) {
