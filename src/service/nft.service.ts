@@ -30,7 +30,6 @@ import { getOssOmBase64Client } from './aliyun.oss.service';
 import { Readable } from 'stream';
 import { NftResultDto } from '../dto/nft.dto';
 import auth from '../config/auth.api';
-import puppeteer from 'puppeteer';
 
 /**
  * 补全NFT信息
@@ -356,7 +355,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
   }
 }
 
-async function formatMetadata(nft: Nft, metadata: any) {
+export async function formatMetadata(nft: Nft, metadata: any) {
   // 个别metadata是数组，取第一个元素
   metadata = filterArrayMetadata(metadata);
 
@@ -372,7 +371,20 @@ async function formatMetadata(nft: Nft, metadata: any) {
     metadata = {};
   }
 
-  await checkMetadataImg(metadata, nft);
+  if (metadata.hasOwnProperty('image') && isBase64(metadata['image'])) {
+    const stream = Readable.from(metadata['image']);
+    const client = getOssOmBase64Client({});
+    const result = (await client.putStream(
+      `${nft.chain}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
+      stream,
+    )) as any;
+    metadata['image'] = result.url;
+  }
+
+  if (!_.isEmpty(metadata)) {
+    // 将base64转换为空
+    await traverse(metadata, nft);
+  }
 
   return metadata;
 }
@@ -386,22 +398,6 @@ function filterArrayMetadata(metadata: any) {
   return filterArrayMetadata(metadata);
 }
 
-export async function checkMetadataImg(metadata: any, nft: Nft) {
-  // 递归metadata里的所有字段，把base64全部存到oss
-  if (typeof metadata == 'object') {
-    if (metadata.hasOwnProperty('image') && isBase64(metadata['image'])) {
-      const stream = Readable.from(metadata['image']);
-      const client = getOssOmBase64Client({});
-      const result = (await client.putStream(
-        `${nft.chain}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
-        stream,
-      )) as any;
-      metadata['image'] = result.url;
-    }
-    await traverse(metadata, nft);
-  }
-}
-
 // base64设置为空
 async function traverse(obj: object, nft: Nft) {
   for (const key in obj) {
@@ -409,9 +405,9 @@ async function traverse(obj: object, nft: Nft) {
       // 对象类型，递归遍历
       await traverse(obj[key], nft);
     } else {
-      // 非对象类型，判断是否为base64编码
-      if (typeof obj[key] === 'string' && isBase64(obj[key])) {
-        obj[key] = '';
+      // 长度太长，直接截取
+      if (typeof obj[key] === 'string' && Buffer.from(obj[key]).length > 200) {
+        obj[key] = Buffer.from(obj[key]).subarray(0, 200).toString() + '......';
       }
     }
   }
