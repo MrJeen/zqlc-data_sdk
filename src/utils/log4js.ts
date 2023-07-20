@@ -102,6 +102,6 @@ export class Logger {
       stack.unshift(error.name);
       return stack;
     }
-    return error + '';
+    return error;
   }
 }
