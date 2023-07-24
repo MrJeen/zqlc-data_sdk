@@ -42,11 +42,11 @@ export default () => ({
     keyPrefix: REDIS_NAMESPACE_MORALIS + ':',
   },
   redis_opensea: {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: eval(process.env.REDIS_PORT ?? '6379'),
-    db: eval(process.env.REDIS_DB ?? '0'),
-    username: process.env.REDIS_USER_NAME || '',
-    password: process.env.REDIS_PASSWORD || '',
+    host: process.env.REDIS_COMMON_HOST || 'localhost',
+    port: eval(process.env.REDIS_COMMON_PORT ?? '6379'),
+    db: eval(process.env.REDIS_COMMON_DB ?? '0'),
+    username: process.env.REDIS_COMMON_USER_NAME || '',
+    password: process.env.REDIS_COMMON_PASSWORD || '',
     keyPrefix: 'opensea',
   },
   queue: {
