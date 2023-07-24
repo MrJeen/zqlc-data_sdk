@@ -207,6 +207,8 @@ export const MICRO_SERVICE = 'MICRO_SERVICE';
 
 export const REDIS_MORALIS_NAME = 'moralis';
 
+export const REDIS_OPENSEA_NAME = 'opensea';
+
 export type BALANCE_TYPE = {
   target: string;
   weight?: number;
@@ -284,6 +286,12 @@ export const OPTIMISM_NETWORK: NETWORK_TYPE = {
   transferIncr: 10,
 };
 
+export const LINEA_NETWORK: NETWORK_TYPE = {
+  name: 'LINEA',
+  chainId: 59144,
+  transferIncr: 5,
+};
+
 export const NETWORKS: NETWORK_TYPE[] = [];
 
 export const CHAINS = {};
@@ -341,6 +349,11 @@ function initNetworks(chainIds: number[]) {
           NETWORKS.push(OPTIMISM_NETWORK);
           CHAINS[chainId] = OPTIMISM_NETWORK.name;
           CHAINS[OPTIMISM_NETWORK.name] = chainId;
+          break;
+        case LINEA_NETWORK.chainId:
+          NETWORKS.push(LINEA_NETWORK);
+          CHAINS[chainId] = LINEA_NETWORK.name;
+          CHAINS[LINEA_NETWORK.name] = chainId;
           break;
         default:
           break;
