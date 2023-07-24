@@ -33,9 +33,6 @@ export const MORALIS_API_MINUTE_LIMIT_TTL = 60;
 export const MORALIS_API_MINUTE_LIMIT_KEY = 'moralis_api_minute_limit';
 export const MORALIS_API_MINUTE_LIMIT_TIMES = 1200;
 
-/********** moralis redis ***********/
-export const REDIS_NAMESPACE_MORALIS = 'moralis';
-
 // pm2开启的话，会变成多队列进行
 /********** nft同步队列 ***********/
 export const SYNC_NFT_QUEUE = 'sync_nft_queue';

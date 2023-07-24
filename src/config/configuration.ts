@@ -5,7 +5,8 @@ import {
   RABBITMQ_SYNC_NFT_EXCHANGE,
   RABBITMQ_SYNC_TRANSFER_EXCHANGE,
   RABBITMQ_TRANSFER_EXCHANGE,
-  REDIS_NAMESPACE_MORALIS,
+  REDIS_MORALIS_NAME,
+  REDIS_OPENSEA_NAME,
 } from './constant';
 
 export default () => ({
@@ -31,7 +32,7 @@ export default () => ({
     db: eval(process.env.REDIS_DB ?? '9'),
     username: process.env.REDIS_USER_NAME || '',
     password: process.env.REDIS_PASSWORD || '',
-    keyPrefix: `nft_sync_om:${process.env.APP_ENV}:` || 'redis',
+    keyPrefix: `nft_sync_om:${process.env.APP_ENV}:` || 'redis:',
   },
   redis_moralis: {
     host: process.env.REDIS_HOST || 'localhost',
@@ -39,7 +40,7 @@ export default () => ({
     db: 0,
     username: process.env.REDIS_USER_NAME || '',
     password: process.env.REDIS_PASSWORD || '',
-    keyPrefix: REDIS_NAMESPACE_MORALIS + ':',
+    keyPrefix: `${REDIS_MORALIS_NAME}:`,
   },
   redis_opensea: {
     host: process.env.REDIS_COMMON_HOST || 'localhost',
@@ -47,7 +48,7 @@ export default () => ({
     db: eval(process.env.REDIS_COMMON_DB ?? '0'),
     username: process.env.REDIS_COMMON_USER_NAME || '',
     password: process.env.REDIS_COMMON_PASSWORD || '',
-    keyPrefix: 'opensea',
+    keyPrefix: `${REDIS_OPENSEA_NAME}:`,
   },
   queue: {
     prefix:
