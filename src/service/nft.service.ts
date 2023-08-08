@@ -71,6 +71,7 @@ export async function syncMetadata(
       token_uri: '',
       name: '',
       metadata: {},
+      metadata_oss_url: '',
       is_destroyed: nft.is_destroyed,
     };
 
@@ -180,6 +181,7 @@ async function getMetaDataUpdate(
     );
 
     const metadata = await getMetadata(nft, tokenUri);
+    update.metadata_oss_url = nft['metadata_oss_url'] ?? '';
     // metadata不为空
     if (!_.isEmpty(metadata)) {
       update.metadata = metadata;
@@ -384,6 +386,17 @@ export async function formatMetadata(nft: Nft, metadata: any) {
   if (!_.isEmpty(metadata)) {
     // 将base64转换为空
     await traverse(metadata, nft);
+
+    // 将metadata存OSS
+    const stream = Readable.from(metadata);
+    const client = getOssOmBase64Client({});
+    const result = (await client.putStream(
+      `metadata/${CHAINS[nft.chain]}/${nft.token_address}/${
+        nft.token_id
+      }`.toLowerCase(),
+      stream,
+    )) as any;
+    nft['metadata_oss_url'] = result.url;
   }
 
   return metadata;

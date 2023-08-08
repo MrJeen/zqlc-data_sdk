@@ -50,6 +50,9 @@ export class Nft extends CommonEntity {
   @Column('json', { default: {}, comment: 'nft元数据' })
   metadata: object;
 
+  @Column('varchar', { default: '', comment: 'nft元数据(ali oss)' })
+  metadata_oss_url: string;
+
   @Column('smallint', { default: 0, comment: '是否被销毁（0-否，1-是）' })
   is_destroyed: number;
 
