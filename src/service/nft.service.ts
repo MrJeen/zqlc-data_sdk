@@ -388,7 +388,7 @@ export async function formatMetadata(nft: Nft, metadata: any) {
     await traverse(metadata, nft);
 
     // 将metadata存OSS
-    const stream = Readable.from(metadata);
+    const stream = Readable.from(JSON.stringify(metadata));
     const client = getOssOmBase64Client({});
     const result = (await client.putStream(
       `metadata/${CHAINS[nft.chain]}/${nft.token_address}/${
