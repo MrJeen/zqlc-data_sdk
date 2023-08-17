@@ -21,10 +21,10 @@ export default () => ({
       port: eval(process.env.POSTGRES_PORT ?? '5432'),
       username: process.env.POSTGRES_USERNAME || 'root',
       password: process.env.POSTGRES_PASSWORD || 'root',
-      database: process.env.POSTGRES_DATABASE || 'test',
       schema: process.env.POSTGRES_SCHEMA || 'test',
       autoLoadEntities: true,
     },
+    database_list: JSON.parse(process.env.DATABASE_LIST),
   },
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
