@@ -411,3 +411,7 @@ export const MORALIS_SUPPORT_CHAIN = {
   PALM: 11297108109,
   ARBITRUM: 42161,
 };
+
+export function getDatabaseName(chainId: number) {
+  return `${chainId}_database`;
+}
