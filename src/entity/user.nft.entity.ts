@@ -3,13 +3,12 @@ import { CommonEntity } from './common.entity';
 import { Nft } from './nft.entity';
 
 @Entity('user_nfts')
-@Index(['chain', 'owner_hash'], { unique: true })
-@Index(['chain', 'token_hash', 'id', 'amount']) // api-userList 使用
-@Index(['chain', 'token_address', 'id', 'amount']) // api-userList 使用
+@Index(['owner_hash'], { unique: true })
+@Index(['token_hash', 'id', 'amount']) // api-userList 使用
+@Index(['token_address', 'id', 'amount']) // api-userList 使用
 export class UserNft extends CommonEntity {
-  // 需要按chain分区，所以要设置primary
-  @Column('varchar', { default: '', comment: '区块链类型', primary: true })
-  chain: string;
+  @Column('int', { default: 0, comment: '区块链id' })
+  chain_id: number;
 
   @Column('varchar', { default: '', comment: '合约地址' })
   token_address: string;
@@ -49,9 +48,6 @@ export class UserNft extends CommonEntity {
 
   // createForeignKeyConstraints:false 不生成外键
   @ManyToOne(() => Nft, { createForeignKeyConstraints: false })
-  @JoinColumn([
-    { name: 'chain', referencedColumnName: 'chain' },
-    { name: 'token_hash', referencedColumnName: 'token_hash' },
-  ])
+  @JoinColumn([{ name: 'token_hash', referencedColumnName: 'token_hash' }])
   nft: Nft;
 }

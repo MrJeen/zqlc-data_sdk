@@ -1,7 +1,6 @@
 import axios from 'axios';
 import {
   BOOLEAN_STATUS,
-  CHAINS,
   CONTRACT_ATTRIBUTE,
   NFT_METADATA_LOCK,
   NFT_UPDATE_LIST,
@@ -53,7 +52,7 @@ export async function syncMetadata(
   // 从redis获取contract的属性，是否需要同步metadata，是否有设置tokenuri前缀
   const attributeStr = await redisClient.hget(
     CONTRACT_ATTRIBUTE,
-    nft.chain + ':' + nft.token_address,
+    nft.chain_id + ':' + nft.token_address,
   );
   let contractArrtibute = {};
   if (attributeStr) {
@@ -67,7 +66,6 @@ export async function syncMetadata(
 
     const update = {
       id: nft.id,
-      chain: nft.chain,
       token_uri: '',
       name: '',
       metadata: {},
@@ -94,7 +92,10 @@ export async function syncMetadata(
     }
 
     // 先存redis，利用定时任务批量更新
-    await redisClient.rpush(NFT_UPDATE_LIST, JSON.stringify(update));
+    await redisClient.rpush(
+      `${nft.chain_id}:${NFT_UPDATE_LIST}`,
+      JSON.stringify(update),
+    );
 
     return update;
   } catch (error) {
@@ -112,11 +113,12 @@ export async function syncMetadata(
 
     // 推送到延时队列
     await mqPublish(
+      nft.chain_id,
       amqpConnection,
       datasource,
       redisService,
       RABBITMQ_DELAY_EXCHANGE,
-      RABBITMQ_NFT_METADATA_ROUTING_KEY,
+      RABBITMQ_NFT_METADATA_ROUTING_KEY + '_' + nft.chain_id,
       { ...nft, token_uri: '', metadata: {} },
       {
         headers: {
@@ -138,7 +140,7 @@ export async function nftUpdateNotice(
 ) {
   // 推送到三方
   const redisClient = redisService.getClient();
-  const key = getContractSyncSuccessSourceKey(nft.chain, nft.token_address);
+  const key = getContractSyncSuccessSourceKey(nft.chain_id, nft.token_address);
   const sources = await redisClient.smembers(key);
   if (!sources.length) {
     return;
@@ -146,14 +148,11 @@ export async function nftUpdateNotice(
 
   const nftInfo = filterData(NftResultDto, nft);
 
-  nftInfo['chain_id'] = CHAINS[nft.chain];
-
   for (const source of sources) {
-    const routingKey = md5(
-      source + auth[source] + 'update' + CHAINS[nft.chain],
-    );
+    const routingKey = md5(source + auth[source] + 'update' + nft.chain_id);
     // rmq推送
     await mqPublish(
+      nft.chain_id,
       amqpConnection,
       datasource,
       redisService,
@@ -175,7 +174,7 @@ async function getMetaDataUpdate(
   if (tokenUri) {
     // 保存tokenuri
     await redisClient.setex(
-      getNftTokenUriKey(nft.chain, nft.token_address, nft.token_hash),
+      getNftTokenUriKey(nft.chain_id, nft.token_address, nft.token_hash),
       3600,
       tokenUri,
     );
@@ -205,7 +204,7 @@ async function getMetaDataUpdate(
 
 async function getTokenUri(tokenUriPrefix: string, nft: Nft, redisClient: any) {
   const cache = await redisClient.get(
-    getNftTokenUriKey(nft.chain, nft.token_address, nft.token_hash),
+    getNftTokenUriKey(nft.chain_id, nft.token_address, nft.token_hash),
   );
   if (cache) {
     return cache;
@@ -219,7 +218,7 @@ async function getTokenUri(tokenUriPrefix: string, nft: Nft, redisClient: any) {
     let provider = null;
     try {
       // 设置5秒超时
-      provider = getJsonRpcProvider(CHAINS[nft.chain], 5);
+      provider = getJsonRpcProvider(nft.chain_id, 5);
       if (nft.contract_type === CONTRACT_TYPE.ERC721) {
         const contract = getContract(
           nft.token_address,
@@ -377,7 +376,7 @@ export async function formatMetadata(nft: Nft, metadata: any) {
     const stream = Readable.from(metadata['image']);
     const client = getOssOmBase64Client({});
     const result = (await client.putStream(
-      `${nft.chain}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
+      `image/${nft.chain_id}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
       stream,
     )) as any;
     metadata['image'] = result.url;
@@ -391,9 +390,7 @@ export async function formatMetadata(nft: Nft, metadata: any) {
     const stream = Readable.from(JSON.stringify(metadata));
     const client = getOssOmBase64Client({});
     const result = (await client.putStream(
-      `metadata/${CHAINS[nft.chain]}/${nft.token_address}/${
-        nft.token_id
-      }`.toLowerCase(),
+      `metadata/${nft.chain_id}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
       stream,
     )) as any;
     nft['metadata_oss_url'] = result.url;

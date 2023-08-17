@@ -2,13 +2,11 @@ import { Column, Entity, Index } from 'typeorm';
 import { CommonEntity } from './common.entity';
 
 @Entity('transfers')
-@Index(['chain', 'transfer_hash'], { unique: true })
-@Index(['chain', 'token_address'])
-@Index(['updated_at'])
+@Index(['transfer_hash'], { unique: true })
+@Index(['token_address'])
 export class Transfer extends CommonEntity {
-  // 需要按chain分区，所以要设置primary
-  @Column('varchar', { default: '', comment: '区块链类型', primary: true })
-  chain: string;
+  @Column('int', { default: 0, comment: '区块链id' })
+  chain_id: number;
 
   @Column('int', { default: 0, comment: '区块高度' })
   block_number: number;

@@ -3,10 +3,10 @@ import { CommonEntity } from './common.entity';
 import { Contract } from './contract.entity';
 
 @Entity('contract_sync')
-@Index(['chain', 'token_address', 'source'], { unique: true })
+@Index(['token_address', 'source'], { unique: true })
 export class ContractSync extends CommonEntity {
-  @Column('varchar', { default: '', comment: '区块链名称' })
-  chain: string;
+  @Column('int', { default: 0, comment: '区块链id' })
+  chain_id: number;
 
   @Column('varchar', { default: '', comment: '合约地址' })
   token_address: string;
@@ -23,7 +23,6 @@ export class ContractSync extends CommonEntity {
   // createForeignKeyConstraints:false 不生成外键
   @ManyToOne(() => Contract, { createForeignKeyConstraints: false })
   @JoinColumn([
-    { name: 'chain', referencedColumnName: 'chain' },
     { name: 'token_address', referencedColumnName: 'token_address' },
   ])
   contract: Contract;

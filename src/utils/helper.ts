@@ -283,7 +283,7 @@ export function getPageSize(pageSize): number {
  * @param context
  * @param data
  */
-export function transformResponse(context: ExecutionContext, data) {
+export function transformResponse(context: ExecutionContext, data: any) {
   const responseDto = Reflect.getMetadata(
     'swagger/apiResponse',
     context.getHandler(),
@@ -314,7 +314,7 @@ export function transformResponse(context: ExecutionContext, data) {
  * @param dto
  * @param data
  */
-export function filterData(dto, data) {
+export function filterData(dto: any, data: any) {
   return instanceToPlain(
     plainToInstance(dto, data, {
       // 将参数类型转换为dto中设置的类型，再校验（比如get提交的是字符串，转为number）

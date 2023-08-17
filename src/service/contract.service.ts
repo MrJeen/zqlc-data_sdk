@@ -19,7 +19,6 @@ export async function contractSyncNotice(
   // 查询当前系列ID，未通知的三方
   const sourceData = await datasource.getRepository(ContractSync).findBy({
     sync_status: COMMON_STATUS.DEFAULT,
-    chain: contract.chain,
     token_address: contract.token_address,
   });
 
@@ -32,7 +31,6 @@ export async function contractSyncNotice(
     if (sourceItem.source !== CONTRACT_SOURCE.DEFAULT) {
       const publishData = {
         chain_id: contract.chain_id,
-        chain: contract.chain,
         token_address: contract.token_address,
         contract_type: contract.contract_type,
         name: contract.name,
@@ -43,6 +41,7 @@ export async function contractSyncNotice(
 
       // rmq推送
       push(
+        contract.chain_id,
         amqpConnection,
         datasource,
         redisService,
@@ -53,6 +52,7 @@ export async function contractSyncNotice(
       // openmeta导入，同步推送到sudo
       if (sourceItem.source === CONTRACT_SOURCE.OPEN_META) {
         push(
+          contract.chain_id,
           amqpConnection,
           datasource,
           redisService,
@@ -63,7 +63,7 @@ export async function contractSyncNotice(
 
       // 记录到缓存
       const key = getContractSyncSuccessSourceKey(
-        contract.chain,
+        contract.chain_id,
         contract.token_address,
       );
       const redisClient = redisService.getClient();
@@ -79,6 +79,7 @@ export async function contractSyncNotice(
 
 // rmq推送
 async function push(
+  chainId: number,
   amqpConnection: any,
   datasource: DataSource,
   redisService: any,
@@ -87,6 +88,7 @@ async function push(
 ) {
   const routingKey = md5(source + auth[source]);
   await mqPublish(
+    chainId,
     amqpConnection,
     datasource,
     redisService,

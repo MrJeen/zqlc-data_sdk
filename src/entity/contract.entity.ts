@@ -4,11 +4,8 @@ import { ContractSync } from './contract.sync.entity';
 import { COMMON_STATUS } from '../config/constant';
 
 @Entity('contracts')
-@Index(['chain', 'token_address'], { unique: true })
+@Index(['token_address'], { unique: true })
 export class Contract extends CommonEntity {
-  @Column('varchar', { default: '', comment: '区块链类型' })
-  chain: string;
-
   @Column('int', { default: 0, comment: '区块链id' })
   chain_id: number;
 

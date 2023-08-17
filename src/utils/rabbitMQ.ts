@@ -4,6 +4,7 @@ import { Logger } from './log4js';
 import { MQ_PUSH_LOCK, MQ_REPUSH_LOCK } from '../config/constant';
 
 export async function mqPublish(
+  chainId: number,
   amqpConnection: any,
   datasource: DataSource,
   redisService: any,
@@ -57,7 +58,57 @@ export async function mqPublish(
     });
     // 删除锁
 
-    await redisClient.del(MQ_REPUSH_LOCK);
+    await redisClient.del(`${chainId}:${MQ_REPUSH_LOCK}`);
+    return false;
+  }
+  return true;
+}
+
+export async function mqPublishWithoutDatabase(
+  amqpConnection: any,
+  redisService: any,
+  exchange: string,
+  routingKey: string,
+  data: any,
+  options?: object,
+) {
+  const length = Buffer.byteLength(JSON.stringify(data), 'utf-8');
+  if (length >= 65536) {
+    Logger.error({
+      title: 'rabbitmq-data-too-large',
+      error: '',
+      data: {
+        exchange,
+        routingKey,
+        data,
+      },
+    });
+  }
+
+  const redisClient = redisService.getClient();
+
+  while (!(await lock(redisClient))) {}
+
+  try {
+    await amqpConnection.publish(exchange, routingKey, data, options);
+    Logger.info({
+      title: 'rabbitmq-publish-success',
+      data: {
+        exchange,
+        routingKey,
+        data,
+      },
+    });
+  } catch (err) {
+    Logger.error({
+      title: 'rabbitmq-publish-error',
+      error: err,
+      data: {
+        exchange,
+        routingKey,
+        data,
+      },
+    });
     return false;
   }
   return true;

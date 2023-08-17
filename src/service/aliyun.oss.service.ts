@@ -11,7 +11,7 @@ export function getOssOmBase64Client({
   accessKeyId?: string;
   accessKeySecret?: string;
   bucket?: string;
-  timeout?: string | number | undefined;
+  timeout?: number;
 }): OSS {
   return new OSS({
     // yourregion填写Bucket所在地域。以华东1（杭州）为例，Region填写为oss-cn-hangzhou。
@@ -20,6 +20,7 @@ export function getOssOmBase64Client({
     accessKeyId: accessKeyId ?? process.env.OSS_ACCESS_KEY,
     accessKeySecret: accessKeySecret ?? process.env.OSS_ACCESS_SECRET,
     bucket: bucket ?? process.env.OSS_BUCKET,
-    timeout: timeout ?? process.env.OSS_TIMEOUT,
+    // 统计使用number格式
+    timeout: timeout ?? eval(process.env.OSS_TIMEOUT),
   });
 }

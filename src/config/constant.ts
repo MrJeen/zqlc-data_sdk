@@ -182,22 +182,22 @@ export function getTransferHandleStopKey(chainId: number) {
 }
 
 export function getNftTokenUriKey(
-  chain: string,
+  chainId: number,
   address: string,
   tokenHash: string,
 ) {
-  return 'token_uri' + ':' + chain + ':' + address + ':' + tokenHash;
+  return 'token_uri' + ':' + chainId + ':' + address + ':' + tokenHash;
 }
 
 export function getContractSyncSuccessSourceKey(
-  chain: string,
+  chainId: number,
   address: string,
 ) {
-  return CONTRACT_SYNC_SUCCESS_SOURCE + ':' + chain + ':' + address;
+  return CONTRACT_SYNC_SUCCESS_SOURCE + ':' + chainId + ':' + address;
 }
 
-export function getContractsKey(chain: string) {
-  return CONTRACTS + ':' + chain;
+export function getContractsKey(chainId: number) {
+  return CONTRACTS + ':' + chainId;
 }
 
 export const MICRO_SERVICE = 'MICRO_SERVICE';
@@ -361,8 +361,8 @@ function initNetworks(chainIds: number[]) {
 
 // 初始化chain配置
 const supportChains = process.env.SUPPORT_CHAINS.split(',')
-  .filter((item: string) => item != '')
-  .map((item: string) => toNumber(item));
+  .filter((item, index, self) => item != '' && self.indexOf(item) === index)
+  .map((item) => toNumber(item));
 initNetworks(supportChains);
 
 /**
@@ -411,3 +411,7 @@ export const MORALIS_SUPPORT_CHAIN = {
   PALM: 11297108109,
   ARBITRUM: 42161,
 };
+
+export function getDatabaseName(chainId: number) {
+  return `${chainId}_database`;
+}
