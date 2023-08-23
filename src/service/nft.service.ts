@@ -17,6 +17,7 @@ import _ from 'lodash';
 import {
   base64_reg_exp,
   filterData,
+  getTableSuffix,
   isBase64,
   isValidUrl,
   md5,
@@ -64,7 +65,11 @@ export async function syncMetadata(
       return;
     }
 
+    // 获取表后缀
+    const tableSuffix = getTableSuffix(nft.token_address);
+
     const update = {
+      table_suffix: tableSuffix,
       id: nft.id,
       token_uri: '',
       name: '',
