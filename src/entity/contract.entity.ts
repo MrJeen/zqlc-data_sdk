@@ -54,6 +54,9 @@ export class Contract extends CommonEntity {
   @Column('varchar', { default: '', comment: 'logo url' })
   logo_url: string;
 
+  @Column('smallint', { default: 0, comment: '分表后缀' })
+  suffix: number;
+
   @OneToMany(
     () => ContractSync,
     (contractSync: ContractSync) => contractSync.contract,
