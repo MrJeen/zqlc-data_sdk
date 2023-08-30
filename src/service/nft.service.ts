@@ -75,23 +75,17 @@ export async function syncMetadata(
       name: '',
       metadata: {},
       metadata_oss_url: '',
-      is_destroyed: nft.is_destroyed,
     };
 
-    if (update.is_destroyed == BOOLEAN_STATUS.NO) {
-      // 未销毁才需要查询metadata
-      await getMetaDataUpdate(
-        update,
-        contractArrtibute['token_uri_prefix'] ?? '',
-        nft,
-        redisClient,
-      );
-    }
+    // 未销毁才需要查询metadata
+    await getMetaDataUpdate(
+      update,
+      contractArrtibute['token_uri_prefix'] ?? '',
+      nft,
+      redisClient,
+    );
 
-    if (
-      update.is_destroyed == BOOLEAN_STATUS.NO &&
-      _.isEmpty(update.metadata)
-    ) {
+    if (_.isEmpty(update.metadata)) {
       // 未销毁并且metadata为空，不处理
       return;
     }

@@ -2,6 +2,9 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { CommonEntity } from './common.entity';
 import { Nft } from './nft.entity';
 
+/**
+ * @deprecated 用户表已废弃，owner集成到nft表中
+ */
 @Entity('user_nfts')
 @Index(['owner_hash'], { unique: true })
 @Index(['token_hash', 'id', 'amount']) // api-userList 使用

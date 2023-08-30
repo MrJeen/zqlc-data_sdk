@@ -1,6 +1,5 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { CommonEntity } from './common.entity';
-import { UserNft } from './user.nft.entity';
 
 @Entity('nfts')
 @Index(['token_hash'], { unique: true })
@@ -69,6 +68,9 @@ export class Nft extends CommonEntity {
   @Column('int', { default: 0, comment: '转移log index' })
   transfer_log_index: number;
 
-  @OneToMany(() => UserNft, (owner: UserNft) => owner.nft)
-  owners: UserNft[];
+  @Column('varchar', { default: '', comment: '拥有者拥有的nft数量列表' })
+  amount_list: string;
+
+  @Column('varchar', { default: '', comment: '拥有者地址列表' })
+  owner_list: string;
 }
