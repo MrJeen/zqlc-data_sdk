@@ -98,8 +98,8 @@ export class NftResultDto extends ContractBaseDto {
   name: string;
 
   @Expose()
-  @ApiProperty({ description: '元数据' })
-  metadata: object;
+  @ApiProperty({ description: 'metadata oss 链接' })
+  metadata_oss_url: string;
 }
 
 @Exclude()
