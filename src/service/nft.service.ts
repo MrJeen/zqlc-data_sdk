@@ -371,15 +371,15 @@ export async function formatMetadata(nft: Nft, metadata: any) {
     metadata = {};
   }
 
-  if (metadata.hasOwnProperty('image') && isBase64(metadata['image'])) {
-    const stream = Readable.from(metadata['image']);
-    const client = getOssOmBase64Client({});
-    const result = (await client.putStream(
-      `image/${nft.chain_id}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
-      stream,
-    )) as any;
-    metadata['image'] = result.url;
-  }
+  // if (metadata.hasOwnProperty('image') && isBase64(metadata['image'])) {
+  //   const stream = Readable.from(metadata['image']);
+  //   const client = getOssOmBase64Client({});
+  //   const result = (await client.putStream(
+  //     `image/${nft.chain_id}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
+  //     stream,
+  //   )) as any;
+  //   metadata['image'] = result.url;
+  // }
 
   if (!_.isEmpty(metadata)) {
     // 将base64转换为空
