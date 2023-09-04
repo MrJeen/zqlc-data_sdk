@@ -27,4 +27,7 @@ export class AllContract extends CommonEntity {
 
   @Column('varchar', { default: '', comment: 'logo url' })
   logo_url: string;
+
+  @Column('varchar', { default: 0, comment: '推送类型（nftscan）' })
+  push_type: string;
 }

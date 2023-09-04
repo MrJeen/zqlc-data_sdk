@@ -57,11 +57,25 @@ export class Contract extends CommonEntity {
   @Column('smallint', { default: 0, comment: '分表后缀' })
   suffix: number;
 
+  @Column('varchar', { default: 0, comment: '推送类型（nftscan）' })
+  push_type: string;
+
   @OneToMany(
     () => ContractSync,
     (contractSync: ContractSync) => contractSync.contract,
   )
   contractSyncs: ContractSync[];
+}
+
+export enum PUSH_TYPE {
+  // 成交额涨幅
+  DEAL_AMOUNT = 'dealAmount',
+  // 成交量
+  DEAL_COUNT = 'dealCount',
+  // 成交均价涨幅
+  DEAL_AVG_PRICE = 'dealAvgPrice',
+  // mint 数量
+  MINT_COUNT = 'mintCount',
 }
 
 export enum CONTRACT_TYPE {
