@@ -30,4 +30,7 @@ export class AllContract extends CommonEntity {
 
   @Column('varchar', { default: 0, comment: '推送类型（nftscan）' })
   push_type: string;
+
+  @Column('varchar', { default: 0, comment: '满足推送条件' })
+  push_value: string;
 }

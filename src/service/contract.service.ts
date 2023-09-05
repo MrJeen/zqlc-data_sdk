@@ -37,6 +37,8 @@ export async function contractSyncNotice(
         creator: contract.creator,
         is_recommend: contract.is_recommend,
         logo_url: contract.logo_url,
+        push_type: contract.push_type,
+        push_value: contract.push_value,
       };
 
       // rmq推送
