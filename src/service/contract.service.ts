@@ -9,6 +9,7 @@ import { mqPublish } from '../utils/rabbitMQ';
 import auth from '../config/auth.api';
 import { DataSource } from 'typeorm';
 import { ContractSync } from '../entity/contract.sync.entity';
+import { AllContract } from 'entity';
 
 export async function contractSyncNotice(
   amqpConnection: any,
@@ -26,6 +27,11 @@ export async function contractSyncNotice(
     return;
   }
 
+  // 查询ALL系列
+  const allContract = await datasource.getRepository(AllContract).findOneBy({
+    token_address: contract.token_address,
+  });
+
   for (const sourceItem of sourceData) {
     // 同步成功，通知三方
     if (sourceItem.source !== CONTRACT_SOURCE.DEFAULT) {
@@ -35,10 +41,10 @@ export async function contractSyncNotice(
         contract_type: contract.contract_type,
         name: contract.name,
         creator: contract.creator,
-        is_recommend: contract.is_recommend,
-        logo_url: contract.logo_url,
-        push_type: contract.push_type,
-        push_value: contract.push_value,
+        is_recommend: allContract?.is_recommend ?? 0,
+        push_type: allContract?.push_type ?? '',
+        push_value: allContract.push_value ?? '',
+        scan_data: allContract.scan_data ?? {},
       };
 
       // rmq推送

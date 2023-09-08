@@ -388,11 +388,15 @@ export async function formatMetadata(nft: Nft, metadata: any) {
     // 将metadata存OSS
     const stream = Readable.from(JSON.stringify(metadata));
     const client = getOssOmBase64Client({});
-    const result = (await client.putStream(
-      `metadata/${nft.chain_id}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
-      stream,
-    )) as any;
-    nft['metadata_oss_url'] = result.url;
+    const path =
+      `metadata/${nft.chain_id}/${nft.token_address}/${nft.token_id}`.toLowerCase();
+
+    // 异步执行，不等待返回
+    client.putStream(path, stream);
+
+    nft[
+      'metadata_oss_url'
+    ] = `http://${process.env.OSS_BUCKET}.${process.env.OSS_REGION}.aliyuncs.com/${path}`;
   }
 
   return metadata;

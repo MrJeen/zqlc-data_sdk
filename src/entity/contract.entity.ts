@@ -48,20 +48,8 @@ export class Contract extends CommonEntity {
   @Column('smallint', { default: 0, comment: '不需要同步metadata' })
   no_metadata: number;
 
-  @Column('smallint', { default: 0, comment: '是否推荐（0：否，1：是）' })
-  is_recommend: number;
-
-  @Column('varchar', { default: '', comment: 'logo url' })
-  logo_url: string;
-
   @Column('smallint', { default: 0, comment: '分表后缀' })
   suffix: number;
-
-  @Column('varchar', { default: 0, comment: '推送类型（nftscan）' })
-  push_type: string;
-
-  @Column('varchar', { default: 0, comment: '满足推送条件' })
-  push_value: string;
 
   @OneToMany(
     () => ContractSync,
