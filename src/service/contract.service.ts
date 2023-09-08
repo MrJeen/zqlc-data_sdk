@@ -9,7 +9,7 @@ import { mqPublish } from '../utils/rabbitMQ';
 import auth from '../config/auth.api';
 import { DataSource } from 'typeorm';
 import { ContractSync } from '../entity/contract.sync.entity';
-import { AllContract } from 'entity';
+import { AllContract } from '../entity/all.contract.entity';
 
 export async function contractSyncNotice(
   amqpConnection: any,
