@@ -25,10 +25,10 @@ export class AllContract extends CommonEntity {
   @Column('smallint', { default: 0, comment: '是否推荐（0：否，1：是）' })
   is_recommend: number;
 
-  @Column('varchar', { default: 0, comment: '推送类型（nftscan）' })
+  @Column('varchar', { default: '', comment: '推送类型（nftscan）' })
   push_type: string;
 
-  @Column('varchar', { default: 0, comment: '满足推送条件' })
+  @Column('varchar', { default: '', comment: '满足推送条件' })
   push_value: string;
 
   @Column('json', { default: {}, comment: '同步数据' })
