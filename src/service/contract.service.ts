@@ -43,8 +43,8 @@ export async function contractSyncNotice(
         creator: contract.creator,
         is_recommend: allContract?.is_recommend ?? 0,
         push_type: allContract?.push_type ?? '',
-        push_value: allContract.push_value ?? '',
-        scan_data: allContract.scan_data ?? {},
+        push_value: allContract?.push_value ?? '',
+        scan_data: allContract?.scan_data ?? {},
       };
 
       // rmq推送
