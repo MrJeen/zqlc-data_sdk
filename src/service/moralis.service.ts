@@ -65,6 +65,20 @@ export async function getNFTMetadata(
 }
 
 /**
+ * 获取系列的nft数量
+ * @param options
+ */
+export async function getNFTCollectionStats(
+  redisService: any,
+  options: {
+    chain: EvmChainish;
+    address: string;
+  },
+) {
+  return await callTokenApi('getNFTCollectionStats', options, redisService);
+}
+
+/**
  * 过滤不支持的链
  * @param chainId
  * @returns
