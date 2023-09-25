@@ -90,11 +90,26 @@ export async function syncMetadata(
       return;
     }
 
+    const path =
+      `metadata/${nft.chain_id}/${nft.token_address}/${nft.token_id}`.toLowerCase();
+
+    update.metadata_oss_url = `http://${process.env.OSS_BUCKET}.${process.env.OSS_REGION}.aliyuncs.com/${path}`;
+
     // 先存redis，利用定时任务批量更新
     await redisClient.rpush(
       `${nft.chain_id}:${NFT_UPDATE_LIST}`,
       JSON.stringify(update),
     );
+
+    // 将metadata存OSS
+    const stream = Readable.from(JSON.stringify(update.metadata));
+    const client = getOssOmBase64Client();
+
+    // 异步执行
+    client.putStream(path, stream).then(() => {
+      // 推送
+      nftUpdateNotice(amqpConnection, datasource, redisService, nft);
+    });
 
     return update;
   } catch (error) {
@@ -179,7 +194,6 @@ async function getMetaDataUpdate(
     );
 
     const metadata = await getMetadata(nft, tokenUri);
-    update.metadata_oss_url = nft['metadata_oss_url'] ?? '';
     // metadata不为空
     if (!_.isEmpty(metadata)) {
       update.metadata = metadata;
@@ -275,7 +289,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     } catch (error) {
       // 解析不了的就不处理了
     }
-    return await formatMetadata(nft, metadata);
+    return await formatMetadata(metadata);
   }
 
   // 个别tokenUri是jsonstring
@@ -287,7 +301,7 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     } catch (error) {
       // 解析不了的就不处理了
     }
-    return await formatMetadata(nft, metadata);
+    return await formatMetadata(metadata);
   }
 
   // 非data格式，亦非有效url
@@ -329,33 +343,23 @@ async function getMetadata(nft: Nft, tokenUri: string) {
     }
 
     metadata = response?.data;
-    return await formatMetadata(nft, metadata);
+    return await formatMetadata(metadata);
   } catch (error) {
-    // 使用爬虫
-    // const browser = await puppeteer.launch({
-    //   headless: 'new',
-    //   // 容器chrome路径，本地不需要填写
-    //   executablePath: process.env.CHROME_EXECUTABLE_PATH,
-    //   args: ['--no-sandbox', '--disable-dev-shm-usage'],
-    // });
-    // const page = await browser.newPage();
-    // await page.goto(tokenUri, {
-    //   timeout: 5000,
-    // });
-    // // 等待元素出现
-    // await page.waitForSelector('body', { timeout: 2000 });
-    // // 在页面上下文中运行 JavaScript 代码，并返回结果
-    // const metadata = await page.evaluate(() => {
-    //   // 获取页面中的数据
-    //   const bodyContent = document.querySelector('body').textContent;
-    //   return JSON.parse(bodyContent);
-    // });
-    // await browser.close();
-    // return await formatMetadata(nft, metadata);
+    Logger.warn({
+      title: 'NftService-getMetadata',
+      data: {
+        id: nft.id,
+        token_id: nft.token_id,
+        token_address: nft.token_address,
+        chain_id: nft.chain_id,
+      },
+      error: error,
+    });
   }
 }
 
-export async function formatMetadata(nft: Nft, metadata: any) {
+// 默认为metadata更新上传
+export async function formatMetadata(metadata: any) {
   // 个别metadata是数组，取第一个元素
   metadata = filterArrayMetadata(metadata);
 
@@ -370,35 +374,6 @@ export async function formatMetadata(nft: Nft, metadata: any) {
   if (!(metadata && typeof metadata === 'object')) {
     metadata = {};
   }
-
-  // if (metadata.hasOwnProperty('image') && isBase64(metadata['image'])) {
-  //   const stream = Readable.from(metadata['image']);
-  //   const client = getOssOmBase64Client({});
-  //   const result = (await client.putStream(
-  //     `image/${nft.chain_id}/${nft.token_address}/${nft.token_id}`.toLowerCase(),
-  //     stream,
-  //   )) as any;
-  //   metadata['image'] = result.url;
-  // }
-
-  if (!_.isEmpty(metadata)) {
-    // 将base64转换为空
-    await traverse(metadata, nft);
-
-    // 将metadata存OSS
-    const stream = Readable.from(JSON.stringify(metadata));
-    const client = getOssOmBase64Client({});
-    const path =
-      `metadata/${nft.chain_id}/${nft.token_address}/${nft.token_id}`.toLowerCase();
-
-    // 异步执行，不等待返回
-    client.putStream(path, stream);
-
-    nft[
-      'metadata_oss_url'
-    ] = `http://${process.env.OSS_BUCKET}.${process.env.OSS_REGION}.aliyuncs.com/${path}`;
-  }
-
   return metadata;
 }
 
@@ -409,19 +384,4 @@ function filterArrayMetadata(metadata: any) {
     return metadata;
   }
   return filterArrayMetadata(metadata);
-}
-
-// base64设置为空
-async function traverse(obj: object, nft: Nft) {
-  for (const key in obj) {
-    if (obj[key] !== null && typeof obj[key] === 'object') {
-      // 对象类型，递归遍历
-      await traverse(obj[key], nft);
-    } else {
-      // 长度太长，直接截取
-      if (typeof obj[key] === 'string' && Buffer.from(obj[key]).length > 200) {
-        obj[key] = Buffer.from(obj[key]).subarray(0, 200).toString() + '......';
-      }
-    }
-  }
 }

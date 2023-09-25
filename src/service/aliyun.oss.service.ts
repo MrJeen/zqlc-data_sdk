@@ -1,18 +1,12 @@
 import OSS from 'ali-oss';
 
-export function getOssOmBase64Client({
-  region,
-  accessKeyId,
-  accessKeySecret,
-  bucket,
-  timeout,
-}: {
-  region?: string;
-  accessKeyId?: string;
-  accessKeySecret?: string;
-  bucket?: string;
-  timeout?: number;
-}): OSS {
+export function getOssOmBase64Client(
+  region?: string,
+  accessKeyId?: string,
+  accessKeySecret?: string,
+  bucket?: string,
+  timeout?: number,
+): OSS {
   return new OSS({
     // yourregion填写Bucket所在地域。以华东1（杭州）为例，Region填写为oss-cn-hangzhou。
     region: region ?? process.env.OSS_REGION,
