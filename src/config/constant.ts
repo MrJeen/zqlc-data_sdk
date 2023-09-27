@@ -289,72 +289,41 @@ export const LINEA_NETWORK: NETWORK_TYPE = {
   transferIncr: 5,
 };
 
+export const BASE_NETWORK: NETWORK_TYPE = {
+  name: 'BASE',
+  chainId: 8453,
+  transferIncr: 10,
+};
+
 export const NETWORKS: NETWORK_TYPE[] = [];
 
 export const CHAINS = {};
 
+const networkMap = {
+  [ETH_NETWORK.chainId]: ETH_NETWORK,
+  [GOERLI_NETWORK.chainId]: GOERLI_NETWORK,
+  [BSC_NETWORK.chainId]: BSC_NETWORK,
+  [POLYGON_NETWORK.chainId]: POLYGON_NETWORK,
+  [ZKSYNC_NETWORK.chainId]: ZKSYNC_NETWORK,
+  [ZKSYNC_MAINNET_NETWORK.chainId]: ZKSYNC_MAINNET_NETWORK,
+  [ARBITRUM_NETWORK.chainId]: ARBITRUM_NETWORK,
+  [ARBITRUM_TEST_NETWORK.chainId]: ARBITRUM_TEST_NETWORK,
+  [SEPOLIA_NETWORK.chainId]: SEPOLIA_NETWORK,
+  [OPTIMISM_NETWORK.chainId]: OPTIMISM_NETWORK,
+  [LINEA_NETWORK.chainId]: LINEA_NETWORK,
+  [BASE_NETWORK.chainId]: BASE_NETWORK,
+};
+
 function initNetworks(chainIds: number[]) {
   if (chainIds.length) {
     for (const chainId of chainIds) {
-      switch (chainId) {
-        case ETH_NETWORK.chainId:
-          NETWORKS.push(ETH_NETWORK);
-          CHAINS[chainId] = ETH_NETWORK.name;
-          CHAINS[ETH_NETWORK.name] = chainId;
-          break;
-        case GOERLI_NETWORK.chainId:
-          NETWORKS.push(GOERLI_NETWORK);
-          CHAINS[chainId] = GOERLI_NETWORK.name;
-          CHAINS[GOERLI_NETWORK.name] = chainId;
-          break;
-        case BSC_NETWORK.chainId:
-          NETWORKS.push(BSC_NETWORK);
-          CHAINS[chainId] = BSC_NETWORK.name;
-          CHAINS[BSC_NETWORK.name] = chainId;
-          break;
-        case POLYGON_NETWORK.chainId:
-          NETWORKS.push(POLYGON_NETWORK);
-          CHAINS[chainId] = POLYGON_NETWORK.name;
-          CHAINS[POLYGON_NETWORK.name] = chainId;
-          break;
-        case ZKSYNC_NETWORK.chainId:
-          NETWORKS.push(ZKSYNC_NETWORK);
-          CHAINS[chainId] = ZKSYNC_NETWORK.name;
-          CHAINS[ZKSYNC_NETWORK.name] = chainId;
-          break;
-        case ZKSYNC_MAINNET_NETWORK.chainId:
-          NETWORKS.push(ZKSYNC_MAINNET_NETWORK);
-          CHAINS[chainId] = ZKSYNC_MAINNET_NETWORK.name;
-          CHAINS[ZKSYNC_MAINNET_NETWORK.name] = chainId;
-          break;
-        case ARBITRUM_NETWORK.chainId:
-          NETWORKS.push(ARBITRUM_NETWORK);
-          CHAINS[chainId] = ARBITRUM_NETWORK.name;
-          CHAINS[ARBITRUM_NETWORK.name] = chainId;
-          break;
-        case ARBITRUM_TEST_NETWORK.chainId:
-          NETWORKS.push(ARBITRUM_TEST_NETWORK);
-          CHAINS[chainId] = ARBITRUM_TEST_NETWORK.name;
-          CHAINS[ARBITRUM_TEST_NETWORK.name] = chainId;
-          break;
-        case SEPOLIA_NETWORK.chainId:
-          NETWORKS.push(SEPOLIA_NETWORK);
-          CHAINS[chainId] = SEPOLIA_NETWORK.name;
-          CHAINS[SEPOLIA_NETWORK.name] = chainId;
-          break;
-        case OPTIMISM_NETWORK.chainId:
-          NETWORKS.push(OPTIMISM_NETWORK);
-          CHAINS[chainId] = OPTIMISM_NETWORK.name;
-          CHAINS[OPTIMISM_NETWORK.name] = chainId;
-          break;
-        case LINEA_NETWORK.chainId:
-          NETWORKS.push(LINEA_NETWORK);
-          CHAINS[chainId] = LINEA_NETWORK.name;
-          CHAINS[LINEA_NETWORK.name] = chainId;
-          break;
-        default:
-          break;
+      const network = networkMap[chainId];
+      if (!network) {
+        continue;
       }
+      NETWORKS.push(network);
+      CHAINS[chainId] = network.name;
+      CHAINS[network.name] = chainId;
     }
   }
 }
