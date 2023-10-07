@@ -95,23 +95,19 @@ export async function syncMetadata(
 
     update.metadata_oss_url = `http://${process.env.OSS_BUCKET}.${process.env.OSS_REGION}.aliyuncs.com/${path}`;
 
+    // 将metadata存OSS
+    const stream = Readable.from(JSON.stringify(update.metadata));
+    const client = getOssOmBase64Client();
+    await client.putStream(path, stream);
+
+    // 推送
+    await nftUpdateNotice(amqpConnection, datasource, redisService, nft);
+
     // 先存redis，利用定时任务批量更新
     await redisClient.rpush(
       `${nft.chain_id}:${NFT_UPDATE_LIST}`,
       JSON.stringify(update),
     );
-
-    // 将metadata存OSS
-    const stream = Readable.from(JSON.stringify(update.metadata));
-    const client = getOssOmBase64Client();
-
-    // 异步执行
-    client.putStream(path, stream).then(() => {
-      // 推送
-      nftUpdateNotice(amqpConnection, datasource, redisService, nft);
-    });
-
-    return update;
   } catch (error) {
     Logger.warn({
       title: 'NftService-syncMetadata',
@@ -120,6 +116,10 @@ export async function syncMetadata(
     });
 
     if (nft['times'] && nft['times'] >= 3) {
+      // 删除tokenuri缓存
+      await redisClient.del(
+        getNftTokenUriKey(nft.chain_id, nft.token_address, nft.token_hash),
+      );
       return;
     }
 
