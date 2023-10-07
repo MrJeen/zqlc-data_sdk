@@ -60,6 +60,12 @@ export async function syncMetadata(
     contractArrtibute = JSON.parse(attributeStr);
   }
 
+  const tokenUriKey = getNftTokenUriKey(
+    nft.chain_id,
+    nft.token_address,
+    nft.token_hash,
+  );
+
   try {
     if (contractArrtibute['no_metadata'] == BOOLEAN_STATUS.YES) {
       return;
@@ -87,6 +93,8 @@ export async function syncMetadata(
 
     if (_.isEmpty(update.metadata)) {
       // 未销毁并且metadata为空，不处理
+      // 删除tokenuri缓存
+      await redisClient.del(tokenUriKey);
       return;
     }
 
@@ -108,6 +116,9 @@ export async function syncMetadata(
       `${nft.chain_id}:${NFT_UPDATE_LIST}`,
       JSON.stringify(update),
     );
+
+    // 删除tokenuri缓存
+    await redisClient.del(tokenUriKey);
   } catch (error) {
     Logger.warn({
       title: 'NftService-syncMetadata',
@@ -117,9 +128,7 @@ export async function syncMetadata(
 
     if (nft['times'] && nft['times'] >= 3) {
       // 删除tokenuri缓存
-      await redisClient.del(
-        getNftTokenUriKey(nft.chain_id, nft.token_address, nft.token_hash),
-      );
+      await redisClient.del(tokenUriKey);
       return;
     }
 
