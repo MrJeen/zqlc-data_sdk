@@ -122,4 +122,7 @@ export default () => ({
     // 默认每个队列消费者为1
     prefetchCount: 1,
   },
+  jwt: {
+    secret: process.env.JWT_SECRET || '',
+  },
 });

@@ -2,17 +2,26 @@ import { Contract, ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers/src.ts/json-rpc-provider';
 import { Interface } from '@ethersproject/abi/src.ts/interface';
 import { CONTRACT_TYPE } from '../entity/contract.entity';
-import { loadBalance } from './helper';
-import { selectNetwork } from '../config/constant';
+import axios from 'axios';
 
 /**
  * 获取节点
  * @param chain
  */
-export const getNode = (chainId: number): string => {
-  const network = selectNetwork(chainId);
-  network.currentNode = loadBalance(network.node);
-  return network.currentNode;
+export const getNode = async (chainId: number): Promise<string> => {
+  // 调接口取
+  const response = await axios({
+    url: process.env.API_HOST + '/api/node?chain_id=' + chainId,
+    method: 'get',
+    headers: {
+      is_debug: 1,
+    },
+  });
+  const node = response?.data?.result;
+  if (!node) {
+    throw Error(`node #${chainId} not found`);
+  }
+  return node;
 };
 
 /**
@@ -20,11 +29,11 @@ export const getNode = (chainId: number): string => {
  * @param chain
  * @param timeout 单位秒
  */
-export const getJsonRpcProvider = (
+export const getJsonRpcProvider = async (
   chainId: number,
   timeout = 30, // 默认30秒超时
-): JsonRpcProvider => {
-  const node = getNode(chainId);
+): Promise<JsonRpcProvider> => {
+  const node = await getNode(chainId);
   let provider = undefined;
   if (timeout === -1) {
     provider = new ethers.providers.JsonRpcProvider(node);
@@ -80,7 +89,7 @@ export async function getContractInfo(contract: Contract) {
 }
 
 // 获取合约创建者
-export async function getContractCreator(contract) {
+export async function getContractCreator(contract: Contract) {
   try {
     const creator = await contract.owner();
     if (creator) {
@@ -91,7 +100,7 @@ export async function getContractCreator(contract) {
 }
 
 // 获取合约名称
-export async function getContractName(contract) {
+export async function getContractName(contract: Contract) {
   try {
     return await contract.name();
   } catch (e) {}
@@ -99,7 +108,7 @@ export async function getContractName(contract) {
 }
 
 // 获取代币标识
-export async function getContractSymbol(contract) {
+export async function getContractSymbol(contract: Contract) {
   try {
     return await contract.symbol();
   } catch (e) {}
@@ -107,7 +116,7 @@ export async function getContractSymbol(contract) {
 }
 
 // 获取合约类型
-export async function getContractType(contract) {
+export async function getContractType(contract: Contract) {
   try {
     if (await contract.supportsInterface(0xd9b67a26)) {
       // 1155

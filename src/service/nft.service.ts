@@ -16,6 +16,7 @@ import { Nft } from '../entity/nft.entity';
 import _ from 'lodash';
 import {
   base64_reg_exp,
+  checkRpcError,
   filterData,
   getTableSuffix,
   isBase64,
@@ -240,7 +241,7 @@ async function getTokenUri(tokenUriPrefix: string, nft: Nft, redisClient: any) {
     let provider = null;
     try {
       // 设置5秒超时
-      provider = getJsonRpcProvider(nft.chain_id, 5);
+      provider = await getJsonRpcProvider(nft.chain_id, 5);
       if (nft.contract_type === CONTRACT_TYPE.ERC721) {
         const contract = getContract(
           nft.token_address,
@@ -258,8 +259,7 @@ async function getTokenUri(tokenUriPrefix: string, nft: Nft, redisClient: any) {
         tokenUri = await contract.uri(nft.token_id);
       }
     } catch (error) {
-      error['node'] = provider ? provider['node'] : '';
-      throw error;
+      checkRpcError(error, nft.chain_id, provider['node']);
     }
   }
 

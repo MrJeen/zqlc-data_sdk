@@ -1,7 +1,12 @@
+import dotenv from 'dotenv';
+
+// 加载 .env 文件中的环境变量
+dotenv.config();
+
 // 服务之间签名参数
 export default {
   // service_id: secret
-  0: 'kPKESEHhxd3ycS6F', // 系统默认
-  1000: 'cu1SClwwmr4l6jEP', // openmeta
-  2000: '8pX6yjMND8Ej6TR7', // sudo
+  [process.env.API_DEFAULT]: process.env.API_DEFAULT_SECRET, // 系统默认
+  [process.env.API_OPENMETA]: process.env.API_OPENMETA_SECRET, // openmeta
+  [process.env.API_SUDO]: process.env.API_SUDO_SECRET, // sudo
 };

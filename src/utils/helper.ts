@@ -13,6 +13,7 @@ import { promisify } from 'util';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ExecutionContext } from '@nestjs/common';
 import { BALANCE_TYPE, selectNetwork } from '../config/constant';
+import axios from 'axios';
 
 export const base64_reg_exp = /^data:[\s\S]+;base64,/;
 
@@ -477,4 +478,31 @@ export function getTableSuffix(address: string, chunk = 200) {
   const decimalValue = parseInt(combinedHex);
   // 取模
   return decimalValue % chunk;
+}
+
+export function checkRpcError(error: any, chainId: number, node: string) {
+  const errors = ['NETWORK_ERROR', 'SERVER_ERROR'];
+  const data = {
+    chainId,
+    node,
+  };
+
+  // 打印日志
+  Logger.warn({
+    title: 'rpc-error',
+    data,
+    error,
+  });
+
+  if (errors.includes(error?.code)) {
+    // 黑名单统计
+    axios({
+      url: process.env.API_HOST + '/api/node/black/incr',
+      method: 'post',
+      data,
+      headers: {
+        is_debug: 1,
+      },
+    });
+  }
 }
