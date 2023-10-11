@@ -481,10 +481,11 @@ export function getTableSuffix(address: string, chunk = 200) {
 }
 
 export function checkRpcError(error: any, chainId: number, node: string) {
-  const errors = ['NETWORK_ERROR', 'SERVER_ERROR'];
+  const errors = ['NETWORK_ERROR', 'SERVER_ERROR', 'TIMEOUT'];
   const data = {
     chainId,
     node,
+    message: error + '',
   };
 
   // 打印日志
