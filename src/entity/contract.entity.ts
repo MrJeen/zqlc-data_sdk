@@ -74,12 +74,6 @@ export enum CONTRACT_TYPE {
   ERC1155 = 'ERC1155',
 }
 
-export enum CONTRACT_SOURCE {
-  DEFAULT,
-  OPEN_META = 1000,
-  SUDO = 2000,
-}
-
 // 可同步nft
 export const canSyncStatus = [COMMON_STATUS.DEFAULT, COMMON_STATUS.DOING];
 export const canSyncNft = (status) => {

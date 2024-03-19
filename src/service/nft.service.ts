@@ -30,7 +30,7 @@ import { DataSource } from 'typeorm';
 import { getOssOmBase64Client } from './aliyun.oss.service';
 import { Readable } from 'stream';
 import { NftResultDto } from '../dto/nft.dto';
-import auth from '../config/auth.api';
+import { AUTH } from '../config/auth.api';
 
 /**
  * 补全NFT信息
@@ -173,7 +173,7 @@ export async function nftUpdateNotice(
   const nftInfo = filterData(NftResultDto, nft);
 
   for (const source of sources) {
-    const routingKey = md5(source + auth[source] + 'update' + nft.chain_id);
+    const routingKey = md5(source + AUTH[source] + 'update' + nft.chain_id);
     // rmq推送
     await mqPublish(
       nft.chain_id,

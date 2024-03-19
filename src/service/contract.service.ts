@@ -4,12 +4,13 @@ import {
   RABBITMQ_SYNC_NFT_EXCHANGE,
   getContractSyncSuccessSourceKey,
 } from '../config/constant';
-import { CONTRACT_SOURCE, Contract } from '../entity/contract.entity';
+import { Contract } from '../entity/contract.entity';
 import { mqPublish } from '../utils/rabbitMQ';
-import auth from '../config/auth.api';
+import { AUTH } from '../config/auth.api';
 import { DataSource } from 'typeorm';
 import { ContractSync } from '../entity/contract.sync.entity';
 import { AllContract } from '../entity/all.contract.entity';
+import { CONTRACT_SOURCE } from '../config/auth.api';
 
 export async function contractSyncNotice(
   amqpConnection: any,
@@ -94,7 +95,7 @@ async function push(
   source: CONTRACT_SOURCE,
   data: any,
 ) {
-  const routingKey = md5(source + auth[source]);
+  const routingKey = md5(source + AUTH[source]);
   await mqPublish(
     chainId,
     amqpConnection,
