@@ -128,3 +128,15 @@ export async function getContractType(contract: Contract) {
   } catch (e) {}
   return '';
 }
+
+// 每个ethers方法报错都需要特殊处理
+export async function ethersCall<T, U>(
+  callback: (...args: T[]) => U,
+): Promise<U> {
+  try {
+    return callback();
+  } catch (error) {
+    // 分析错误信息，错误次数累加
+    throw error;
+  }
+}
